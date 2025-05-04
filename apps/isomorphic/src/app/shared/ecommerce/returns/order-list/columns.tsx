@@ -1,6 +1,6 @@
 'use client';
 
-import { OrdersDataType } from '@/app/shared/ecommerce/dashboard/recent-order';
+import { OrdersDataType } from '@/app/shared/ecommerce/dashboard/recent-returns';
 import { routes } from '@/config/routes';
 import { getStatusBadge } from '@core/components/table-utils/get-status-badge';
 import TableRowActionGroup from '@core/components/table-utils/table-row-action-group';
@@ -15,10 +15,16 @@ const columnHelper = createColumnHelper<OrdersDataType>();
 export const ordersColumns = (expanded: boolean = true) => {
   const columns = [
     columnHelper.display({
-      id: 'id',
+      id: 'rId',
+      size: 120,
+      header: 'Return Id',
+      cell: ({ row }) => <>#{row.original.rId}</>,
+    }),
+    columnHelper.display({
+      id: 'oId',
       size: 120,
       header: 'Order Id',
-      cell: ({ row }) => <>#{row.original.id}</>,
+      cell: ({ row }) => <>#{row.original.oId}</>,
     }),
     columnHelper.accessor('name', {
       id: 'customer',
@@ -78,10 +84,10 @@ export const ordersColumns = (expanded: boolean = true) => {
         },
       }) => (
         <TableRowActionGroup
-          editUrl={routes.eCommerce.editOrder(row.original.id)}
-          viewUrl={routes.eCommerce.orderDetails(row.original.id)}
+          editUrl={routes.eCommerce.editOrder(row.original.oId)}
+          viewUrl={routes.eCommerce.orderDetails(row.original.oId)}
           deletePopoverTitle={`Delete the order`}
-          deletePopoverDescription={`Are you sure you want to delete this #${row.original.id} order?`}
+          deletePopoverDescription={`Are you sure you want to delete this #${row.original.oId} order?`}
           onDelete={() => meta?.handleDeleteRow?.(row.original)}
         />
       ),

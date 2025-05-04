@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { routes } from '@/config/routes';
 import { Button } from 'rizzui/button';
 import PageHeader from '@/app/shared/page-header';
-// import CouponsTable from '@/app/shared/ecommerce/coupons/coupons-table'; // To be implemented
+import CouponsTable from '@/app/shared/ecommerce/coupon/table';
 import { PiPlusBold } from 'react-icons/pi';
 // import { couponData } from '@/data/coupon-data'; // To be implemented
 import { metaObject } from '@/config/site.config';
@@ -46,8 +46,7 @@ export default function CouponsPage() {
           </Link>
         </div>
       </PageHeader>
-      {/* <CouponsTable /> */}
-      <div>Coupons table goes here</div>
+      <CouponsTable />
     </>
   );
 }

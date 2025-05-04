@@ -1,6 +1,6 @@
 'use client';
 
-import { ordersColumns } from '@/app/shared/ecommerce/order/order-list/columns';
+import { ordersColumns } from '@/app/shared/ecommerce/returns/order-list/columns';
 import WidgetCard from '@core/components/cards/widget-card';
 import Table from '@core/components/table';
 import { useTanStackTable } from '@core/components/table/custom/use-TanStack-Table';

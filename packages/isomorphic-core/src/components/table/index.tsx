@@ -8,12 +8,7 @@ import { getColumnOptions } from "./util";
 import { flexRender } from "@tanstack/react-table";
 import { useScrollPosition } from "@core/hooks/use-Scroll-position";
 import { PiCaretDownFill, PiCaretUpFill } from "react-icons/pi";
-import {
-  CustomBodyCellProps,
-  CustomHeaderCellProps,
-  MainTableProps,
-  PinnedRowProps,
-} from "./table-types";
+import { CustomBodyCellProps, CustomHeaderCellProps, MainTableProps, PinnedRowProps } from "./table-types";
 import { pinningStyles } from "./table-pinning.style";
 
 export default function MainTable<TData extends Record<string, any>>({
@@ -27,8 +22,7 @@ export default function MainTable<TData extends Record<string, any>>({
   components,
   stickyHeader = false,
 }: MainTableProps<TData>) {
-  const { containerRef, tableRef, isLeftScrollable, isRightScrollable } =
-    useScrollPosition();
+  const { containerRef, tableRef, isLeftScrollable, isRightScrollable } = useScrollPosition();
 
   if (!table) return null;
 
@@ -61,9 +55,7 @@ export default function MainTable<TData extends Record<string, any>>({
     isRightScrollable,
   };
 
-  const mainRows = table.getIsSomeRowsPinned()
-    ? table.getCenterRows()
-    : table.getRowModel().rows;
+  const mainRows = table.getIsSomeRowsPinned() ? table.getCenterRows() : table.getRowModel().rows;
 
   return (
     <>
@@ -73,30 +65,19 @@ export default function MainTable<TData extends Record<string, any>>({
           "custom-scrollbar w-full max-w-full overflow-x-auto scroll-smooth",
           stickyHeader && "max-h-[600px] overflow-y-auto",
           classNames?.container
-        )}
-      >
+        )}>
         <Table
           ref={tableRef}
           variant={variant}
           style={{
             width: table.getTotalSize(),
           }}
-          className={cn(
-            pinningStyles.baseStyle,
-            pinningStyles.variants[variant],
-            classNames?.tableClassName
-          )}
-        >
+          className={cn(pinningStyles.baseStyle, pinningStyles.variants[variant], classNames?.tableClassName)}>
           <Fragment>
             {components?.header ? (
               components.header(headerParam)
             ) : (
-              <Table.Header
-                className={cn(
-                  stickyHeader && "sticky top-0 z-10",
-                  classNames?.headerClassName
-                )}
-              >
+              <Table.Header className={cn(stickyHeader && "sticky top-0 z-10", classNames?.headerClassName)}>
                 {table.getHeaderGroups().map((headerGroup) => {
                   const headerCellParam = {
                     columnOrder,
@@ -105,10 +86,7 @@ export default function MainTable<TData extends Record<string, any>>({
                     isRightScrollable,
                   };
                   return (
-                    <Table.Row
-                      key={headerGroup.id}
-                      className={classNames?.rowClassName}
-                    >
+                    <Table.Row key={headerGroup.id} className={classNames?.rowClassName}>
                       {components?.headerCell ? (
                         components.headerCell(headerCellParam)
                       ) : (
@@ -145,7 +123,14 @@ export default function MainTable<TData extends Record<string, any>>({
               <>
                 {mainRows.map((row) => (
                   <Fragment key={row.id}>
-                    <Table.Row className={classNames?.rowClassName}>
+                    <Table.Row
+                      className={cn(
+                        classNames?.rowClassName,
+                        row.original?.deleted && "bg-red-100 opacity-90 hover:!bg-red-100 !text-red-600"
+                      )}
+                      // aria-disabled={row.original?.deleted}
+                      // tabIndex={row.original?.deleted ? -1 : 0}
+                    >
                       {row.getVisibleCells().map((cell) => {
                         const bodyCellParam = {
                           cell,
@@ -173,13 +158,7 @@ export default function MainTable<TData extends Record<string, any>>({
                     {/* custom-expanded-component start  */}
                     {components?.expandedComponent && row.getIsExpanded() && (
                       <Table.Row className={classNames?.expandedRowClassName}>
-                        <Table.Cell
-                          className={cn(
-                            "!p-0",
-                            classNames?.expandedCellClassName
-                          )}
-                          colSpan={row.getVisibleCells().length}
-                        >
+                        <Table.Cell className={cn("!p-0", classNames?.expandedCellClassName)} colSpan={row.getVisibleCells().length}>
                           {components.expandedComponent(row)}
                         </Table.Cell>
                       </Table.Row>
@@ -226,8 +205,7 @@ export function TableHeadBasic<TData extends Record<string, any>>({
   return (
     <>
       {headerGroup.headers.map((header) => {
-        const { canResize, canPin, isPinned, isLeftPinned, isRightPinned } =
-          getColumnOptions(header.column);
+        const { canResize, canPin, isPinned, isLeftPinned, isRightPinned } = getColumnOptions(header.column);
 
         return (
           <Table.Head
@@ -235,9 +213,7 @@ export function TableHeadBasic<TData extends Record<string, any>>({
             colSpan={header.colSpan}
             style={{
               left: isLeftPinned ? header.column.getStart("left") : undefined,
-              right: isRightPinned
-                ? header.column.getAfter("right")
-                : undefined,
+              right: isRightPinned ? header.column.getAfter("right") : undefined,
               width: header.getSize(),
             }}
             className={cn(
@@ -247,30 +223,21 @@ export function TableHeadBasic<TData extends Record<string, any>>({
               isPinned && isLeftScrollable && "sticky-right",
               isPinned && isRightScrollable && "sticky-left",
               className
-            )}
-          >
+            )}>
             <Box className="flex items-start">
-              {header.isPlaceholder
-                ? null
-                : flexRender(
-                    header.column.columnDef.header,
-                    header.getContext()
-                  )}
+              {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
 
               {header.column.getCanSort() ? (
                 <button
                   type="button"
                   onClick={header.column.getToggleSortingHandler()}
                   className="ms-1 inline-block"
-                  aria-label="Sort by column"
-                >
+                  aria-label="Sort by column">
                   {{
                     asc: <PiCaretUpFill size={14} />,
                     desc: <PiCaretDownFill size={14} />,
                   }[header.column.getIsSorted() as string] ??
-                    (header.column.columnDef.header !== "" && (
-                      <PiCaretDownFill size={14} />
-                    ))}
+                    (header.column.columnDef.header !== "" && <PiCaretDownFill size={14} />)}
                 </button>
               ) : null}
             </Box>
@@ -301,8 +268,7 @@ export function TableCellBasic<TData extends Record<string, any>>({
 }: CustomBodyCellProps<TData>) {
   if (!cell) return null;
 
-  const { canResize, canPin, isPinned, isLeftPinned, isRightPinned } =
-    getColumnOptions(cell.column);
+  const { canResize, canPin, isPinned, isLeftPinned, isRightPinned } = getColumnOptions(cell.column);
 
   return (
     <Table.Cell
@@ -317,8 +283,7 @@ export function TableCellBasic<TData extends Record<string, any>>({
         isPinned && isLeftScrollable && "sticky-right",
         isPinned && isRightScrollable && "sticky-left",
         className
-      )}
-    >
+      )}>
       {flexRender(cell.column.columnDef.cell, cell.getContext())}
     </Table.Cell>
   );
@@ -342,8 +307,7 @@ export function PinnedRow<TData extends Record<string, any>>({
         isTopPinned && "-top-px shadow-[0px_2px_2px_0px_#0000000D]",
         isBottomPinned && "-bottom-0.5 shadow-[rgba(0,0,0,0.24)_0px_3px_8px]",
         className
-      )}
-    >
+      )}>
       {row.getVisibleCells().map((cell) => {
         return (
           <TableCellBasic

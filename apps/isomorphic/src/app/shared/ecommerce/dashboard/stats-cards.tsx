@@ -16,7 +16,7 @@ const filesStatData = [
   {
     id: 1,
     title: 'Orders',
-    metric: `₦16,085`,
+    metric: `16,085`,
     fill: '#3872FA',
     percentage: 32,
     increased: true,
@@ -201,7 +201,7 @@ const filesStatData = [
   {
     id: 3,
     title: 'Returns',
-    metric: `₦12,40`,
+    metric: `12,490`,
     fill: '#3872FA',
     percentage: 19,
     increased: true,
@@ -294,7 +294,7 @@ const filesStatData = [
   {
     id: 4,
     title: 'Customers',
-    metric: `₦12,402`,
+    metric: `12,402`,
     fill: '#3872FA',
     percentage: 54,
     increased: true,
