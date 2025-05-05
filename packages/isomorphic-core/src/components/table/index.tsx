@@ -127,10 +127,7 @@ export default function MainTable<TData extends Record<string, any>>({
                       className={cn(
                         classNames?.rowClassName,
                         row.original?.deleted && "bg-red-100 opacity-90 hover:!bg-red-100 !text-red-600"
-                      )}
-                      // aria-disabled={row.original?.deleted}
-                      // tabIndex={row.original?.deleted ? -1 : 0}
-                    >
+                      )}>
                       {row.getVisibleCells().map((cell) => {
                         const bodyCellParam = {
                           cell,
