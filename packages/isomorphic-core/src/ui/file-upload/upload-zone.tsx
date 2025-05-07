@@ -4,7 +4,7 @@ import Image from "next/image";
 import toast from "react-hot-toast";
 import isEmpty from "lodash/isEmpty";
 import prettyBytes from "pretty-bytes";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useDropzone } from "@uploadthing/react";
 import { PiCheckBold, PiTrashBold, PiUploadSimpleBold } from "react-icons/pi";
 import { generateClientDropzoneAccept } from "uploadthing/client";
@@ -31,14 +31,7 @@ interface FileType {
   size: number;
 }
 
-export default function UploadZone({
-  label,
-  name,
-  className,
-  getValues,
-  setValue,
-  error,
-}: UploadZoneProps) {
+export default function UploadZone({ label, name, className, getValues, setValue, error }: UploadZoneProps) {
   const [files, setFiles] = useState<File[]>([]);
 
   const onDrop = useCallback(
@@ -67,31 +60,52 @@ export default function UploadZone({
     setFiles(updatedFiles);
   }
 
-  const uploadedItems = isEmpty(getValues(name)) ? [] : getValues(name);
+  // Handle both array and string values
+  const initialValue = getValues(name);
+  const uploadedItems = useMemo(() => {
+    if (isEmpty(initialValue)) return [];
 
-  const notUploadedItems = files.filter(
-    (file) => !uploadedItems?.some((uploadedFile: FileType) => uploadedFile.name === file.name)
-  );
+    // Handle case when initialValue is a simple URL string
+    if (typeof initialValue === "string") {
+      // Extract filename from URL
+      const filename = initialValue.split("/").pop() || "image";
+      return [
+        {
+          name: filename,
+          url: initialValue,
+          size: 0, // We don't know the size for pre-existing URLs
+        },
+      ];
+    }
+
+    // Handle array of file objects
+    return initialValue;
+  }, [initialValue]);
+
+  const notUploadedItems = files.filter((file) => !uploadedItems?.some((uploadedFile: FileType) => uploadedFile.name === file.name));
 
   const { startUpload, routeConfig, isUploading } = useUploadThing("generalMedia", {
     onClientUploadComplete: (res: ClientUploadedFileData<any>[] | undefined) => {
       console.log("res", res);
       if (setValue) {
-        // const respondedUrls = res?.map((r) => r.url);
         setFiles([]);
         const respondedUrls = res?.map((r) => ({
           name: r.name,
           size: r.size,
           url: r.url,
         }));
-        setValue(name, respondedUrls);
+
+        // If we initially had a string URL, just use the first uploaded file's URL
+        if (typeof initialValue === "string" && respondedUrls && respondedUrls.length > 0) {
+          setValue(name, respondedUrls[0].url);
+        } else {
+          // Otherwise set the full array of file objects
+          setValue(name, respondedUrls);
+        }
       }
       toast.success(
-        <Text
-          as="b"
-          className="font-semibold"
-        >
-          portfolio Images updated
+        <Text as="b" className="font-semibold">
+          Images uploaded successfully
         </Text>
       );
     },
@@ -115,15 +129,13 @@ export default function UploadZone({
         className={cn(
           "rounded-md border-[1.8px]",
           !isEmpty(files) && "flex flex-wrap items-center justify-between @xl:flex-nowrap @xl:pr-6"
-        )}
-      >
+        )}>
         <div
           {...getRootProps()}
           className={cn(
             "flex cursor-pointer items-center gap-4 px-6 py-5 transition-all duration-300",
             isEmpty(files) ? "justify-center" : "flex-grow justify-center @xl:justify-start"
-          )}
-        >
+          )}>
           <input {...getInputProps()} />
           <UploadIcon className="h-12 w-12" />
           <Text className="text-base font-medium">Drop or select file</Text>
@@ -148,50 +160,41 @@ export default function UploadZone({
         )}
 
         {!isEmpty(files) && isEmpty(notUploadedItems) && (
-          <UploadButtons
-            files={files}
-            isLoading={isUploading}
-            onClear={() => setFiles([])}
-            onUpload={() => startUpload(files)}
-          />
+          <UploadButtons files={files} isLoading={isUploading} onClear={() => setFiles([])} onUpload={() => startUpload(files)} />
         )}
       </div>
 
       {(!isEmpty(uploadedItems) || !isEmpty(notUploadedItems)) && (
         <div className="mt-5 grid grid-cols-2 gap-4 sm:grid-cols-[repeat(auto-fit,_minmax(140px,_1fr))]">
           {uploadedItems.map((file: any, index: number) => (
-            <div
-              key={index}
-              className={cn("relative")}
-            >
+            <div key={index} className={cn("relative")}>
               <figure className="group relative h-40 rounded-md bg-gray-50">
-                <MediaPreview
-                  name={file.name}
-                  url={file.url}
-                />
+                <MediaPreview name={file.name} url={file.url} />
                 <button
                   type="button"
                   className="absolute right-0 top-0 rounded-full bg-gray-700 p-1.5 transition duration-300"
-                >
-                  <PiCheckBold className="text-white" />
+                  onClick={() => {
+                    // Remove the file from uploadedItems
+                    const newUploadedItems = [...uploadedItems];
+                    newUploadedItems.splice(index, 1);
+
+                    // Update value based on initial format
+                    if (typeof initialValue === "string") {
+                      setValue(name, "");
+                    } else {
+                      setValue(name, newUploadedItems);
+                    }
+                  }}>
+                  <PiTrashBold className="text-white" />
                 </button>
               </figure>
-              <MediaCaption
-                name={file.name}
-                size={file.size}
-              />
+              <MediaCaption name={file.name} size={file.size} />
             </div>
           ))}
           {notUploadedItems.map((file: any, index: number) => (
-            <div
-              key={index}
-              className={cn("relative")}
-            >
+            <div key={index} className={cn("relative")}>
               <figure className="group relative h-40 rounded-md bg-gray-50">
-                <MediaPreview
-                  name={file.name}
-                  url={file.preview}
-                />
+                <MediaPreview name={file.name} url={file.preview} />
                 {isUploading ? (
                   <div className="absolute inset-0 z-50 grid place-content-center rounded-md bg-gray-800/50">
                     <LoadingSpinner />
@@ -200,16 +203,12 @@ export default function UploadZone({
                   <button
                     type="button"
                     onClick={() => handleRemoveFile(index)}
-                    className="absolute right-0 top-0 rounded-full bg-gray-700/70 p-1.5 opacity-20 transition duration-300 hover:bg-red-dark group-hover:opacity-100"
-                  >
+                    className="absolute right-0 top-0 rounded-full bg-gray-700/70 p-1.5 opacity-20 transition duration-300 hover:bg-red-dark group-hover:opacity-100">
                     <PiTrashBold className="text-white" />
                   </button>
                 )}
               </figure>
-              <MediaCaption
-                name={file.path}
-                size={file.size}
-              />
+              <MediaCaption name={file.path} size={file.size} />
             </div>
           ))}
         </div>
@@ -233,20 +232,11 @@ function UploadButtons({
 }) {
   return (
     <div className="flex w-full flex-wrap items-center justify-center gap-4 px-6 pb-5 @sm:flex-nowrap @xl:w-auto @xl:justify-end @xl:px-0 @xl:pb-0">
-      <Button
-        variant="outline"
-        className="w-full gap-2 @xl:w-auto"
-        isLoading={isLoading}
-        onClick={onClear}
-      >
+      <Button variant="outline" className="w-full gap-2 @xl:w-auto" isLoading={isLoading} onClick={onClear}>
         <PiTrashBold />
         Clear {files.length} files
       </Button>
-      <Button
-        className="w-full gap-2 @xl:w-auto"
-        isLoading={isLoading}
-        onClick={onUpload}
-      >
+      <Button className="w-full gap-2 @xl:w-auto" isLoading={isLoading} onClick={onUpload}>
         <PiUploadSimpleBold /> Upload {files.length} files
       </Button>
     </div>
@@ -255,23 +245,13 @@ function UploadButtons({
 
 function MediaPreview({ name, url }: { name: string; url: string }) {
   return endsWith(name, ".pdf") ? (
-    <object
-      data={url}
-      type="application/pdf"
-      width="100%"
-      height="100%"
-    >
+    <object data={url} type="application/pdf" width="100%" height="100%">
       <p>
         Alternative text - include a link <a href={url}>to the PDF!</a>
       </p>
     </object>
   ) : (
-    <Image
-      fill
-      src={url}
-      alt={name}
-      className="transform rounded-md object-contain"
-    />
+    <Image fill src={url} alt={name} className="transform rounded-md object-contain" />
   );
 }
 
@@ -286,70 +266,21 @@ function MediaCaption({ name, size }: { name: string; size: number }) {
 
 export function LoadingSpinner() {
   return (
-    <svg
-      width="38"
-      height="38"
-      viewBox="0 0 38 38"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg width="38" height="38" viewBox="0 0 38 38" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <linearGradient
-          x1="8.042%"
-          y1="0%"
-          x2="65.682%"
-          y2="23.865%"
-          id="a"
-        >
-          <stop
-            stopColor="#fff"
-            stopOpacity="0"
-            offset="0%"
-          />
-          <stop
-            stopColor="#fff"
-            stopOpacity=".631"
-            offset="63.146%"
-          />
-          <stop
-            stopColor="#fff"
-            offset="100%"
-          />
+        <linearGradient x1="8.042%" y1="0%" x2="65.682%" y2="23.865%" id="a">
+          <stop stopColor="#fff" stopOpacity="0" offset="0%" />
+          <stop stopColor="#fff" stopOpacity=".631" offset="63.146%" />
+          <stop stopColor="#fff" offset="100%" />
         </linearGradient>
       </defs>
-      <g
-        fill="none"
-        fillRule="evenodd"
-      >
+      <g fill="none" fillRule="evenodd">
         <g transform="translate(1 1)">
-          <path
-            d="M36 18c0-9.94-8.06-18-18-18"
-            id="Oval-2"
-            stroke="url(#a)"
-            strokeWidth="2"
-          >
-            <animateTransform
-              attributeName="transform"
-              type="rotate"
-              from="0 18 18"
-              to="360 18 18"
-              dur="0.9s"
-              repeatCount="indefinite"
-            />
+          <path d="M36 18c0-9.94-8.06-18-18-18" id="Oval-2" stroke="url(#a)" strokeWidth="2">
+            <animateTransform attributeName="transform" type="rotate" from="0 18 18" to="360 18 18" dur="0.9s" repeatCount="indefinite" />
           </path>
-          <circle
-            fill="#fff"
-            cx="36"
-            cy="18"
-            r="1"
-          >
-            <animateTransform
-              attributeName="transform"
-              type="rotate"
-              from="0 18 18"
-              to="360 18 18"
-              dur="0.9s"
-              repeatCount="indefinite"
-            />
+          <circle fill="#fff" cx="36" cy="18" r="1">
+            <animateTransform attributeName="transform" type="rotate" from="0 18 18" to="360 18 18" dur="0.9s" repeatCount="indefinite" />
           </circle>
         </g>
       </g>
