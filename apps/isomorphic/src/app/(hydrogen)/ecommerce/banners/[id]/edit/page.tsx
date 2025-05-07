@@ -17,25 +17,28 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return metaObject(`Edit ${id}`);
 }
 
-const pageHeader = {
-  title: 'Edit Banner',
-  breadcrumb: [
-    {
-      href: routes.eCommerce.dashboard,
-      name: 'E-Commerce',
-    },
-    {
-      href: routes.eCommerce.banners,
-      name: 'Banners',
-    },
-    {
-      name: 'Edit',
-    },
-  ],
-};
-
 export default async function EditBannerPage({ params }: any) {
   const id = (await params).id;
+  const pageHeader = {
+    title: 'Edit Banner',
+    breadcrumb: [
+      {
+        href: routes.eCommerce.dashboard,
+        name: 'E-Commerce',
+      },
+      {
+        href: routes.eCommerce.banners,
+        name: 'Banners',
+      },
+      {
+        href: routes.eCommerce.bannerDetails(id),
+        name: id,
+      },
+      {
+        name: 'Edit',
+      },
+    ],
+  };
   return (
     <>
       <PageHeader title={pageHeader.title} breadcrumb={pageHeader.breadcrumb}>

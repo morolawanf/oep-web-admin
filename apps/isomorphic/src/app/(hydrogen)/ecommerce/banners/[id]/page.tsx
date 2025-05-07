@@ -2,12 +2,12 @@ import { Button } from 'rizzui/button';
 import { routes } from '@/config/routes';
 import PageHeader from '@/app/shared/page-header';
 import Link from 'next/link';
-// import BannerView from '@/app/shared/ecommerce/banners/banner-view'; // To be implemented
-
+import BannerDetails from './Client';
+import { banners } from '@/data/banners';
 export default async function BannerDetailsPage({ params }: any) {
   const id = (await params).id;
   const pageHeader = {
-    title: `Banner #${id}`,
+    title: `Banner -- ${id}`,
     breadcrumb: [
       {
         href: routes.eCommerce.dashboard,
@@ -34,8 +34,7 @@ export default async function BannerDetailsPage({ params }: any) {
           </Button>
         </Link>
       </PageHeader>
-      {/* <BannerView /> */}
-      <div>Banner details view goes here</div>
+      <BannerDetails banner={banners[0]} />
     </>
   );
 }
