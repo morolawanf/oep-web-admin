@@ -135,8 +135,13 @@ export const menuItems = [
     icon: <MdOutlineCampaign />,
   },
   {
-    name: 'Flash Sale',
+    name: 'Sale',
     href: routes.eCommerce.flashSales,
+    icon: <MdOutlineSell />,
+  },
+  {
+    name: 'Campaign',
+    href: routes.eCommerce.campaign,
     icon: <MdOutlineSell />,
   },
   {
