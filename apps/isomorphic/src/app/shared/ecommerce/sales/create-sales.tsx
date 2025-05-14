@@ -1,86 +1,84 @@
 'use client';
-import { useEffect, useState } from 'react';
-import { Button, Input, Text, Drawer, Select } from 'rizzui';
+import { useState } from 'react';
+import { Button, Text } from 'rizzui';
 import { Form } from '@core/ui/form';
-import { SubmitHandler, Controller } from 'react-hook-form';
-import { DatePicker } from '@core/ui/datepicker';
+import { SubmitHandler } from 'react-hook-form';
 import { salesData } from '@/data/sales-data';
-import { LuReplace } from 'react-icons/lu';
-import { FiDelete } from 'react-icons/fi';
-import TrashIcon from '@core/components/icons/trash';
-import { BiSolidError, BiTrash } from 'react-icons/bi';
 import {
   CreateSalesInput,
   createSalesSchema,
 } from '@/validators/create-sale.schema';
-import { MdLabelImportant } from 'react-icons/md';
+import SaleInfoForm from './components/SaleInfoForm';
+import SaleTypeSpecificFields from './components/SaleTypeSpecificFields';
+import SaleVariantsForm from './components/SaleVariantsForm';
 
-type VariantType = {
-  attributeName: string | null;
-  attributeValue: string | null;
-  discount: number;
-  maxBuys: number;
-  boughtCount: number;
-  limit: number;
+// Define ProductType based on salesData structure if not already available globally
+// This is a simplified version, adjust according to your actual data structure
+interface ProductType {
+  _id: string;
+  name: string;
+  image: string;
+  stock: number;
+  slug: string;
+  category: {
+    _id: string;
+    name: string;
+  };
+  subCategories: {
+    _id: string;
+    name: string;
+  };
+  attributes: {
+    name: string;
+    children: {
+      name: string;
+      price: number;
+      discount: number;
+      stock: number;
+      image: string;
+    }[];
+  }[];
+  // Add other fields from sale.product like coverImage if they are different from 'image'
+  coverImage?: string;
+}
+
+const initialDefaultValues: CreateSalesInput = {
+  title: '',
+  type: 'Normal',
+  product: '',
+  campaign: '',
+  limit: 0,
+  deleted: false,
+  startDate: new Date(), // Ensure this is a Date object
+  endDate: new Date(), // Ensure this is a Date object
+  variants: [
+    {
+      attributeName: 'All',
+      attributeValue: 'All',
+      discount: 10,
+      maxBuys: 0,
+      boughtCount: 0,
+    },
+  ],
 };
-
-type SalesDataType2 = {
-  title: string;
-  product: string;
-  isActive?: boolean;
-  createdBy?: string;
-  updatedBy?: string;
-  type: 'Flash' | 'Limited' | 'Normal';
-  campaign?: string;
-  limit: number;
-  startDate: Date;
-  endDate: Date;
-  deleted?: boolean;
-  variants: VariantType[];
-};
-
-const typeOptions = [
-  { value: 'Flash', label: 'Flash' },
-  { value: 'Limited', label: 'Limited' },
-  { value: 'Normal', label: 'Normal' },
-];
 
 export default function CreateSales() {
   const [isLoading, setLoading] = useState(false);
   const [isDrawerOpen, setDrawerOpen] = useState(false);
   const [filteredProducts, setFilteredProducts] = useState(salesData);
-  const [selectedProduct, setSelectedProduct] = useState<{
-    _id: string;
-    name: string;
-    image: string;
-    stock: number;
-    slug: string;
-    category: {
-      _id: string;
-      name: string;
-    };
-    subCategories: {
-      _id: string;
-      name: string;
-    };
-    attributes: {
-      name: string;
-      children: {
-        name: string;
-        price: number;
-        discount: number;
-        stock: number;
-        image: string;
-      }[];
-    }[];
-  } | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<ProductType | null>(
+    null
+  );
 
   const onSubmit: SubmitHandler<CreateSalesInput> = (data) => {
     setLoading(true);
+    console.log('Submitting Sale Data:', data);
+    // Simulate API call
     setTimeout(() => {
       setLoading(false);
-      console.log('createSales data ->', data);
-    }, 600);
+      alert('Sale created successfully! (Check console for data)');
+      // Potentially reset form or redirect user
+    }, 2000);
   };
 
   const handleSearch = (query: string) => {
@@ -100,357 +98,78 @@ export default function CreateSales() {
       validationSchema={createSalesSchema}
       useFormProps={{
         mode: 'onChange',
-        defaultValues: {
-          title: '',
-          type: 'Normal',
-          product: '',
-          campaign: '',
-          limit: 1,
-          deleted: false,
-          startDate: new Date(),
-          endDate: new Date(),
-          variants: [
-            {
-              attributeName: '',
-              attributeValue: '',
-              discount: 10,
-              maxBuys: 0,
-              boughtCount: 0,
-              limit: 0,
-            },
-          ],
-        },
+        defaultValues: initialDefaultValues,
       }}
-      className="isomorphic-form flex max-w-[700px] flex-col gap-6"
+      className="isomorphic-form flex max-w-3xl flex-col justify-start gap-3 rounded-lg bg-white p-0.5"
     >
-      {({ register, control, setValue, watch, formState: { errors } }) => {
-        console.log(watch('variants'));
+      {({
+        register,
+        control,
+        setValue,
+        reset,
+        watch,
+        formState: { errors },
+        handleSubmit,
+      }) => {
         return (
           <>
-            <div className="col-span-2 mb-1 pe-4 @5xl:mb-0">
-              <Text className="mt-1 text-sm text-gray-500">{description}</Text>
-            </div>
-            <div className="flex flex-col gap-6">
-              <Input
-                label="Title"
-                placeholder="Sale Title"
-                {...register('title', { required: true })}
-                error={errors.title?.message}
-              />
-              <Controller
-                name="type"
-                control={control}
-                render={({ field }) => (
-                  <Select
-                    label="Type"
-                    options={typeOptions}
-                    value={field.value}
-                    onChange={(selectedOption) => {
-                      const selectedValue =
-                        (selectedOption as unknown as { value: string })
-                          ?.value || '';
-                      field.onChange(selectedValue);
+            <Text className="mb-2 text-sm text-gray-500">{description}</Text>
 
-                      // Reset non-rendered fields to their default values
-                      if (selectedValue !== 'Flash') {
-                        setValue('startDate', new Date());
-                        setValue('endDate', new Date());
-                      }
-                      if (selectedValue !== 'Limited') {
-                        setValue('limit', 1);
-                      }
-                    }}
-                    error={errors.type?.message as string}
-                  />
-                )}
-              />
-              <div>
-                <label className="mb-1 block font-medium">Product</label>
-                {!selectedProduct && (
-                  <Button
-                    type="button"
-                    onClick={() => setDrawerOpen(true)}
-                    className="w-full"
-                  >
-                    Select Product
-                  </Button>
-                )}
-                <Drawer
-                  isOpen={isDrawerOpen}
-                  onClose={() => setDrawerOpen(false)}
-                >
-                  <Input
-                    placeholder="Search products..."
-                    onChange={(e) => handleSearch(e.target.value)}
-                    className="mb-4"
-                  />
-                  <div className="space-y-2">
-                    {filteredProducts.slice(0, 40).map((sale) => (
-                      <div
-                        key={sale.product._id}
-                        className="flex cursor-pointer items-center gap-2 p-2 hover:bg-gray-100"
-                        onClick={() => {
-                          setValue('product', sale.product._id);
-                          setSelectedProduct({
-                            _id: sale.product._id,
-                            name: sale.product.name,
-                            image: sale.product.coverImage,
-                            stock: sale.product.stock,
-                            slug: sale.product.slug,
-                            category: sale.product.category,
-                            subCategories: sale.product.subCategories,
-                            attributes: sale.product.attributes,
-                          });
-                          setDrawerOpen(false);
-                        }}
-                      >
-                        <img
-                          src={sale.product.coverImage}
-                          alt={sale.product.name}
-                          className="h-8 w-8 rounded-md object-cover"
-                        />
-                        <span>{sale.product.name}</span>
-                      </div>
-                    ))}
-                  </div>
-                </Drawer>
-                {errors.product && (
-                  <Text className="text-sm text-red-500">
-                    {errors.product.message as string}
-                  </Text>
-                )}
-              </div>
-              {selectedProduct && (
-                <div className="relative flex flex-col items-start gap-2 rounded-md border bg-gray-50 p-4">
-                  <div className="absolute right-2 top-2">
-                    <Button
-                      type="button"
-                      onClick={() => setDrawerOpen(true)}
-                      className="p-1 px-1.5"
-                    >
-                      <LuReplace className="h-4 w-4" />
-                    </Button>
-                  </div>
-                  <img
-                    src={selectedProduct.image}
-                    alt={selectedProduct.name}
-                    className="h-8 w-8 rounded-md object-cover"
-                  />
-                  <span className="text-sm font-medium">
-                    {selectedProduct.name}
-                  </span>
-                  <span className="text-xs text-gray-500">
-                    ID: {selectedProduct._id}
-                  </span>
-                </div>
-              )}
-              {watch('type') === 'Flash' && (
-                <>
-                  <Controller
-                    name="startDate"
-                    control={control}
-                    render={({ field }) => (
-                      <div className="flex-1">
-                        <label className="mb-1 block font-medium">
-                          Start Date
-                        </label>
-                        <DatePicker
-                          selected={new Date(field.value)}
-                          onChange={field.onChange}
-                          dateFormat="yyyy-MM-dd"
-                          inputProps={{ placeholder: 'Start Date' }}
-                          className="w-full"
-                        />
-                      </div>
-                    )}
-                  />
-                  <Controller
-                    name="endDate"
-                    control={control}
-                    render={({ field }) => (
-                      <div className="flex-1">
-                        <label className="mb-1 block font-medium">
-                          End Date
-                        </label>
-                        <DatePicker
-                          selected={new Date(field.value)}
-                          onChange={field.onChange}
-                          dateFormat="yyyy-MM-dd"
-                          inputProps={{ placeholder: 'End Date' }}
-                          className="w-full"
-                        />
-                      </div>
-                    )}
-                  />
-                </>
-              )}
-              {watch('type') === 'Limited' && (
-                <Input
-                  label="Limit"
-                  type="number"
-                  {...register('limit', { required: true })}
-                  error={errors.limit?.message}
+            <section className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              <div className="md:col-span-2">
+                <SaleInfoForm
+                  control={control}
+                  errors={errors}
+                  register={register}
+                  setValue={setValue}
+                  selectedProduct={selectedProduct}
+                  setSelectedProduct={setSelectedProduct}
+                  isDrawerOpen={isDrawerOpen}
+                  setDrawerOpen={setDrawerOpen}
+                  filteredProducts={filteredProducts}
+                  handleSearch={handleSearch}
                 />
-              )}
-              {!selectedProduct && (
-                <div className="relative rounded p-3 text-center text-gray-500 outline outline-yellow-100">
-                  <div className="absolute right-2 top-2">
-                    <BiSolidError className="h-6 w-6 text-yellow-500" />
-                  </div>
-                  Select a product first to configure variants.
-                </div>
-              )}
-              {selectedProduct && (
-                <div>
-                  <h4 className="mb-2">Variants</h4>
-                  {watch('variants').map((variant, index) => (
-                    <div
-                      key={index}
-                      className="mb-4 space-y-2 rounded-md p-4 outline outline-gray-200"
-                    >
-                      <Controller
-                        name={`variants.${index}.attributeName`}
-                        control={control}
-                        render={({ field }) => (
-                          <Select
-                            label="Attribute Name"
-                            options={selectedProduct.attributes.map((attr) => ({
-                              value: attr.name,
-                              label: attr.name,
-                            }))}
-                            value={field.value}
-                            onChange={(selectedOption) =>
-                              field.onChange(
-                                (selectedOption as unknown as { value: string })
-                                  ?.value || ''
-                              )
-                            }
-                            error={
-                              errors.variants?.[index]?.attributeName?.message
-                            }
-                          />
-                        )}
-                      />
-                      <Controller
-                        name={`variants.${index}.attributeValue`}
-                        control={control}
-                        render={({ field }) => (
-                          <Select
-                            label="Attribute Value"
-                            options={
-                              watch(`variants.${index}.attributeName`)
-                                ? selectedProduct.attributes
-                                    .find(
-                                      (attr) =>
-                                        attr.name ===
-                                        watch(`variants.${index}.attributeName`)
-                                    )
-                                    ?.children.map((child) => ({
-                                      value: child.name,
-                                      label: child.name,
-                                    })) || []
-                                : []
-                            }
-                            value={field.value}
-                            onChange={(selectedOption) =>
-                              field.onChange(
-                                (selectedOption as unknown as { value: string })
-                                  ?.value || ''
-                              )
-                            }
-                            error={
-                              errors.variants?.[index]?.attributeValue?.message
-                            }
-                          />
-                        )}
-                      />
-                      <Input
-                        label="Discount"
-                        type="number"
-                        {...register(`variants.${index}.discount`, {
-                          required: true,
-                          setValueAs: (value) => parseFloat(value) || 0,
-                        })}
-                        error={errors.variants?.[index]?.discount?.message}
-                      />
-                      {watch('type') === 'Limited' && (
-                        <Input
-                          label="Max Buys"
-                          type="number"
-                          {...register(`variants.${index}.maxBuys`, {
-                            setValueAs: (value) => parseInt(value, 10) || 0,
-                          })}
-                          error={errors.variants?.[index]?.maxBuys?.message}
-                        />
-                      )}
-                      {!watch(`variants.${index}.attributeName`) &&
-                      !watch(`variants.${index}.attributeValue`) ? (
-                        <div className="text-sm text-gray-500">
-                          Product Stock: {selectedProduct.stock}
-                        </div>
-                      ) : (
-                        <div className="text-sm text-gray-500">
-                          Attribute Stock:{' '}
-                          {selectedProduct.attributes
-                            .find(
-                              (attr) =>
-                                attr.name ===
-                                watch(`variants.${index}.attributeName`)
-                            )
-                            ?.children.find(
-                              (child) =>
-                                child.name ===
-                                watch(`variants.${index}.attributeValue`)
-                            )?.stock || 0}
-                        </div>
-                      )}
-                      <div className="flex w-full justify-center">
-                        <Button
-                          type="button"
-                          onClick={() => {
-                            const updatedVariants = [...watch('variants')];
-                            if (updatedVariants.length <= 1) return;
-                            updatedVariants.splice(index, 1);
-                            setValue('variants', updatedVariants);
-                          }}
-                          className="mt-2 bg-red-500 text-white"
-                        >
-                          <BiTrash />
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                  <Button
-                    type="button"
-                    onClick={() =>
-                      setValue('variants', [
-                        ...watch('variants'),
-                        {
-                          attributeName: '',
-                          attributeValue: '',
-                          discount: 10,
-                          maxBuys: 0,
-                          boughtCount: 0,
-                          limit: 0,
-                        },
-                      ])
-                    }
-                    className="mt-2"
-                  >
-                    Add Variant
-                  </Button>
-                </div>
-              )}
-              <div className="flex gap-3">
-                <Button
-                  type="submit"
-                  isLoading={isLoading}
-                  className="w-full @xl:w-auto"
-                >
-                  Create Sale
-                </Button>
               </div>
-            </div>
+            </section>
+
+            <section className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              <SaleTypeSpecificFields
+                control={control}
+                errors={errors}
+                watch={watch}
+                register={register}
+              />
+            </section>
+
+            <section>
+              <SaleVariantsForm
+                control={control}
+                errors={errors}
+                watch={watch}
+                register={register}
+                setValue={setValue}
+                selectedProduct={selectedProduct}
+              />
+            </section>
+
+            <footer className="mt-6 flex justify-end gap-3 border-t pt-6">
+              <Button
+                type="button" // Or reset type if you implement form reset
+                variant="outline"
+                className="w-full @xl:w-auto"
+                onClick={() => reset()}
+              >
+                Reset
+              </Button>
+              <Button
+                type="submit"
+                isLoading={isLoading}
+                className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700 @xl:w-auto"
+                onClick={handleSubmit(onSubmit)} // Ensure RHF's handleSubmit is used
+              >
+                Create Sale
+              </Button>
+            </footer>
           </>
         );
       }}

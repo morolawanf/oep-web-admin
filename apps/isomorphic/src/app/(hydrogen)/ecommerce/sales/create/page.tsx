@@ -40,7 +40,6 @@ export default function CreateFlashSalePage() {
         </Link>
       </PageHeader>
       <CreateSales />
-      <div>Flash sale creation form goes here</div>
     </>
   );
 }
