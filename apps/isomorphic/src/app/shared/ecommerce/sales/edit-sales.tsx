@@ -48,14 +48,94 @@ interface SaleDataType extends CreateSalesInput {
 
 interface EditSalesProps {
   saleId: string; // ID of the sale to edit
-  initialSaleData: SaleDataType; // Pre-fetched sale data passed from server
 }
 
-export default function EditSales({ saleId, initialSaleData }: EditSalesProps) {
+// Placeholder: Simulate fetching a sale by ID
+const fetchSaleById = async (id: string): Promise<SaleDataType | null> => {
+  console.log(`Fetching sale with ID: ${id}`);
+  // In a real app, this would be an API call to your backend
+  // For demonstration, using a mock. Replace with actual API call.
+  // This mock assumes salesData might contain product info, but not full sale objects.
+  // You'll need to fetch the actual sale object by its ID.
+  const mockSaleProductDetails = salesData.find(
+    (p) => p.product._id === '664fdf8a24fbb2a2c03eabe0'
+  ); // Example product ID from salesData
+
+  if (id === 'sale_to_edit_123' && mockSaleProductDetails) {
+    // Example sale ID
+    return {
+      _id: id,
+      title: 'Summer Discount Bonanza',
+      type: 'Limited',
+      product: mockSaleProductDetails.product._id, // Product ID string
+      campaign: '', // campaign ID string or undefined
+      limit: 50, // For 'Limited', this should match sum of maxBuys
+      deleted: false,
+      startDate: new Date(new Date().setDate(new Date().getDate() - 5)), // Example: 5 days ago
+      endDate: new Date(new Date().setDate(new Date().getDate() + 10)), // Example: 10 days from now
+      variants: [
+        {
+          attributeName: 'Color',
+          attributeValue: 'Black', // must match existing product attribute values
+          discount: 15,
+          maxBuys: 30,
+          boughtCount: 5,
+        },
+        {
+          attributeName: 'Color',
+          attributeValue: 'White', // must match existing product attribute values
+          discount: 10,
+          maxBuys: 20,
+          boughtCount: 2,
+        },
+      ],
+      isActive: true,
+      // createdBy and updatedBy would typically come from the backend
+    };
+  }
+  // Fallback mock for a different sale type if needed for testing
+  const mockNormalSaleProduct = salesData.find(
+    (p) => p.product._id === '664fdf8a24fbb2a2c03eabe2'
+  );
+  if (id === 'sale_to_edit_456' && mockNormalSaleProduct) {
+    return {
+      _id: id,
+      title: 'Regular Product Sale',
+      type: 'Normal',
+      product: mockNormalSaleProduct.product._id,
+      campaign: undefined,
+      limit: 0, // Not strictly enforced for Normal, but schema might require it
+      deleted: false,
+      startDate: new Date(),
+      endDate: new Date(new Date().setDate(new Date().getDate() + 30)),
+      variants: [
+        {
+          attributeName: 'All',
+          attributeValue: 'All',
+          discount: 5,
+          maxBuys: 0, // Not applicable for Normal type in terms of total limit sync
+          boughtCount: 10,
+        },
+      ],
+      isActive: true,
+    };
+  }
+
+  console.warn(
+    `Mock sale data not found for ID: ${id}. You need to implement a real fetch or expand mock.`
+  );
+  return null;
+};
+
+export default function EditSales({ saleId }: EditSalesProps) {
+  const [isLoading, setLoading] = useState(true); // Start with loading true
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDrawerOpen, setDrawerOpen] = useState(false);
   const [filteredProducts, setFilteredProducts] = useState(salesData); // Full product list for selector
   const [selectedProduct, setSelectedProduct] = useState<ProductType | null>(
+    null
+  );
+  const [initialSaleData, setInitialSaleData] = useState<SaleDataType | null>(
     null
   );
 
@@ -72,27 +152,44 @@ export default function EditSales({ saleId, initialSaleData }: EditSalesProps) {
   });
 
   useEffect(() => {
-    // Initialize form and selected product from pre-fetched data
-    const data = initialSaleData;
-    // Find the full product details
-    const productDetails = salesData.find((p) => p.product._id === data.product)
-      ?.product as ProductType | undefined;
-    setSelectedProduct(productDetails || null);
-    // Format data for the form, especially dates and numeric types
-    const formData: CreateSalesInput = {
-      ...data,
-      startDate: data.startDate ? new Date(data.startDate) : new Date(),
-      endDate: data.endDate ? new Date(data.endDate) : new Date(),
-      limit: Number(data.limit) || 0,
-      variants: data.variants.map((v) => ({
-        ...v,
-        discount: Number(v.discount) || 0,
-        maxBuys: Number(v.maxBuys) || 0,
-        boughtCount: Number(v.boughtCount) || 0,
-      })),
-    };
-    methods.reset(formData);
-  }, [initialSaleData, methods.reset]);
+    if (saleId) {
+      setLoading(true);
+      fetchSaleById(saleId)
+        .then((data) => {
+          if (data) {
+            setInitialSaleData(data); // Store the originally fetched data for reset
+            // Find the full product object from salesData (or your product list source)
+            const productDetails = salesData.find(
+              (p) => p.product._id === data.product
+            )?.product as ProductType | undefined;
+
+            setSelectedProduct(productDetails || null);
+
+            // Format data for the form, especially dates and numeric types
+            const formData: CreateSalesInput = {
+              ...data,
+              startDate: data.startDate ? new Date(data.startDate) : new Date(),
+              endDate: data.endDate ? new Date(data.endDate) : new Date(),
+              limit: Number(data.limit) || 0,
+              variants: data.variants.map((v) => ({
+                ...v,
+                discount: Number(v.discount) || 0,
+                maxBuys: Number(v.maxBuys) || 0,
+                boughtCount: Number(v.boughtCount) || 0,
+              })),
+            };
+            methods.reset(formData); // Populate the form with fetched data
+          } else {
+            console.error(`Sale with ID ${saleId} not found.`);
+            // Handle sale not found (e.g., show a message or redirect)
+          }
+        })
+        .catch((error) => {
+          console.error('Error fetching sale data:', error);
+        })
+        .finally(() => setLoading(false));
+    }
+  }, [saleId, methods.reset]); // methods.reset is stable, saleId is the key dependency
 
   const onSubmit: SubmitHandler<CreateSalesInput> = async (data) => {
     setIsSubmitting(true);
@@ -123,7 +220,23 @@ export default function EditSales({ saleId, initialSaleData }: EditSalesProps) {
   const description =
     'Modify the details below to update the sale. Adjust the title, type, product, campaign, and variants as needed.';
 
-  // Render form directly since data is pre-fetched
+  if (isLoading) {
+    return (
+      <div className="p-6">
+        <Text className="text-center">Loading sale data...</Text>
+      </div>
+    );
+  }
+
+  if (!initialSaleData && !isLoading) {
+    return (
+      <div className="p-6">
+        <Text className="text-center text-red-500">
+          Sale not found or failed to load.
+        </Text>
+      </div>
+    );
+  }
 
   return (
     <Form<CreateSalesInput>
@@ -140,25 +253,8 @@ export default function EditSales({ saleId, initialSaleData }: EditSalesProps) {
         control,
         setValue,
         watch,
-        formState: { errors },
-        // handleSubmit is implicitly used by the Form component if onSubmit is passed to it
+        formState: { errors, isDirty },
       }) => {
-        const getCircularReplacer = () => {
-          const seen = new WeakSet();
-          return (key: string, value: any) => {
-            if (key === 'ref' && value instanceof HTMLElement) {
-              return `[HTMLElement: ${value.tagName}]`;
-            }
-            if (typeof value === 'object' && value !== null) {
-              if (seen.has(value)) {
-                return '[Circular]';
-              }
-              seen.add(value);
-            }
-            return value;
-          };
-        };
-
         return (
           <>
             <Text className="mb-6 text-sm text-gray-500">{description}</Text>
@@ -203,9 +299,14 @@ export default function EditSales({ saleId, initialSaleData }: EditSalesProps) {
 
             <footer className="mt-8 flex justify-end gap-4 border-t border-gray-200 pt-6">
               <Button
-                type="submit" // RHF handles submission via Form component's onSubmit
+                type="submit"
+                disabled={!isDirty}
                 isLoading={isSubmitting}
-                className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 @xl:w-auto"
+                className={`w-full text-white @xl:w-auto ${
+                  !isDirty
+                    ? 'bg-gray-300 text-gray-500'
+                    : 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700'
+                }`}
               >
                 Update Sale
               </Button>
