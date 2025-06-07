@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { routes } from '@/config/routes';
 import { Button } from 'rizzui/button';
 import PageHeader from '@/app/shared/page-header';
-// import FlashSalesTable from '@/app/shared/ecommerce/flash-sales/flash-sales-table'; // To be implemented
+import SalesTable from '@/app/shared/ecommerce/sales/table';
 import { PiPlusBold } from 'react-icons/pi';
 // import { flashSalesData } from '@/data/flash-sales-data'; // To be implemented
 import { metaObject } from '@/config/site.config';
@@ -46,8 +46,7 @@ export default function FlashSalesPage() {
           </Link>
         </div>
       </PageHeader>
-      {/* <FlashSalesTable /> */}
-      <div>Flash sales table goes here</div>
+      <SalesTable />
     </>
   );
 }

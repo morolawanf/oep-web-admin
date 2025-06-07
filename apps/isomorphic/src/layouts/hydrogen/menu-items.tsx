@@ -25,6 +25,7 @@ import {
   PiEnvelopeDuotone,
   PiEnvelopeSimpleOpenDuotone,
   PiFeatherDuotone,
+  PiFlagBanner,
   PiFolderDuotone,
   PiFolderLockDuotone,
   PiFoldersDuotone,
@@ -132,7 +133,7 @@ export const menuItems = [
   {
     name: 'Banner',
     href: routes.eCommerce.banners,
-    icon: <MdOutlineCampaign />,
+    icon: <PiFlagBanner />,
   },
   {
     name: 'Sale',
@@ -142,7 +143,7 @@ export const menuItems = [
   {
     name: 'Campaign',
     href: routes.eCommerce.campaign,
-    icon: <MdOutlineSell />,
+    icon: <MdOutlineCampaign />,
   },
   {
     name: 'Gallery',

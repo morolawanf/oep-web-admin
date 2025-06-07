@@ -17,6 +17,10 @@ export const routes = {
     cart: "/ecommerce/cart",
     checkout: "/ecommerce/checkout",
     trackingId: (id: string) => `/ecommerce/tracking/${id}`,
+    campaigns: "/ecommerce/campaigns",
+    createCampaign: "/ecommerce/campaigns/create",
+    CampaignDetails: (id: string) => `/ecommerce/campaigns/${id}`,
+    editCampaign: (id: string) => `/ecommerce/campaigns/${id}/edit`,
   },
   searchAndFilter: {
     realEstate: "/search/real-estate",

@@ -3,22 +3,22 @@ import { Button } from 'rizzui/button';
 import { routes } from '@/config/routes';
 import Link from 'next/link';
 import { metaObject } from '@/config/site.config';
-import CreateCoupon from '@/app/shared/ecommerce/coupon/create-coupon'; // To be implemented
+import CreateCampaign from '@/app/shared/ecommerce/campaigns/create-campaign';
 
 export const metadata = {
-  ...metaObject('Create a Coupon'),
+  ...metaObject('Create a Campaign'),
 };
 
 const pageHeader = {
-  title: 'Create A Coupon',
+  title: 'Create A Campaign',
   breadcrumb: [
     {
       href: routes.eCommerce.dashboard,
       name: 'E-Commerce',
     },
     {
-      href: routes.eCommerce.coupons,
-      name: 'Coupons',
+      href: routes.eCommerce.campaign,
+      name: 'Campaigns',
     },
     {
       name: 'Create',
@@ -26,12 +26,13 @@ const pageHeader = {
   ],
 };
 
-export default function CreateCouponPage() {
+export default function CreateCampaignPage() {
   return (
     <>
       <PageHeader title={pageHeader.title} breadcrumb={pageHeader.breadcrumb}>
+        {' '}
         <Link
-          href={routes.eCommerce.coupons}
+          href={routes.eCommerce.campaign}
           className="mt-4 w-full @lg:mt-0 @lg:w-auto"
         >
           <Button as="span" className="w-full @lg:w-auto" variant="outline">
@@ -39,7 +40,7 @@ export default function CreateCouponPage() {
           </Button>
         </Link>
       </PageHeader>
-      <CreateCoupon />
+      <CreateCampaign />
     </>
   );
 }
