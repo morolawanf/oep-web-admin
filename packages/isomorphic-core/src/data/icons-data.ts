@@ -816,10 +816,6 @@ export const iconsData = [
     name: "HeliumIcon",
   },
   {
-    file: "layout-icons/carbon-icon.tsx",
-    name: "CarbonIcon",
-  },
-  {
     file: "layout-icons/boron-icon.tsx",
     name: "BoronIcon",
   },
