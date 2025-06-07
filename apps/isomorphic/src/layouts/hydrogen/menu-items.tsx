@@ -217,26 +217,6 @@ export const menuItems = [
   },
   // label start
   {
-    name: 'Search & Filters',
-  },
-  {
-    name: 'Real Estate',
-    href: routes.searchAndFilter.realEstate,
-    icon: <PiHouseLineDuotone />,
-  },
-  {
-    name: 'Flight Booking',
-    href: routes.searchAndFilter.flight,
-    icon: <PiAirplaneTiltDuotone />,
-  },
-  {
-    name: 'NFT',
-    href: routes.searchAndFilter.nft,
-    icon: <PiCoinDuotone />,
-  },
-  // label end
-  // label start
-  {
     name: 'Widgets',
   },
   // label end

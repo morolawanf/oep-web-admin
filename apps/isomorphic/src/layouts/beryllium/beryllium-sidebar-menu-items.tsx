@@ -318,11 +318,6 @@ export const berylliumSidebarMenuItems = [
     name: 'Search & Filters',
   },
   {
-    name: 'Real Estate',
-    href: routes.searchAndFilter.realEstate,
-    icon: <PiHouseLine />,
-  },
-  {
     name: 'Flight Booking',
     href: routes.searchAndFilter.flight,
     icon: <PiAirplaneTilt />,

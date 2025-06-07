@@ -363,31 +363,6 @@ export const berylliumMenuItems: MenuItemsType[] = [
     ],
   },
   {
-    id: '3',
-    name: 'Search',
-    title: 'Search & Filter',
-    icon: PiUserCircle,
-    menuItems: [
-      {
-        name: 'Real Estate',
-        href: routes.searchAndFilter.realEstate,
-        icon: PiHouseLine,
-        badge: '',
-      },
-      {
-        name: 'Flight Booking',
-        href: routes.searchAndFilter.flight,
-        icon: PiAirplaneTilt,
-      },
-      {
-        name: 'NFT',
-        href: routes.searchAndFilter.nft,
-        icon: PiPokerChip,
-        badge: '',
-      },
-    ],
-  },
-  {
     id: '4',
     name: 'Widgets',
     title: 'Widgets',

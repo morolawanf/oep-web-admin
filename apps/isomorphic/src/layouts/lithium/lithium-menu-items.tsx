@@ -387,16 +387,6 @@ export const lithiumMenuItems: LithiumMenuItem = {
     type: 'link',
     dropdownItems: [
       {
-        name: 'Real Estate',
-        icon: 'RealEstateIcon',
-        href: routes.searchAndFilter.realEstate,
-      },
-      {
-        name: 'Find Flight',
-        icon: 'FlightIcon',
-        href: routes.searchAndFilter.flight,
-      },
-      {
         name: 'Point of Sell',
         href: routes.pos.index,
         icon: 'PointOfSellIcon',
