@@ -1,6 +1,5 @@
 'use client';
 
-import { OrdersDataType } from '@/app/shared/ecommerce/dashboard/recent-returns';
 import { routes } from '@/config/routes';
 import { getStatusBadge } from '@core/components/table-utils/get-status-badge';
 import TableRowActionGroup from '@core/components/table-utils/table-row-action-group';
@@ -9,8 +8,9 @@ import DateCell from '@core/ui/date-cell';
 import { createColumnHelper } from '@tanstack/react-table';
 import { PiCaretDownBold, PiCaretUpBold } from 'react-icons/pi';
 import { ActionIcon, Text } from 'rizzui';
+import { ReturnsDataType } from './table';
 
-const columnHelper = createColumnHelper<OrdersDataType>();
+const columnHelper = createColumnHelper<ReturnsDataType>();
 
 export const ordersColumns = (expanded: boolean = true) => {
   const columns = [

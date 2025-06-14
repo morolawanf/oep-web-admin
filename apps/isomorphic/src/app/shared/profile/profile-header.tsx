@@ -5,28 +5,14 @@ import { useState } from 'react';
 import { Button, Title, Text } from 'rizzui';
 import cn from '@core/utils/class-names';
 import { PiChatCircleText, PiUsers } from 'react-icons/pi';
-import { useLayout } from '@/layouts/use-layout';
-import { LAYOUT_OPTIONS } from '@/config/enums';
-import { useBerylliumSidebars } from '@/layouts/beryllium/beryllium-utils';
 
 export default function ProfileHeader() {
-  const { layout } = useLayout();
-  const { expandedLeft } = useBerylliumSidebars();
   const [follow, setFollow] = useState(false);
   return (
-    <div
-      className={cn(
-        layout === LAYOUT_OPTIONS.LITHIUM ? '3xl:-mt-4' : 'mt-0',
-        layout === LAYOUT_OPTIONS.BORON && '-mt-[15px] 2xl:-mt-8'
-      )}
-    >
+    <div className={cn('mt-0')}>
       <div
         className={cn(
-          '-mx-6 h-[150px] bg-gradient-to-r from-[#F8E1AF] to-[#F6CFCF] @5xl:h-[200px] 3xl:-mx-8 3xl:h-[250px] 4xl:-mx-10 4xl:h-[300px]',
-          layout === LAYOUT_OPTIONS.BERYLLIUM &&
-            (expandedLeft
-              ? 'xl:-me-8 3xl:-ms-5 4xl:-ms-4'
-              : 'xl:-me-8 4xl:-ms-6')
+          '-mx-6 h-[150px] bg-gradient-to-r from-[#F8E1AF] to-[#F6CFCF] @5xl:h-[200px] 3xl:-mx-8 3xl:h-[250px] 4xl:-mx-10 4xl:h-[300px]'
         )}
       />
 

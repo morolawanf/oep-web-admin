@@ -2,9 +2,15 @@ import { Button } from 'rizzui/button';
 import { routes } from '@/config/routes';
 import PageHeader from '@/app/shared/page-header';
 import Link from 'next/link';
-import OrderView from '@/app/shared/ecommerce/order/order-view';
+import OneOrderNav from '@/app/shared/account-settings/navigation';
 
-export default async function OrderDetailsPage({ params }: any) {
+export default async function OrderDetailsPage({
+  params,
+  children,
+}: {
+  params: Promise<any>;
+  children: React.ReactNode;
+}) {
   const id = (await params).id;
   const pageHeader = {
     title: `Order #${id}`,
@@ -22,6 +28,18 @@ export default async function OrderDetailsPage({ params }: any) {
       },
     ],
   };
+
+  const menuItemsForMiniNav = [
+    {
+      label: 'Main Details',
+      value: routes.eCommerce.editOrder(id),
+    },
+    {
+      label: 'Delivery',
+      value: routes.eCommerce.editOrder(id) + '/delivery',
+    },
+  ];
+
   return (
     <>
       <PageHeader title={pageHeader.title} breadcrumb={pageHeader.breadcrumb}>
@@ -34,7 +52,8 @@ export default async function OrderDetailsPage({ params }: any) {
           </Button>
         </Link>
       </PageHeader>
-      <OrderView />
+      <OneOrderNav menuItems={menuItemsForMiniNav} />
+      {children}
     </>
   );
 }

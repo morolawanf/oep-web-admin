@@ -13,7 +13,7 @@ import {
   ActionIcon,
 } from 'rizzui';
 import { Form } from '@core/ui/form';
-import { SubmitHandler, Controller } from 'react-hook-form';
+import { SubmitHandler, Controller, useWatch } from 'react-hook-form';
 import {
   CampaignDataType,
   CampaignChildProduct,
@@ -334,19 +334,6 @@ export default function CreateCampaign({ onSubmit }: CreateCampaignProps) {
           watch,
           formState: { errors },
         }) => {
-          const watchedImage = watch('image');
-
-          // Only update uploadedImage if it's different and from the form
-          useEffect(() => {
-            if (
-              watchedImage &&
-              watchedImage !== uploadedImage &&
-              !uploadedImage
-            ) {
-              setUploadedImage(watchedImage);
-            }
-          }, [watchedImage, uploadedImage]);
-
           return (
             <>
               <div className="col-span-2 mb-1 pe-4 @5xl:mb-0">

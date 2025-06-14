@@ -151,38 +151,14 @@ export const menuItems = [
     icon: <PiFoldersDuotone />,
   },
   {
-    name: 'Analytics',
-    href: routes.analytics,
-    icon: <PiChartBarDuotone />,
-  },
-  {
-    name: 'Support',
-    href: '#',
-    icon: <PiHeadsetDuotone />,
-    dropdownItems: [
-      {
-        name: 'Inbox',
-        href: routes.support.inbox,
-      },
-      {
-        name: 'Snippets',
-        href: routes.support.snippets,
-      },
-      {
-        name: 'Templates',
-        href: routes.support.templates,
-      },
-    ],
+    name: 'Account Settings',
+    href: routes.forms.profileSettings,
+    icon: <PiUserGearDuotone />,
   },
   {
     name: 'Roles & Permissions',
     href: routes.rolesPermissions,
     icon: <PiFolderLockDuotone />,
-  },
-  {
-    name: 'Store Settings',
-    href: routes.jobBoard.dashboard,
-    icon: <PiShapesDuotone />,
   },
   {
     name: 'Logistics',
@@ -215,79 +191,9 @@ export const menuItems = [
       },
     ],
   },
-  // label start
   {
-    name: 'Widgets',
-  },
-  // label end
-  {
-    name: 'Cards',
-    href: routes.widgets.cards,
-    icon: <PiSquaresFourDuotone />,
-  },
-  {
-    name: 'Icons',
-    href: routes.widgets.icons,
-    icon: <PiFeatherDuotone />,
-  },
-  {
-    name: 'Charts',
-    href: routes.widgets.charts,
-    icon: <PiChartLineUpDuotone />,
-  },
-  // {
-  //   name: 'Banners',
-  //   href: routes.widgets.banners,
-  //   icon: <PiImageDuotone />,
-  // },
-  {
-    name: 'Maps',
-    href: routes.widgets.maps,
-    icon: <PiMapPinLineDuotone />,
-  },
-  {
-    name: 'Email Templates',
-    href: routes.emailTemplates,
-    icon: <PiEnvelopeDuotone />,
-  },
-  // label start
-  {
-    name: 'Forms',
-  },
-  // label end
-  {
-    name: 'Account Settings',
-    href: routes.forms.profileSettings,
-    icon: <PiUserGearDuotone />,
-  },
-  {
-    name: 'Notification Preference',
-    href: routes.forms.notificationPreference,
-    icon: <PiBellSimpleRingingDuotone />,
-  },
-  {
-    name: 'Personal Information',
-    href: routes.forms.personalInformation,
-    icon: <PiUserDuotone />,
-  },
-  {
-    name: 'Newsletter',
-    href: routes.forms.newsletter,
-    icon: <PiEnvelopeSimpleOpenDuotone />,
-  },
-  {
-    name: 'Multi Step',
-    href: routes.multiStep,
-    icon: <PiStepsDuotone />,
-  },
-  {
-    name: 'Multi Step 2',
-    href: routes.multiStep2,
-    icon: <PiStairsDuotone />,
-  },
-  {
-    name: 'Payment Checkout',
-    href: routes.eCommerce.checkout,
-    icon: <PiCreditCardDuotone />,
+    name: 'Store Settings',
+    href: routes.jobBoard.dashboard,
+    icon: <PiShapesDuotone />,
   },
 ];

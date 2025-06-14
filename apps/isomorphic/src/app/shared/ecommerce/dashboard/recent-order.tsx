@@ -9,12 +9,13 @@ import cn from '@core/utils/class-names';
 import { Input } from 'rizzui';
 import { PiMagnifyingGlassBold } from 'react-icons/pi';
 import { returnsData } from '@/data/returns-data';
+import { orderData } from '@/data/order-data';
 
-export type OrdersDataType = (typeof returnsData)[number];
+export type OrdersDataType = (typeof orderData)[number];
 
 export default function RecentOrder({ className }: { className?: string }) {
   const { table, setData } = useTanStackTable<OrdersDataType>({
-    tableData: returnsData,
+    tableData: orderData,
     columnConfig: ordersColumns(false),
     options: {
       initialState: {
@@ -25,7 +26,7 @@ export default function RecentOrder({ className }: { className?: string }) {
       },
       meta: {
         handleDeleteRow: (row) => {
-          setData((prev) => prev.filter((r) => r.oId !== row.id));
+          setData((prev) => prev.filter((r) => r.id !== row.id));
         },
       },
       enableColumnResizing: false,

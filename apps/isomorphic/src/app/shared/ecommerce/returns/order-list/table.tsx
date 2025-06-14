@@ -5,10 +5,10 @@ import Table from '@core/components/table';
 import { CustomExpandedComponent } from '@core/components/table/custom/expanded-row';
 import { useTanStackTable } from '@core/components/table/custom/use-TanStack-Table';
 import TablePagination from '@core/components/table/pagination';
-import { OrdersDataType } from '@/app/shared/ecommerce/dashboard/recent-order';
 import Filters from './filters';
 import { TableVariantProps } from 'rizzui';
 import { returnsData } from '@/data/returns-data';
+export type ReturnsDataType = (typeof returnsData)[number];
 
 export default function ReturnsTable({
   className,
@@ -21,7 +21,7 @@ export default function ReturnsTable({
   hidePagination?: boolean;
   variant?: TableVariantProps;
 }) {
-  const { table, setData } = useTanStackTable<OrdersDataType>({
+  const { table, setData } = useTanStackTable<ReturnsDataType>({
     tableData: returnsData,
     columnConfig: ordersColumns(),
     options: {

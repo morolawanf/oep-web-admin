@@ -50,7 +50,6 @@ export default function OrdersPage() {
           </Link>
         </div>
       </PageHeader>
-
       <OrdersTable />
     </>
   );

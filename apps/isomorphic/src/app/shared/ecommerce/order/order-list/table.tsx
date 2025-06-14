@@ -6,9 +6,10 @@ import Table from '@core/components/table';
 import { CustomExpandedComponent } from '@core/components/table/custom/expanded-row';
 import { useTanStackTable } from '@core/components/table/custom/use-TanStack-Table';
 import TablePagination from '@core/components/table/pagination';
-import { OrdersDataType } from '@/app/shared/ecommerce/dashboard/recent-order';
 import Filters from './filters';
 import { TableVariantProps } from 'rizzui';
+
+type OrdersDataType = (typeof orderData)[number];
 
 export default function OrderTable({
   className,

@@ -3,35 +3,12 @@ interface IconProps extends React.SVGProps<SVGSVGElement> {
 }
 
 export default function Logo({ iconOnly = false, ...props }: IconProps) {
+  return <p className="font-extrabold text-4xl tracking-wider">OSL</p>;
   return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox={`0 0 ${iconOnly ? '48 26' : '155 28'}`}
-      {...props}
-    >
-      <rect
-        width="10.16"
-        height="19.93"
-        fill="currentColor"
-        rx="5.08"
-        transform="rotate(29.49 -5.18 20.77) skewX(.85)"
-      />
-      <rect
-        width="10.16"
-        height="25.62"
-        fill="currentColor"
-        rx="5.08"
-        transform="matrix(.87 .492 -.48 .878 27.17 0)"
-      />
-      <rect
-        width="10.16"
-        height="10.25"
-        fill="currentColor"
-        opacity=".5"
-        rx="5.08"
-        transform="rotate(29.49 -8.24 75.34) skewX(.85)"
-      />
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox={`0 0 ${iconOnly ? "48 26" : "155 28"}`} {...props}>
+      <rect width="10.16" height="19.93" fill="currentColor" rx="5.08" transform="rotate(29.49 -5.18 20.77) skewX(.85)" />
+      <rect width="10.16" height="25.62" fill="currentColor" rx="5.08" transform="matrix(.87 .492 -.48 .878 27.17 0)" />
+      <rect width="10.16" height="10.25" fill="currentColor" opacity=".5" rx="5.08" transform="rotate(29.49 -8.24 75.34) skewX(.85)" />
       {!iconOnly && (
         <path
           fill="currentColor"

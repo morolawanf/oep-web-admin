@@ -13,7 +13,7 @@ import {
   ActionIcon,
 } from 'rizzui';
 import { Form } from '@core/ui/form';
-import { SubmitHandler, Controller } from 'react-hook-form';
+import { SubmitHandler, Controller, useWatch } from 'react-hook-form';
 import {
   CampaignDataType,
   CampaignChildProduct,
@@ -205,6 +205,9 @@ export default function EditCampaign({
   const [isSalesDrawerOpen, setIsSalesDrawerOpen] = useState(false);
   const [productSearchQuery, setProductSearchQuery] = useState('');
   const [salesSearchQuery, setSalesSearchQuery] = useState('');
+  // Track watched image from form
+  const [watchedImage, setWatchedImage] = useState<string>('');
+
   // Table configurations
   const productsTable = useTanStackTable<CampaignChildProduct>({
     tableData: selectedProducts,
@@ -238,18 +241,25 @@ export default function EditCampaign({
     }
   }, [campaign]);
 
+  // Sync watchedImage with uploadedImage when needed
+  useEffect(() => {
+    if (watchedImage && watchedImage !== uploadedImage && !uploadedImage) {
+      setUploadedImage(watchedImage);
+    }
+  }, [watchedImage, uploadedImage]);
+
   // Sync table data when state changes
   useEffect(() => {
     if (productsTable?.setData) {
       productsTable.setData(selectedProducts);
     }
-  }, [selectedProducts, productsTable?.setData]);
+  }, [selectedProducts, productsTable]);
 
   useEffect(() => {
     if (salesTable?.setData) {
       salesTable.setData(selectedSales);
     }
-  }, [selectedSales, salesTable?.setData]);
+  }, [selectedSales, salesTable]);
 
   const handleFormSubmit = (data: EditCampaignFormData) => {
     setLoading(true);
@@ -366,18 +376,10 @@ export default function EditCampaign({
           watch,
           formState: { errors },
         }) => {
-          const watchedImage = watch('image');
-
-          // Only update uploadedImage if it's different and from the form
-          useEffect(() => {
-            if (
-              watchedImage &&
-              watchedImage !== uploadedImage &&
-              !uploadedImage
-            ) {
-              setUploadedImage(watchedImage);
-            }
-          }, [watchedImage, uploadedImage]);
+          // Remove useEffect from here, and instead update watchedImage state
+          // useEffect(() => {
+          //   setWatchedImage(watch('image'));
+          // }, [watch('image')]);
 
           return (
             <>

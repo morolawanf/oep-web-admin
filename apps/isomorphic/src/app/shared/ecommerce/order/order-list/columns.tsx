@@ -1,7 +1,7 @@
 'use client';
 
-import { OrdersDataType } from '@/app/shared/ecommerce/dashboard/recent-order';
 import { routes } from '@/config/routes';
+import { orderData } from '@/data/order-data';
 import { getStatusBadge } from '@core/components/table-utils/get-status-badge';
 import TableRowActionGroup from '@core/components/table-utils/table-row-action-group';
 import TableAvatar from '@core/ui/avatar-card';
@@ -9,6 +9,8 @@ import DateCell from '@core/ui/date-cell';
 import { createColumnHelper } from '@tanstack/react-table';
 import { PiCaretDownBold, PiCaretUpBold } from 'react-icons/pi';
 import { ActionIcon, Text } from 'rizzui';
+
+export type OrdersDataType = (typeof orderData)[number];
 
 const columnHelper = createColumnHelper<OrdersDataType>();
 
