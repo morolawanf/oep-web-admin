@@ -9,21 +9,6 @@ import { rolesList } from '@/data/roles-permissions';
 import ModalButton from '@/app/shared/modal-button';
 import CreateUser from '../create-user';
 
-const statusOptions = [
-  {
-    value: STATUSES.Active,
-    label: STATUSES.Active,
-  },
-  {
-    value: STATUSES.Deactivated,
-    label: STATUSES.Deactivated,
-  },
-  {
-    value: STATUSES.Pending,
-    label: STATUSES.Pending,
-  },
-];
-
 const roles = rolesList.map((role) => ({
   label: role.name,
   value: role.name,
@@ -58,21 +43,6 @@ export default function Filters<TData extends Record<string, any>>({
           gap="2"
           className="order-4 @lg:grid @lg:grid-cols-2 @4xl:order-2 @4xl:flex @4xl:flex-row"
         >
-          <StatusField
-            placeholder="Filter by status"
-            options={statusOptions}
-            value={table.getColumn('status')?.getFilterValue() ?? []}
-            onChange={(e) => table.getColumn('status')?.setFilterValue(e)}
-            getOptionValue={(option) => option.label}
-            dropdownClassName="!z-10 h-auto"
-            className="@4xl:w-40"
-            getOptionDisplayValue={(option) =>
-              renderOptionDisplayValue(option.value as string)
-            }
-            displayValue={(selected: string) =>
-              renderOptionDisplayValue(selected)
-            }
-          />
           <StatusField
             placeholder="Filter by Role"
             options={roles}
@@ -117,36 +87,4 @@ export default function Filters<TData extends Record<string, any>>({
       </Flex>
     </Box>
   );
-}
-
-function renderOptionDisplayValue(value: string) {
-  switch (value) {
-    case STATUSES.Active:
-      return (
-        <div className="flex items-center">
-          <Badge color="success" renderAsDot />
-          <Text className="ms-2 font-medium capitalize text-green-dark">
-            {value}
-          </Text>
-        </div>
-      );
-    case STATUSES.Deactivated:
-      return (
-        <div className="flex items-center">
-          <Badge color="danger" renderAsDot />
-          <Text className="ms-2 font-medium capitalize text-red-dark">
-            {value}
-          </Text>
-        </div>
-      );
-    default:
-      return (
-        <div className="flex items-center">
-          <Badge renderAsDot className="bg-orange-dark" />
-          <Text className="ms-2 font-medium capitalize text-orange-dark">
-            {value}
-          </Text>
-        </div>
-      );
-  }
 }

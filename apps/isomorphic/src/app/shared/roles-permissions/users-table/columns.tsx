@@ -63,32 +63,6 @@ export const usersColumns = [
     cell: ({ row }) => <DateCell date={new Date(row.original.createdAt)} />,
   }),
   columnHelper.display({
-    id: 'permissions',
-    size: 250,
-    header: 'Permissions',
-    cell: ({ row }) => (
-      <Flex align="center" gap="2">
-        {row.original.permissions.map((permission) => (
-          <Badge
-            rounded="lg"
-            key={permission}
-            variant="outline"
-            className="border-muted font-normal text-gray-500"
-          >
-            {permission}
-          </Badge>
-        ))}
-      </Flex>
-    ),
-  }),
-  columnHelper.accessor('status', {
-    id: 'status',
-    size: 150,
-    header: 'Status',
-    enableSorting: false,
-    cell: ({ row }) => getStatusBadge(row.original.status),
-  }),
-  columnHelper.display({
     id: 'action',
     size: 140,
     cell: ({

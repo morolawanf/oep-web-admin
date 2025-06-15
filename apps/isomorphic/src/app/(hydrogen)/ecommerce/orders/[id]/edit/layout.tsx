@@ -32,11 +32,11 @@ export default async function OrderDetailsPage({
   const menuItemsForMiniNav = [
     {
       label: 'Main Details',
-      value: routes.eCommerce.orderDetails(id),
+      value: routes.eCommerce.editOrder(id),
     },
     {
       label: 'Delivery',
-      value: routes.eCommerce.orderDetails(id) + '/delivery',
+      value: routes.eCommerce.editOrder(id) + '/delivery',
     },
   ];
 

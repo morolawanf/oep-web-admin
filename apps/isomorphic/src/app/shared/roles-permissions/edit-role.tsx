@@ -39,7 +39,12 @@ export default function EditRole() {
       validationSchema={rolePermissionSchema}
       useFormProps={{
         defaultValues: {
-          administrator: [PERMISSIONS.Read],
+          administrator: [
+            PERMISSIONS.Read,
+            PERMISSIONS.PageAccess,
+            PERMISSIONS.Write,
+            PERMISSIONS.Delete,
+          ],
           manager: [PERMISSIONS.Write],
           sales: [PERMISSIONS.Delete],
           support: [PERMISSIONS.Read],

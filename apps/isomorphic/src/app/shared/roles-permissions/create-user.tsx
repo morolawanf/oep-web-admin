@@ -31,11 +31,8 @@ export default function CreateUser() {
       console.log('formattedData', formattedData);
       setLoading(false);
       setReset({
-        fullName: '',
         email: '',
         role: '',
-        permissions: '',
-        status: '',
       });
       closeModal();
     }, 600);
@@ -59,13 +56,6 @@ export default function CreateUser() {
                 <PiXBold className="h-auto w-5" />
               </ActionIcon>
             </div>
-            <Input
-              label="Full Name"
-              placeholder="Enter user's full name"
-              {...register('fullName')}
-              className="col-span-full"
-              error={errors.fullName?.message}
-            />
 
             <Input
               label="Email"
@@ -86,57 +76,13 @@ export default function CreateUser() {
                   name={name}
                   label="Role"
                   className="col-span-full"
-                  error={errors?.status?.message}
+                  error={errors?.role?.message}
                   getOptionValue={(option) => option.value}
                   displayValue={(selected: string) =>
                     roles.find((option) => option.value === selected)?.label ??
                     selected
                   }
                   dropdownClassName="!z-[1]"
-                  inPortal={false}
-                />
-              )}
-            />
-
-            <Controller
-              name="status"
-              control={control}
-              render={({ field: { name, onChange, value } }) => (
-                <Select
-                  options={statuses}
-                  value={value}
-                  onChange={onChange}
-                  name={name}
-                  label="Status"
-                  error={errors?.status?.message}
-                  getOptionValue={(option) => option.value}
-                  displayValue={(selected: string) =>
-                    statuses.find((option) => option.value === selected)
-                      ?.label ?? ''
-                  }
-                  dropdownClassName="!z-[1] h-auto"
-                  inPortal={false}
-                />
-              )}
-            />
-
-            <Controller
-              name="permissions"
-              control={control}
-              render={({ field: { name, onChange, value } }) => (
-                <Select
-                  options={permissions}
-                  value={value}
-                  onChange={onChange}
-                  name={name}
-                  label="Permissions"
-                  error={errors?.status?.message}
-                  getOptionValue={(option) => option.value}
-                  displayValue={(selected: string) =>
-                    permissions.find((option) => option.value === selected)
-                      ?.label ?? ''
-                  }
-                  dropdownClassName="!z-[1] h-auto"
                   inPortal={false}
                 />
               )}
