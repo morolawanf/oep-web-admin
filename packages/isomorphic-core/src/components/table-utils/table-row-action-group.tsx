@@ -9,7 +9,7 @@ import DeletePopover from "../delete-popover";
 
 export default function TableRowActionGroup({
   onDelete,
-  editUrl = "#",
+  editUrl,
   viewUrl = "#",
   deletePopoverTitle = "Delete the appointment",
   deletePopoverDescription = "Are you sure you want to delete this item?",
@@ -29,7 +29,7 @@ export default function TableRowActionGroup({
       gap="3"
       className={cn("pe-3", className)}
     >
-      <Tooltip size="sm" content="Edit Item" placement="top" color="invert">
+      {editUrl ? <Tooltip size="sm" content="Edit Item" placement="top" color="invert">
         <Link href={editUrl}>
           <ActionIcon
             as="span"
@@ -40,7 +40,7 @@ export default function TableRowActionGroup({
             <PencilIcon className="size-4" />
           </ActionIcon>
         </Link>
-      </Tooltip>
+      </Tooltip> : null}
       <Tooltip size="sm" content="View Item" placement="top" color="invert">
         <Link href={viewUrl}>
           <ActionIcon

@@ -105,6 +105,10 @@ export const routes = {
   },
   eventCalendar: '/event-calendar',
   rolesPermissions: '/roles-permissions',
+  users: {
+    list: '/users',
+    details: (id: string) => `/users/${id}`,
+  },
   invoice: {
     home: '/invoice',
     create: '/invoice/create',
@@ -173,4 +177,9 @@ export const routes = {
     otp5: '/auth/otp-5',
   },
   signIn: '/signin',
+  storefront: {
+    signUpPage : `${process.env.NEXT_PUBLIC_STOREFRONT_URL}/register`,
+    forgotPasswordPage : `${process.env.NEXT_PUBLIC_STOREFRONT_URL}/forgot-password`,
+    homePage : `${process.env.NEXT_PUBLIC_STOREFRONT_URL}`
+  }
 };

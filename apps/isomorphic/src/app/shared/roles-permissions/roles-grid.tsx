@@ -1,6 +1,9 @@
+'use client';
+
 import RoleCard from '@/app/shared/roles-permissions/role-card';
-import { rolesList } from '@/data/roles-permissions';
+import { useRoles } from '@/hooks/use-role-management';
 import cn from '@core/utils/class-names';
+import { Text } from 'rizzui';
 
 interface RolesGridProps {
   className?: string;
@@ -11,6 +14,38 @@ export default function RolesGrid({
   className,
   gridClassName,
 }: RolesGridProps) {
+  const { data: roles, isLoading, error } = useRoles();
+
+  if (isLoading) {
+    return (
+      <div className={cn('@container', className)}>
+        <div className="flex items-center justify-center py-10">
+          <Text>Loading roles...</Text>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={cn('@container', className)}>
+        <div className="flex items-center justify-center py-10">
+          <Text className="text-red-500">Error loading roles</Text>
+        </div>
+      </div>
+    );
+  }
+
+  if (!roles || roles.length === 0) {
+    return (
+      <div className={cn('@container', className)}>
+        <div className="flex items-center justify-center py-10">
+          <Text className="text-gray-500">No roles found</Text>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={cn('@container', className)}>
       <div
@@ -19,8 +54,8 @@ export default function RolesGrid({
           gridClassName
         )}
       >
-        {rolesList.map((role) => (
-          <RoleCard key={role.name} {...role} />
+        {roles.map((role) => (
+          <RoleCard key={role._id} role={role} />
         ))}
       </div>
     </div>

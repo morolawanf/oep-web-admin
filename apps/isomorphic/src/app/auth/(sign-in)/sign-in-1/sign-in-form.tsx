@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { signIn } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 import { SubmitHandler } from 'react-hook-form';
 import { PiArrowRightBold } from 'react-icons/pi';
 import { Checkbox, Password, Button, Input, Text } from 'rizzui';
@@ -11,20 +12,41 @@ import { routes } from '@/config/routes';
 import { loginSchema, LoginSchema } from '@/validators/login.schema';
 
 const initialValues: LoginSchema = {
-  email: 'admin@admin.com',
-  password: 'admin',
-  rememberMe: true,
+  email: '',
+  password: '',
+  rememberMe: false,
 };
 
 export default function SignInForm() {
-  //TODO: why we need to reset it here
   const [reset, setReset] = useState({});
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const router = useRouter();
 
-  const onSubmit: SubmitHandler<LoginSchema> = (data) => {
-    console.log(data);
-    signIn('credentials', {
-      ...data,
-    });
+  const onSubmit: SubmitHandler<LoginSchema> = async (data) => {
+    setSubmitError(null);
+    setIsSubmitting(true);
+
+    try {
+      const result = await signIn('credentials', {
+        email: data.email,
+        password: data.password,
+        redirect: false,
+      });
+
+      if (result?.error) {
+        setSubmitError('Invalid credentials. Check your credentials and try again.');
+      } else if (result?.ok) {
+        // Redirect to dashboard on successful login
+        router.push('/');
+        router.refresh();
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      setSubmitError('An error occurred. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
     // setReset({ email: "", password: "", isRememberMe: false });
   };
 
@@ -74,8 +96,21 @@ export default function SignInForm() {
                 Forget Password?
               </Link>
             </div>
-            <Button className="w-full" type="submit" size="lg">
-              <span>Sign in</span>{' '}
+
+            {/* Error Message */}
+            {submitError && (
+              <div className="p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+                <Text className="text-sm">{submitError}</Text>
+              </div>
+            )}
+
+            <Button 
+              className="w-full" 
+              type="submit" 
+              size="lg"
+              disabled={isSubmitting}
+            >
+              <span>{isSubmitting ? 'Signing in...' : 'Sign in'}</span>{' '}
               <PiArrowRightBold className="ms-2 mt-0.5 h-6 w-6" />
             </Button>
           </div>

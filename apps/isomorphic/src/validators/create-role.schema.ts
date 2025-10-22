@@ -3,17 +3,18 @@ import { messages } from '@/config/messages';
 
 // form zod validation schema
 export const createRoleSchema = z.object({
-  roleName: z
+  name: z
     .string()
     .min(1, { message: messages.roleNameIsRequired })
     .min(3, { message: messages.roleNameLengthMin }),
-  roleColor: z
-    .object({
-      r: z.number(),
-      g: z.number(),
-      b: z.number(),
-      a: z.number(),
-    })
+  description: z.string().optional(),
+  permissions: z
+    .array(
+      z.object({
+        resource: z.string(),
+        actions: z.array(z.string()),
+      })
+    )
     .optional(),
 });
 

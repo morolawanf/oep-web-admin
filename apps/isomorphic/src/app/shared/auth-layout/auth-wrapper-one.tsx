@@ -5,10 +5,9 @@ import logoImg from '@public/logo-primary.svg';
 import logoImgText from '@public/logo-primary-text.svg';
 import Image from 'next/image';
 import { Button, Title, Text } from 'rizzui';
-import { PiAppleLogoFill, PiArrowLeftBold } from 'react-icons/pi';
+import { PiArrowLeftBold } from 'react-icons/pi';
 import { FcGoogle } from 'react-icons/fc';
 import OrSeparation from '@/app/shared/auth-layout/or-separation';
-import toast from 'react-hot-toast';
 
 export default function AuthWrapperOne({
   children,
@@ -31,17 +30,6 @@ export default function AuthWrapperOne({
   isSignIn?: boolean;
   showBackButton?: boolean;
 }) {
-  function handleSignIn() {
-    toast.error(
-      <Text>
-        This is only demo purpose, click on the{' '}
-        <Text as="b" className="font-semibold text-gray-900">
-          Sign In
-        </Text>{' '}
-        button to login.
-      </Text>
-    );
-  }
   return (
     <>
       {showBackButton ? (
@@ -90,24 +78,10 @@ export default function AuthWrapperOne({
             </div>
             {isSocialLoginActive && (
               <>
-                <div className="grid grid-cols-1 gap-4 pb-5 md:grid-cols-2 md:pb-6 xl:gap-5 xl:pb-7">
-                  <Button
-                    onClick={() =>
-                      // it should be signIn('apple')
-                      handleSignIn()
-                    }
-                    variant="outline"
-                    className="h-11 w-full"
-                  >
-                    <PiAppleLogoFill className="me-2 h-4 w-4 shrink-0" />
-                    <span className="truncate">Signin With Apple</span>
-                  </Button>
+                <div className="">
                   <Button
                     variant="outline"
-                    onClick={() =>
-                      // it should be signIn('google')
-                      handleSignIn()
-                    }
+                    onClick={() => {}}
                     className="h-11 w-full"
                   >
                     <FcGoogle className="me-2 h-4 w-4 shrink-0" />

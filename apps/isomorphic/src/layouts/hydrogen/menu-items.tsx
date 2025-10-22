@@ -19,6 +19,7 @@ import {
   PiClipboardTextDuotone,
   PiCodesandboxLogoDuotone,
   PiCoinDuotone,
+  PiContactlessPayment,
   PiCreditCardDuotone,
   PiCurrencyCircleDollarDuotone,
   PiCurrencyDollarDuotone,
@@ -60,7 +61,7 @@ import {
   PiUserPlusDuotone,
 } from 'react-icons/pi';
 import { GoHome, GoPeople } from 'react-icons/go';
-import { MdOutlineCampaign, MdOutlineSell } from 'react-icons/md';
+import { MdOutlineCampaign, MdOutlineSell, MdPayments } from 'react-icons/md';
 import { IoReturnDownBack } from 'react-icons/io5';
 // Note: do not add href in the label object, it is rendering as label
 export const menuItems = [
@@ -72,36 +73,79 @@ export const menuItems = [
     name: 'Home',
     href: '/',
     icon: <GoHome />,
+    permission: { resource: [], action: '*' }
   },
   {
     name: 'Products',
     href: routes.eCommerce.products,
     icon: <PiPackageDuotone />,
+    permission: { resource: ['products'], action: 'read' }
   },
   {
     name: 'Categories',
     href: routes.eCommerce.categories,
     icon: <PiSquaresFourDuotone />,
+    permission: { resource: ['categories'], action: 'read' }
   },
   {
     name: 'Orders',
     href: routes.eCommerce.orders,
     icon: <PiShoppingCartDuotone />,
+    permission: { resource: ['orders'], action: 'read' }
   },
   {
     name: 'Returns',
     href: routes.eCommerce.returns,
     icon: <IoReturnDownBack />,
+    permission: { resource: ['orders'], action: 'read' }
   },
   {
     name: 'Reviews',
     href: routes.eCommerce.reviews,
     icon: <GoPeople />,
+    permission: { resource: ['reviews'], action: 'read' }
   },
   {
+    name: 'Coupons',
+    href: routes.eCommerce.coupons,
+    icon: <PiNewspaperClippingDuotone />,
+    permission: { resource: ['coupons'], action: 'read' }
+  },
+  {
+    name: 'Banner',
+    href: routes.eCommerce.banners,
+    icon: <PiFlagBanner />,
+    permission: { resource: ['banners'], action: 'read' } 
+  },
+  {
+    name: 'Flash Sale',
+    href: routes.eCommerce.flashSales,
+    icon: <MdOutlineSell />,
+    permission: { resource: ['sales'], action: 'read' }
+  },
+  {
+    name: 'Campaign',
+    href: routes.eCommerce.campaign,
+    icon: <MdOutlineCampaign />,
+    permission: { resource: ['campaigns'], action: 'read' }
+  },
+  {
+    name: 'Users',
+    href: routes.users.list,
+    icon: <PiUserDuotone />,
+    permission: { resource: ['users'], action: 'read' }
+  },
+  {
+    name: 'Gallery',
+    href: routes.file.manager,
+    icon: <PiFoldersDuotone />,
+    permission: { resource: ['gallery'], action: 'read' }
+  },
+    {
     name: 'Invoice',
     href: '#',
     icon: <PiCurrencyDollarDuotone />,
+    permission: { resource: ['invoices'], action: 'read' },
     dropdownItems: [
       {
         name: 'Builder',
@@ -126,44 +170,28 @@ export const menuItems = [
     ],
   },
   {
-    name: 'Coupons',
-    href: routes.eCommerce.coupons,
-    icon: <PiNewspaperClippingDuotone />,
-  },
-  {
-    name: 'Banner',
-    href: routes.eCommerce.banners,
-    icon: <PiFlagBanner />,
-  },
-  {
-    name: 'Sale',
-    href: routes.eCommerce.flashSales,
-    icon: <MdOutlineSell />,
-  },
-  {
-    name: 'Campaign',
-    href: routes.eCommerce.campaign,
-    icon: <MdOutlineCampaign />,
-  },
-  {
-    name: 'Gallery',
-    href: routes.file.manager,
-    icon: <PiFoldersDuotone />,
-  },
-  {
     name: 'Account Settings',
     href: routes.forms.profileSettings,
     icon: <PiUserGearDuotone />,
+    permission: { resource: ['*'], action: '*' }
   },
   {
     name: 'Roles & Permissions',
     href: routes.rolesPermissions,
     icon: <PiFolderLockDuotone />,
+    permission: { resource: ['roles'], action: 'read' }
+  },
+  {
+    name: 'Transactions',
+    href: routes.rolesPermissions,
+    icon: <MdPayments />,
+    permission: { resource: ['transactions'], action: 'read' }
   },
   {
     name: 'Logistics',
     href: '#',
     icon: <PiPackageDuotone />,
+    permission: { resource: ['logistics'], action: 'read' },
     dropdownItems: [
       {
         name: 'Shipment List',

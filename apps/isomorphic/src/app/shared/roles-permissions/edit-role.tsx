@@ -3,137 +3,217 @@
 import { useState } from 'react';
 import { PiCheckBold, PiXBold } from 'react-icons/pi';
 import { Controller, SubmitHandler } from 'react-hook-form';
-import { permissions, roles } from '@/app/shared/roles-permissions/utils';
 import { useModal } from '@/app/shared/modal-views/use-modal';
+import { useUpdateRole } from '@/hooks/use-role-management';
 import {
   ActionIcon,
   AdvancedCheckbox,
   Title,
   Button,
   CheckboxGroup,
+  Input,
+  Textarea,
 } from 'rizzui';
-import { PERMISSIONS } from '@/data/users-data';
 import { Form } from '@core/ui/form';
-import {
-  RolePermissionInput,
-  rolePermissionSchema,
-} from '@/validators/edit-role.schema';
+import { EditRoleInput, editRoleSchema } from '@/validators/edit-role.schema';
 
-export default function EditRole() {
+const RESOURCES = [
+  'products',
+  'categories',
+  'subcategories',
+  'attributes',
+  'inventory',
+  'orders',
+  'users',
+  'roles',
+  'sales',
+  'coupons',
+  'reviews',
+  'campaigns',
+  'banners',
+  'gallery',
+  'analytics',
+  'invoices',
+  'logistics',
+  'transactions',
+];
+
+const ACTIONS = ['*', 'create', 'read', 'update', 'delete'];
+
+interface EditRoleProps {
+  role?: {
+    _id: string;
+    name: string;
+    description?: string;
+    permissions?: Array<{
+      resource: string;
+      actions: string[];
+    }>;
+  };
+}
+
+export default function EditRole({ role }: EditRoleProps) {
   const { closeModal } = useModal();
-  const [isLoading, setLoading] = useState(false);
+  const updateRoleMutation = useUpdateRole();
 
-  const onSubmit: SubmitHandler<RolePermissionInput> = (data) => {
-    // set timeout ony required to display loading state of the create category button
-    setLoading(true);
-    setTimeout(() => {
-      console.log('data', data);
-      setLoading(false);
+  // Transform permissions to flat structure for checkboxes
+  const initialPermissions: Record<string, string[]> = {};
+  role?.permissions?.forEach(({ resource, actions }) => {
+    initialPermissions[resource] = actions;
+  });
+
+  const [selectedPermissions, setSelectedPermissions] =
+    useState<Record<string, string[]>>(initialPermissions);
+
+  const onSubmit: SubmitHandler<EditRoleInput> = async (data) => {
+    if (!role?._id) return;
+
+    // Transform selectedPermissions to backend format
+    const permissions = Object.entries(selectedPermissions)
+      .filter(([_, actions]) => actions.length > 0)
+      .map(([resource, actions]) => ({
+        resource,
+        actions,
+      }));
+
+    const payload = {
+      ...data,
+      permissions,
+    };
+
+    try {
+      await updateRoleMutation.mutateAsync({ roleId: role._id, payload });
       closeModal();
-    }, 600);
+    } catch (error) {
+      console.error('Error updating role:', error);
+    }
+  };
+
+  const handlePermissionChange = (resource: string, actions: string[]) => {
+    // If '*' is selected, remove all other actions
+    if (actions.includes('*')) {
+      const wasAllSelected = selectedPermissions[resource]?.includes('*');
+      // If '*' was already selected, keep the new selection without '*'
+      if (wasAllSelected) {
+        setSelectedPermissions((prev) => ({
+          ...prev,
+          [resource]: actions.filter((a) => a !== '*'),
+        }));
+      } else {
+        // '*' is newly selected, only keep '*'
+        setSelectedPermissions((prev) => ({
+          ...prev,
+          [resource]: ['*'],
+        }));
+      }
+    } else {
+      // No '*' in selection, set as is
+      setSelectedPermissions((prev) => ({
+        ...prev,
+        [resource]: actions,
+      }));
+    }
   };
 
   return (
-    <Form<RolePermissionInput>
+    <Form<EditRoleInput>
       onSubmit={onSubmit}
-      validationSchema={rolePermissionSchema}
+      validationSchema={editRoleSchema}
       useFormProps={{
         defaultValues: {
-          administrator: [
-            PERMISSIONS.Read,
-            PERMISSIONS.PageAccess,
-            PERMISSIONS.Write,
-            PERMISSIONS.Delete,
-          ],
-          manager: [PERMISSIONS.Write],
-          sales: [PERMISSIONS.Delete],
-          support: [PERMISSIONS.Read],
-          developer: [PERMISSIONS.Write],
-          hrd: [PERMISSIONS.Delete],
-          restricteduser: [PERMISSIONS.Write],
-          customer: [PERMISSIONS.Read],
+          name: role?.name || '',
+          description: role?.description || '',
         },
       }}
       className="grid grid-cols-1 gap-6 p-6 @container [&_.rizzui-input-label]:font-medium [&_.rizzui-input-label]:text-gray-900"
     >
-      {({ register, control, watch, formState: { errors } }) => {
-        return (
-          <>
-            <div className="col-span-full flex items-center justify-between">
-              <Title as="h4" className="font-semibold">
-                Edit Role
-              </Title>
-              <ActionIcon size="sm" variant="text" onClick={closeModal}>
-                <PiXBold className="h-auto w-5" />
-              </ActionIcon>
-            </div>
+      {({ register, control, formState: { errors } }) => (
+        <>
+          <div className="col-span-full flex items-center justify-between">
+            <Title as="h4" className="font-semibold">
+              Edit Role
+            </Title>
+            <ActionIcon size="sm" variant="text" onClick={closeModal}>
+              <PiXBold className="h-auto w-5" />
+            </ActionIcon>
+          </div>
 
-            <div className="grid gap-4 divide-y divide-y-reverse divide-gray-200">
-              <Title as="h5" className="mb-2 text-base font-semibold">
-                Role Access
-              </Title>
-              {roles.map(({ label, value }) => {
-                const parent = value.toLowerCase();
-                return (
-                  <div
-                    key={value}
-                    className="flex flex-col gap-3 pb-4 md:flex-row md:items-center md:justify-between"
+          <Input
+            label="Role Name"
+            placeholder="e.g., Content Manager"
+            {...register('name')}
+            error={errors.name?.message}
+          />
+
+          <Textarea
+            label="Description"
+            placeholder="Describe the role and its responsibilities..."
+            {...register('description')}
+            error={errors.description?.message}
+            textareaClassName="h-20"
+          />
+
+          <div className="space-y-4">
+            <Title as="h5" className="text-base font-semibold">
+              Permissions
+            </Title>
+            <div className="max-h-[400px] space-y-3 overflow-y-auto rounded-lg border border-gray-200 p-4">
+              {RESOURCES.map((resource) => (
+                <div
+                  key={resource}
+                  className="flex flex-col gap-2 border-b border-gray-100 pb-3 last:border-b-0 md:flex-row md:items-center md:justify-between"
+                >
+                  <Title
+                    as="h6"
+                    className="min-w-[140px] text-sm font-medium capitalize text-gray-700"
                   >
-                    <Title
-                      as="h6"
-                      className="font-medium text-gray-700 2xl:text-sm"
-                    >
-                      {label}
-                    </Title>
-                    <Controller
-                      // @ts-ignore
-                      name={value.toLowerCase()}
-                      control={control}
-                      render={({ field: { onChange, value } }) => (
-                        <CheckboxGroup
-                          values={value as string[]}
-                          setValues={onChange}
-                          className="grid grid-cols-3 gap-4 md:flex"
-                        >
-                          {permissions.map(({ value, label }) => (
-                            <AdvancedCheckbox
-                              key={value}
-                              name={`${parent}.${value.toLowerCase()}`}
-                              value={value}
-                              inputClassName="[&:checked~span>.icon]:block"
-                              contentClassName="flex items-center justify-center"
-                            >
-                              <PiCheckBold className="icon me-1 hidden h-[14px] w-[14px] md:h-4 md:w-4" />
-                              <span className="font-medium">{label}</span>
-                            </AdvancedCheckbox>
-                          ))}
-                        </CheckboxGroup>
-                      )}
-                    />
-                  </div>
-                );
-              })}
+                    {resource.replace(/_/g, ' ')}
+                  </Title>
+                  <CheckboxGroup
+                    values={selectedPermissions[resource] || []}
+                    setValues={(actions) =>
+                      handlePermissionChange(resource, actions as string[])
+                    }
+                    className="flex flex-wrap gap-2"
+                  >
+                    {ACTIONS.map((action) => (
+                      <AdvancedCheckbox
+                        key={action}
+                        name={`${resource}.${action}`}
+                        value={action}
+                        inputClassName="[&:checked~span>.icon]:block"
+                        contentClassName="flex items-center justify-center"
+                      >
+                        <PiCheckBold className="icon me-1 hidden h-3 w-3" />
+                        <span className="text-sm font-medium capitalize">
+                          {action === '*' ? 'All' : action}
+                        </span>
+                      </AdvancedCheckbox>
+                    ))}
+                  </CheckboxGroup>
+                </div>
+              ))}
             </div>
+          </div>
 
-            <div className="col-span-full flex items-center justify-end gap-4">
-              <Button
-                variant="outline"
-                onClick={closeModal}
-                className="w-full @xl:w-auto"
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                isLoading={isLoading}
-                className="w-full @xl:w-auto"
-              >
-                Save
-              </Button>
-            </div>
-          </>
-        );
-      }}
+          <div className="col-span-full flex items-center justify-end gap-4">
+            <Button
+              variant="outline"
+              onClick={closeModal}
+              className="w-full @xl:w-auto"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              isLoading={updateRoleMutation.isPending}
+              className="w-full @xl:w-auto"
+            >
+              Save Changes
+            </Button>
+          </div>
+        </>
+      )}
     </Form>
   );
 }

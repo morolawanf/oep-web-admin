@@ -1,17 +1,47 @@
-import { ROLES } from '@/config/constants';
-import { PERMISSIONS, STATUSES } from '@/data/users-data';
+// Permission resources and actions for role management
 
-export const statuses = Object.values(STATUSES).map((status) => ({
-  label: status,
-  value: status,
+export const PERMISSION_RESOURCES = [
+  'products',
+  'categories',
+  'subcategories',
+  'attributes',
+  'inventory',
+  'orders',
+  'users',
+  'roles',
+  'sales',
+  'coupons',
+  'reviews',
+  'campaigns',
+  'banners',
+  'gallery',
+  'analytics',
+  'invoices',
+  'logistics',
+  'transactions',
+] as const;
+
+export const PERMISSION_ACTIONS = [
+  'create',
+  'read',
+  'update',
+  'delete',
+] as const;
+
+export const resources = PERMISSION_RESOURCES.map((resource) => ({
+  label: resource.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase()),
+  value: resource,
 }));
 
-export const permissions = Object.values(PERMISSIONS).map((permission) => ({
-  label: permission,
-  value: permission,
+export const actions = PERMISSION_ACTIONS.map((action) => ({
+  label: action.charAt(0).toUpperCase() + action.slice(1),
+  value: action,
 }));
 
-export const roles = Object.entries(ROLES).map(([key, value]) => ({
-  label: value,
-  value: key,
+// User role types (for changing user type between employee/user)
+export const USER_ROLE_TYPES = ['user', 'employee'] as const;
+
+export const userRoleTypes = USER_ROLE_TYPES.map((role) => ({
+  label: role.charAt(0).toUpperCase() + role.slice(1),
+  value: role,
 }));

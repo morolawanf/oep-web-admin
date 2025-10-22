@@ -1,75 +1,49 @@
 'use client';
 
-import Image from 'next/image';
 import { PiDotsThreeBold } from 'react-icons/pi';
-import { Title, ActionIcon, Dropdown } from 'rizzui';
+import { Title, ActionIcon, Dropdown, Text } from 'rizzui';
 import cn from '@core/utils/class-names';
 import UserCog from '@core/components/icons/user-cog';
-import { ROLES } from '@/config/constants';
 import { useModal } from '@/app/shared/modal-views/use-modal';
 import ModalButton from '@/app/shared/modal-button';
 import EditRole from '@/app/shared/roles-permissions/edit-role';
 import CreateUser from '@/app/shared/roles-permissions/create-user';
-
-type User = {
-  id: number;
-  role: keyof typeof ROLES;
-  avatar: string;
-};
+import { useDeleteRole, type Role } from '@/hooks/use-role-management';
 
 interface RoleCardProps {
-  name: string;
-  color?: string;
+  role: Role;
   className?: string;
-  icon?: React.ReactNode;
-  users: User[];
 }
 
-export default function RoleCard({
-  name,
-  color,
-  users,
-  className,
-}: RoleCardProps) {
-  const { openModal } = useModal();
+export default function RoleCard({ role, className }: RoleCardProps) {
+  const { openModal, closeModal } = useModal();
+  const deleteRoleMutation = useDeleteRole();
+
+  const handleDelete = async () => {
+    if (
+      window.confirm(`Are you sure you want to delete the "${role.name}" role?`)
+    ) {
+      try {
+        await deleteRoleMutation.mutateAsync(role._id);
+      } catch (error) {
+        console.error('Error deleting role:', error);
+      }
+    }
+  };
+
   return (
-    <div className={cn('rounded-lg border border-muted p-6', className)}>
+    <div className={cn('rounded-lg border border-muted p-5', className)}>
       <header className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-3">
-          <span
-            className="grid h-10 w-10 place-content-center rounded-lg text-white"
-            style={{
-              backgroundColor: color,
-            }}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-            >
-              <path
-                d="M7 6.5H16.75C18.8567 6.5 19.91 6.5 20.6667 7.00559C20.9943 7.22447 21.2755 7.50572 21.4944 7.83329C21.935 8.49268 21.9916 8.96506 21.9989 10.5M12 6.5L11.3666 5.23313C10.8418 4.18358 10.3622 3.12712 9.19926 2.69101C8.6899 2.5 8.10802 2.5 6.94427 2.5C5.1278 2.5 4.21956 2.5 3.53806 2.88032C3.05227 3.15142 2.65142 3.55227 2.38032 4.03806C2 4.71956 2 5.6278 2 7.44427V10.5C2 15.214 2 17.5711 3.46447 19.0355C4.8215 20.3926 6.44493 20.4927 10.5 20.5H11"
-                stroke="currentColor"
-                strokeWidth="1.3"
-                strokeLinecap="round"
-              />
-              <path
-                d="M15.59 18.9736C14.9612 19.3001 13.3126 19.9668 14.3167 20.801C14.8072 21.2085 15.3536 21.4999 16.0404 21.4999H19.9596C20.6464 21.4999 21.1928 21.2085 21.6833 20.801C22.6874 19.9668 21.0388 19.3001 20.41 18.9736C18.9355 18.208 17.0645 18.208 15.59 18.9736Z"
-                stroke="currentColor"
-                strokeWidth="1.3"
-              />
-              <path
-                d="M20 14.4378C20 15.508 19.1046 16.3756 18 16.3756C16.8954 16.3756 16 15.508 16 14.4378C16 13.3676 16.8954 12.5 18 12.5C19.1046 12.5 20 13.3676 20 14.4378Z"
-                stroke="currentColor"
-                strokeWidth="1.3"
-              />
-            </svg>
-          </span>
-          <Title as="h4" className="font-medium">
-            {name}
-          </Title>
+
+          <div>
+            <Title as="h5" className="font-medium">
+              {role.name}
+            </Title>
+            {!role.isActive && (
+              <Text className="text-xs text-red-500">Inactive</Text>
+            )}
+          </div>
         </div>
 
         <Dropdown className={className} placement="bottom-end">
@@ -83,54 +57,45 @@ export default function RoleCard({
             </ActionIcon>
           </Dropdown.Trigger>
           <Dropdown.Menu className="!z-0">
-            <Dropdown.Item className="gap-2 text-xs sm:text-sm">
-              <span
-                onClick={() =>
+            <Dropdown.Item className="gap-2 text-xs sm:text-sm" onClick={() =>
                   openModal({
-                    view: <CreateUser />,
+                    customSize: 700,
+                    view: <EditRole role={role} />
                   })
-                }
-              >
-                Add User
-              </span>
+                }>
+
+                Edit Role
+
             </Dropdown.Item>
-            <Dropdown.Item className="gap-2 text-xs sm:text-sm">
-              Rename
-            </Dropdown.Item>
-            <Dropdown.Item className="gap-2 text-xs sm:text-sm">
-              Remove Role
+            <Dropdown.Item
+              className="gap-2 text-xs text-red-500 sm:text-sm"
+              onClick={handleDelete}
+            >
+              Delete Role
             </Dropdown.Item>
           </Dropdown.Menu>
         </Dropdown>
       </header>
 
+      {role.description && (
+        <Text className=" text-sm text-gray-500">{role.description}</Text>
+      )}
+
       <div className="mt-4 flex items-center gap-2">
-        <div className="flex items-center">
-          {users?.slice(0, 4).map((user) => (
-            <figure
-              key={user.id}
-              className="relative z-10 -ml-1.5 h-8 w-8 rounded-full border-2 border-white"
-            >
-              <Image
-                src={user.avatar}
-                alt="user avatar"
-                fill
-                className="rounded-full"
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              />
-            </figure>
-          ))}
-        </div>
-        <span>Total {users.length} users</span>
+        <Text className="text-sm text-gray-600 font-semibold">
+          {role.permissions.length} permission
+          {role.permissions.length !== 1 ? 's' : ''}
+        </Text>
       </div>
+{/* 
       <ModalButton
         customSize={700}
         variant="outline"
         label="Edit Role"
         icon={<UserCog className="h-5 w-5" />}
-        view={<EditRole />}
-        className="items-center gap-1 text-gray-800 @lg:w-full lg:mt-6"
-      />
+        view={<EditRole role={role} />}
+        className="mt-6 w-full items-center gap-1 text-gray-800"
+      /> */}
     </div>
   );
 }

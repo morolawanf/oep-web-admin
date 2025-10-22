@@ -5,16 +5,20 @@ import toast from "react-hot-toast";
 import isEmpty from "lodash/isEmpty";
 import prettyBytes from "pretty-bytes";
 import { useCallback, useMemo, useState } from "react";
-import { useDropzone } from "@uploadthing/react";
+import { useDropzone, FileWithPath } from "react-dropzone";
 import { PiCheckBold, PiTrashBold, PiUploadSimpleBold } from "react-icons/pi";
-import { generateClientDropzoneAccept } from "uploadthing/client";
-import { useUploadThing } from "../../utils/uploadthing";
 import { Button, Text, FieldError } from "rizzui";
 import cn from "../../utils/class-names";
 import UploadIcon from "../../components/shape/upload";
 import { endsWith } from "lodash";
-import { FileWithPath } from "react-dropzone";
-import { ClientUploadedFileData } from "uploadthing/types";
+import { baseApiClient, handleApiError } from "../../../../../apps/isomorphic/src/libs/axios";
+import api from "../../../../../apps/isomorphic/src/libs/endpoints";
+import {
+  UploadedFile,
+  addToUploadHistory,
+} from "../../utils/upload-history";
+import UploadHistory from "./upload-history";
+import { getCdnUrl } from "../../utils/cdn-url";
 
 interface UploadZoneProps {
   label?: string;
@@ -23,21 +27,42 @@ interface UploadZoneProps {
   setValue: any;
   className?: string;
   error?: string;
+  category?: string; // File category for backend (e.g., 'products', 'reviews', 'general')
+  multiple?: boolean; // Whether to allow multiple file uploads
+  accept?: string; // File types to accept (e.g., 'image/*', 'application/pdf')
 }
 
 interface FileType {
   name: string;
   url: string;
   size: number;
+  path?: string;
+  mimetype?: string;
+  originalName?: string;
+  fromHistory?: boolean; // Flag to indicate if file was added from history
 }
 
-export default function UploadZone({ label, name, className, getValues, setValue, error }: UploadZoneProps) {
+export default function UploadZone({
+  label,
+  name,
+  className,
+  getValues,
+  setValue,
+  error,
+  category = "general",
+  multiple = true,
+  accept = "image/*",
+}: UploadZoneProps) {
   const [files, setFiles] = useState<File[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
+  const [forceUpdate, setForceUpdate] = useState(0); // Force re-render when form value changes
 
   const onDrop = useCallback(
     (acceptedFiles: FileWithPath[]) => {
       console.log("acceptedFiles", acceptedFiles);
-      setFiles([
+      // Make file selection additive - add to existing files instead of replacing
+      setFiles((prevFiles) => [
+        ...prevFiles,
         ...acceptedFiles.map((file) =>
           Object.assign(file, {
             preview: URL.createObjectURL(file),
@@ -46,7 +71,38 @@ export default function UploadZone({ label, name, className, getValues, setValue
       ]);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [files]
+    []
+  );
+
+  // Handler for adding files from history
+  const handleSelectFromHistory = useCallback(
+    (historyFile: UploadedFile) => {
+      // Add to uploadedItems directly (already uploaded, don't need to upload again)
+      const currentValue = getValues(name);
+      const newFile = {
+        ...historyFile,
+        fromHistory: true,
+      };
+
+      if (typeof currentValue === "string") {
+        setValue(name, newFile);
+      } else if (Array.isArray(currentValue)) {
+        // Check if file already exists
+        const exists = currentValue.some((f: any) => f.path === historyFile.path);
+        if (!exists) {
+          setValue(name, [...currentValue, newFile]);
+        } else {
+          toast.error("File already added");
+          return;
+        }
+      } else {
+        setValue(name, [newFile]);
+      }
+      
+      // Force re-render to show the added file immediately
+      setForceUpdate(prev => prev + 1);
+    },
+    [getValues, setValue, name]
   );
 
   function handleRemoveFile(index: number) {
@@ -74,52 +130,179 @@ export default function UploadZone({ label, name, className, getValues, setValue
           name: filename,
           url: initialValue,
           size: 0, // We don't know the size for pre-existing URLs
+          originalName: filename,
         },
       ];
     }
 
-    // Handle array of file objects
-    return initialValue;
-  }, [initialValue]);
+    // Handle array of file objects (new format with path, url, size, etc.)
+    if (Array.isArray(initialValue)) {
+      return initialValue.map((file: any) => ({
+        name: file.originalName || file.name,
+        url: file.url,
+        size: file.size || 0,
+        path: file.path,
+        mimetype: file.mimetype,
+        originalName: file.originalName || file.name,
+        fromHistory: file.fromHistory || false,
+      }));
+    }
+
+    // Handle single file object
+    return [
+      {
+        name: initialValue.originalName || initialValue.name,
+        url: initialValue.url,
+        size: initialValue.size || 0,
+        path: initialValue.path,
+        mimetype: initialValue.mimetype,
+        originalName: initialValue.originalName || initialValue.name,
+        fromHistory: initialValue.fromHistory || false,
+      },
+    ];
+  }, [initialValue, forceUpdate]); // Add forceUpdate to dependencies
 
   const notUploadedItems = files.filter((file) => !uploadedItems?.some((uploadedFile: FileType) => uploadedFile.name === file.name));
 
-  const { startUpload, routeConfig, isUploading } = useUploadThing("generalMedia", {
-    onClientUploadComplete: (res: ClientUploadedFileData<any>[] | undefined) => {
-      console.log("res", res);
-      if (setValue) {
-        setFiles([]);
-        const respondedUrls = res?.map((r) => ({
-          name: r.name,
-          size: r.size,
-          url: r.url,
-        }));
+  // Custom upload function using axios
+  const handleUpload = async (filesToUpload: File[]) => {
+    if (filesToUpload.length === 0) return;
 
-        // If we initially had a string URL, just use the first uploaded file's URL
-        if (typeof initialValue === "string" && respondedUrls && respondedUrls.length > 0) {
-          setValue(name, respondedUrls[0].url);
-        } else {
-          // Otherwise set the full array of file objects
-          setValue(name, respondedUrls);
+    setIsUploading(true);
+
+    try {
+      const formData = new FormData();
+
+      if (multiple && filesToUpload.length > 1) {
+        // Multiple file upload
+        filesToUpload.forEach((file) => {
+          formData.append("files", file);
+        });
+        formData.append("category", category);
+
+        const response = await baseApiClient.post(api.fileUpload.multiple, formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
+
+        if (response.data?.data) {
+          const uploadedFiles: UploadedFile[] = response.data.data.map((file: any) => ({
+            path: file.path,
+            url: file.path, // Store path as url for consistency (will be prefixed with CDN when displayed)
+            size: file.size,
+            mimetype: file.mimetype,
+            originalName: file.originalName,
+            uploadedAt: new Date().toISOString(),
+          }));
+
+          // Add to history
+          addToUploadHistory(uploadedFiles);
+
+          // Clear selected files
+          setFiles([]);
+
+          // Update form value
+          if (typeof initialValue === "string") {
+            setValue(name, uploadedFiles[0]);
+          } else {
+            setValue(name, uploadedFiles);
+          }
+
+          toast.success(
+            <Text as="b" className="font-semibold">
+              {uploadedFiles.length} file(s) uploaded successfully
+            </Text>
+          );
+          
+          // Force re-render
+          setForceUpdate(prev => prev + 1);
+        }
+      } else {
+        // Single file upload
+        formData.append("file", filesToUpload[0]);
+        formData.append("category", category);
+
+        const response = await baseApiClient.post(api.fileUpload.single, formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
+
+        if (response.data?.data) {
+          const uploadedFile: UploadedFile = {
+            path: response.data.data.path,
+            url: response.data.data.path, // Store path as url for consistency (will be prefixed with CDN when displayed)
+            size: response.data.data.size,
+            mimetype: response.data.data.mimetype,
+            originalName: response.data.data.originalName,
+            uploadedAt: new Date().toISOString(),
+          };
+
+          // Add to history
+          addToUploadHistory(uploadedFile);
+
+          // Clear selected files
+          setFiles([]);
+
+          // Update form value
+          if (typeof initialValue === "string") {
+            setValue(name, uploadedFile);
+          } else {
+            setValue(name, [uploadedFile]);
+          }
+
+          toast.success(
+            <Text as="b" className="font-semibold">
+              File uploaded successfully
+            </Text>
+          );
+          
+          // Force re-render
+          setForceUpdate(prev => prev + 1);
         }
       }
-      toast.success(
-        <Text as="b" className="font-semibold">
-          Images uploaded successfully
-        </Text>
-      );
-    },
-    onUploadError: (error: Error) => {
-      console.error(error);
-      toast.error(error.message);
-    },
-  });
+    } catch (error) {
+      console.error("Upload error:", error);
+      const errorMessage = handleApiError(error);
+      toast.error(errorMessage || "Failed to upload file(s)");
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
-  const fileTypes = routeConfig ? Object.keys(routeConfig) : [];
+  // Parse accept prop for react-dropzone
+  const getAcceptConfig = (): Record<string, string[]> | undefined => {
+    if (!accept || accept === '*/*') return undefined;
+    
+    if (accept === 'image/*') {
+      return { 'image/*': ['.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg', '.bmp', '.ico'] };
+    }
+    
+    if (accept === 'video/*') {
+      return { 'video/*': ['.mp4', '.webm', '.ogg', '.mov', '.avi'] };
+    }
+    
+    if (accept === 'audio/*') {
+      return { 'audio/*': ['.mp3', '.wav', '.ogg', '.m4a'] };
+    }
+    
+    if (accept === 'application/pdf') {
+      return { 'application/pdf': ['.pdf'] };
+    }
+    
+    // For custom MIME types, create proper config
+    if (accept.includes('/')) {
+      return { [accept]: [] };
+    }
+    
+    return undefined;
+  };
 
   const { getRootProps, getInputProps } = useDropzone({
     onDrop,
-    accept: fileTypes ? generateClientDropzoneAccept(fileTypes) : undefined,
+    accept: getAcceptConfig(),
+    multiple,
   });
 
   return (
@@ -146,7 +329,7 @@ export default function UploadZone({ label, name, className, getValues, setValue
             files={notUploadedItems}
             isLoading={isUploading}
             onClear={() => setFiles([])}
-            onUpload={() => startUpload(notUploadedItems)}
+            onUpload={() => handleUpload(notUploadedItems)}
           />
         )}
 
@@ -155,12 +338,12 @@ export default function UploadZone({ label, name, className, getValues, setValue
             files={notUploadedItems}
             isLoading={isUploading}
             onClear={() => setFiles([])}
-            onUpload={() => startUpload(notUploadedItems)}
+            onUpload={() => handleUpload(notUploadedItems)}
           />
         )}
 
         {!isEmpty(files) && isEmpty(notUploadedItems) && (
-          <UploadButtons files={files} isLoading={isUploading} onClear={() => setFiles([])} onUpload={() => startUpload(files)} />
+          <UploadButtons files={files} isLoading={isUploading} onClear={() => setFiles([])} onUpload={() => handleUpload(files)} />
         )}
       </div>
 
@@ -170,6 +353,14 @@ export default function UploadZone({ label, name, className, getValues, setValue
             <div key={index} className={cn("relative")}>
               <figure className="group relative h-40 rounded-md bg-gray-50">
                 <MediaPreview name={file.name} url={file.url} />
+                
+                {/* Check icon for files from history */}
+                {file.fromHistory && (
+                  <div className="absolute left-0 top-0 rounded-full bg-green-500 p-1.5">
+                    <PiCheckBold className="h-4 w-4 text-white" />
+                  </div>
+                )}
+                
                 <button
                   type="button"
                   className="absolute right-0 top-0 rounded-full bg-gray-700 p-1.5 transition duration-300"
@@ -184,6 +375,9 @@ export default function UploadZone({ label, name, className, getValues, setValue
                     } else {
                       setValue(name, newUploadedItems);
                     }
+                    
+                    // Force re-render to show the change immediately
+                    setForceUpdate(prev => prev + 1);
                   }}>
                   <PiTrashBold className="text-white" />
                 </button>
@@ -215,6 +409,9 @@ export default function UploadZone({ label, name, className, getValues, setValue
       )}
 
       {error && <FieldError error={error} />}
+
+      {/* Upload History */}
+      <UploadHistory className="mt-5" onSelectFromHistory={handleSelectFromHistory} />
     </div>
   );
 }
@@ -244,14 +441,29 @@ function UploadButtons({
 }
 
 function MediaPreview({ name, url }: { name: string; url: string }) {
-  return endsWith(name, ".pdf") ? (
-    <object data={url} type="application/pdf" width="100%" height="100%">
-      <p>
-        Alternative text - include a link <a href={url}>to the PDF!</a>
-      </p>
-    </object>
+  // Use blob URLs as-is (for local previews), otherwise construct CDN URL
+  const isBlob = url.startsWith('blob:');
+  const fullUrl = isBlob ? url : getCdnUrl(url);
+  
+  if (endsWith(name, ".pdf")) {
+    return (
+      <object data={fullUrl} type="application/pdf" width="100%" height="100%">
+        <p>
+          Alternative text - include a link <a href={fullUrl}>to the PDF!</a>
+        </p>
+      </object>
+    );
+  }
+  
+  // Use regular img for blob URLs, Next Image for CDN URLs
+  return isBlob ? (
+    <img 
+      src={fullUrl} 
+      alt={name} 
+      className="h-full w-full transform rounded-md object-contain" 
+    />
   ) : (
-    <Image fill src={url} alt={name} className="transform rounded-md object-contain" />
+    <Image fill src={fullUrl} alt={name} className="transform rounded-md object-contain" />
   );
 }
 

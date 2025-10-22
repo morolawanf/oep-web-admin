@@ -1,9 +1,21 @@
 import { type NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import GoogleProvider from 'next-auth/providers/google';
-import { env } from '@/env.mjs';
-import isEqual from 'lodash/isEqual';
 import { pagesOptions } from './pages-options';
+import APIRoutes from '@/libs/apiRoutes';
+
+class InvalidLoginError extends Error {
+  constructor() {
+    super('Invalid identifier or password');
+    this.name = 'InvalidLoginError';
+  }
+}
+
+class AuthenticationFailedError extends Error {
+  constructor(message?: string) {
+    super(message || 'Authentication failed');
+    this.name = 'AuthenticationFailedError';
+  }
+}
 
 export const authOptions: NextAuthOptions = {
   // debug: true,
@@ -16,29 +28,33 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async session({ session, token }) {
-      return {
-        ...session,
-        user: {
-          ...session.user,
-          id: token.idToken as string,
-        },
-      };
-    },
-    async jwt({ token, user }) {
-      if (user) {
-        // return user as JWT
-        token.user = user;
+      if (token) {
+        (session.user as any).id = token.id as string;
+        (session.user as any).token = token.token as string;
+        session.user.name = token.name as string;
+        session.user.email = token.email as string;
+        session.user.image = token.image as string;
       }
+
+      return session;
+    },
+    async jwt({ token, user, trigger, session }) {
+      if (user) {
+        token.id = user.id;
+        token.token = (user as any).token;
+        token.name = user.name;
+        token.email = user.email;
+        token.image = user.image;
+      }
+
+      if (trigger === 'update' && session) {
+        token.name = session.user.name;
+        token.email = session.user.email;
+      }
+
       return token;
     },
     async redirect({ url, baseUrl }) {
-      // const parsedUrl = new URL(url, baseUrl);
-      // if (parsedUrl.searchParams.has('callbackUrl')) {
-      //   return `${baseUrl}${parsedUrl.searchParams.get('callbackUrl')}`;
-      // }
-      // if (parsedUrl.origin === baseUrl) {
-      //   return url;
-      // }
       return baseUrl;
     },
   },
@@ -46,31 +62,60 @@ export const authOptions: NextAuthOptions = {
     CredentialsProvider({
       id: 'credentials',
       name: 'Credentials',
-      credentials: {},
-      async authorize(credentials: any) {
-        // You need to provide your own logic here that takes the credentials
-        // submitted and returns either a object representing a user or value
-        // that is false/null if the credentials are invalid
-        const user = {
-          email: 'admin@admin.com',
-          password: 'admin',
-        };
-
-        if (
-          isEqual(user, {
-            email: credentials?.email,
-            password: credentials?.password,
-          })
-        ) {
-          return user as any;
-        }
-        return null;
+      credentials: {
+        email: {},
+        password: {},
       },
-    }),
-    GoogleProvider({
-      clientId: env.GOOGLE_CLIENT_ID || '',
-      clientSecret: env.GOOGLE_CLIENT_SECRET || '',
-      allowDangerousEmailAccountLinking: true,
+      async authorize(credentials) {
+        try {
+          const response = await fetch(APIRoutes.login, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              email: credentials?.email,
+              password: credentials?.password,
+            }),
+          });
+
+          if (!response.ok) {
+            if (response.status === 401) {
+              throw new InvalidLoginError();
+            }
+            return null;
+          }
+
+          const res = await response.json() as {
+            message: string;
+            data: {
+              emailVerified: null | Date;
+              token: string;
+              _id: string;
+              name: string;
+              email: string;
+              image?: string;
+            }
+          };
+
+          return {
+            id: res.data._id,
+            token: res.data.token,
+            name: res.data.name,
+            email: res.data.email,
+            image: res.data.image,
+            emailVerified: res.data.emailVerified,
+          };
+        } catch (error) {
+          console.log('Error during credentials authorization:', error);
+          if (error instanceof InvalidLoginError) {
+            throw error;
+          }
+          throw new AuthenticationFailedError(
+            error instanceof Error ? error.message : 'Unknown error'
+          );
+        }
+      },
     }),
   ],
 };

@@ -1,28 +1,60 @@
 'use client';
 
-import { STATUSES } from '@/data/users-data';
+import { useMemo, useState } from 'react';
 import { Badge, Box, Button, Flex, Input, Text, Title } from 'rizzui';
 import StatusField from '@core/components/controlled-table/status-field';
 import { type Table as ReactTableType } from '@tanstack/react-table';
 import { PiMagnifyingGlassBold, PiTrashDuotone } from 'react-icons/pi';
-import { rolesList } from '@/data/roles-permissions';
 import ModalButton from '@/app/shared/modal-button';
 import CreateUser from '../create-user';
 
-const roles = rolesList.map((role) => ({
-  label: role.name,
-  value: role.name,
-}));
-
 interface TableToolbarProps<T extends Record<string, any>> {
   table: ReactTableType<T>;
+  onSearch?: (search: string) => void;
+  onRoleChange?: (role: 'employee' | 'owner' | undefined) => void;
 }
 
 export default function Filters<TData extends Record<string, any>>({
   table,
+  onSearch,
+  onRoleChange,
 }: TableToolbarProps<TData>) {
+  const [selectedRole, setSelectedRole] = useState<
+    'employee' | 'owner' | undefined
+  >(undefined);
+
+  const staffRoles = useMemo(
+    () => [
+      { label: 'All Roles', value: '' },
+      { label: 'Employee', value: 'employee' },
+      { label: 'Owner', value: 'owner' },
+    ],
+    []
+  );
+
   const isFiltered =
-    table.getState().globalFilter || table.getState().columnFilters.length > 0;
+    table.getState().globalFilter || selectedRole !== undefined;
+
+  const handleSearchChange = (value: string) => {
+    table.setGlobalFilter(value);
+    onSearch?.(value);
+  };
+
+  const handleRoleChange = (value: string) => {
+    const roleValue =
+      value === '' ? undefined : (value as 'employee' | 'owner');
+    setSelectedRole(roleValue);
+    onRoleChange?.(roleValue);
+  };
+
+  const handleClearFilters = () => {
+    table.resetGlobalFilter();
+    table.resetColumnFilters();
+    setSelectedRole(undefined);
+    onSearch?.('');
+    onRoleChange?.(undefined);
+  };
+
   return (
     <Box className="mb-4 @container">
       <Flex
@@ -45,20 +77,17 @@ export default function Filters<TData extends Record<string, any>>({
         >
           <StatusField
             placeholder="Filter by Role"
-            options={roles}
-            value={table.getColumn('role')?.getFilterValue() ?? []}
-            onChange={(e) => table.getColumn('role')?.setFilterValue(e)}
-            getOptionValue={(option) => option.label}
+            options={staffRoles}
+            value={selectedRole || ''}
+            onChange={handleRoleChange}
+            getOptionValue={(option) => option.value}
             dropdownClassName="!z-10"
             className="@4xl:w-40"
           />
           {isFiltered && (
             <Button
               size="sm"
-              onClick={() => {
-                table.resetGlobalFilter();
-                table.resetColumnFilters();
-              }}
+              onClick={handleClearFilters}
               variant="flat"
               className="h-9 w-full bg-gray-200/70 @lg:col-span-full @4xl:w-auto"
             >
@@ -71,8 +100,8 @@ export default function Filters<TData extends Record<string, any>>({
           clearable={true}
           placeholder="Search for users..."
           value={table.getState().globalFilter ?? ''}
-          onClear={() => table.setGlobalFilter('')}
-          onChange={(e) => table.setGlobalFilter(e.target.value)}
+          onClear={() => handleSearchChange('')}
+          onChange={(e) => handleSearchChange(e.target.value)}
           prefix={<PiMagnifyingGlassBold className="size-4" />}
           className="order-3 h-9 w-full @2xl:order-2 @2xl:ms-auto @2xl:h-auto @2xl:max-w-60 @4xl:order-3"
         />

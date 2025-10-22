@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Fragment } from 'react';
+import { Fragment, Suspense } from 'react';
 import { usePathname } from 'next/navigation';
 import { Title } from 'rizzui/typography';
 import { Collapse } from 'rizzui/collapse';
@@ -9,9 +9,34 @@ import cn from '@core/utils/class-names';
 import { PiCaretDownBold } from 'react-icons/pi';
 import { menuItems } from '@/layouts/hydrogen/menu-items';
 import StatusBadge from '@core/components/get-status-badge';
+import { usePermissions } from '@/hooks/queries/usePermissions';
 
+// Loading skeleton for menu items
+function MenuSkeleton() {
+  return (
+    <div className="mt-4 pb-3 3xl:mt-6">
+      {[1, 2, 3, 4, 5].map((i) => (
+        <div
+          key={i}
+          className="mx-3 my-0.5 flex items-center rounded-md px-3 py-2 lg:my-1 2xl:mx-5 2xl:my-2"
+        >
+          <div className="me-2 h-5 w-5 animate-pulse rounded-md bg-gray-200" />
+          <div className="h-4 w-24 animate-pulse rounded bg-gray-200" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// Main menu content component
 export function SidebarMenu() {
   const pathname = usePathname();
+  const { hasPermission, isLoading } = usePermissions();
+
+  // Show skeleton while loading permissions
+  if (isLoading) {
+    return <MenuSkeleton />;
+  }
 
   return (
     <div className="mt-4 pb-3 3xl:mt-6">
@@ -21,6 +46,19 @@ export function SidebarMenu() {
           (dropdownItem) => dropdownItem.href === pathname
         );
         const isDropdownOpen = Boolean(pathnameExistInDropdowns?.length);
+
+        // Check permissions before rendering
+        if (item.permission) {
+          if (item.permission.resource.length !== 0) {
+            const hasPerm = hasPermission(
+              item.permission.resource,
+              item.permission.action
+            );
+            if (!hasPerm) {
+              return null;
+            }
+          }
+        }
 
         return (
           <Fragment key={item.name + '-' + index}>
@@ -93,9 +131,6 @@ export function SidebarMenu() {
                               {dropdownItem?.name}
                             </span>
                           </div>
-                          {/* {dropdownItem?.badge?.length ? (
-                            <StatusBadge status={dropdownItem?.badge} />
-                          ) : null} */}
                         </Link>
                       );
                     })}
@@ -125,9 +160,6 @@ export function SidebarMenu() {
                       )}
                       <span className="truncate">{item.name}</span>
                     </div>
-                    {/* {item?.badge?.length ? (
-                      <StatusBadge status={item?.badge} />
-                    ) : null} */}
                   </Link>
                 )}
               </>
@@ -148,3 +180,4 @@ export function SidebarMenu() {
     </div>
   );
 }
+

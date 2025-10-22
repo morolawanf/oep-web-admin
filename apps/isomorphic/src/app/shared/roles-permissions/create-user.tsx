@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { PiXBold } from 'react-icons/pi';
 import { Controller, SubmitHandler } from 'react-hook-form';
 import { Form } from '@core/ui/form';
@@ -10,32 +10,50 @@ import {
   createUserSchema,
 } from '@/validators/create-user.schema';
 import { useModal } from '@/app/shared/modal-views/use-modal';
-import {
-  permissions,
-  roles,
-  statuses,
-} from '@/app/shared/roles-permissions/utils';
+import { useRoles, useAddUserAsEmployee } from '@/hooks/use-role-management';
+import { userTypeOptions } from '@/data/roles-permissions';
+import toast from 'react-hot-toast';
+
 export default function CreateUser() {
   const { closeModal } = useModal();
   const [reset, setReset] = useState({});
-  const [isLoading, setLoading] = useState(false);
+  const { data: rolesData } = useRoles();
+  const addUserAsEmployeeMutation = useAddUserAsEmployee();
 
-  const onSubmit: SubmitHandler<CreateUserInput> = (data) => {
-    // set timeout ony required to display loading state of the create category button
-    const formattedData = {
-      ...data,
-      createdAt: new Date(),
-    };
-    setLoading(true);
-    setTimeout(() => {
-      console.log('formattedData', formattedData);
-      setLoading(false);
+  const roles = useMemo(
+    () =>
+      rolesData?.map((role) => ({
+        label: role.name,
+        value: role._id, // Use _id instead of name
+      })) || [],
+    [rolesData]
+  );
+
+  const onSubmit: SubmitHandler<CreateUserInput> = async (data) => {
+    try {
+      // Only add as employee if userType is 'employee'
+      if (data.userType === 'employee') {
+        await addUserAsEmployeeMutation.mutateAsync({
+          email: data.email,
+          roleIds: [data.role], // role is the role ID
+        });
+        toast.success('User added as employee successfully');
+      } else {
+        // For regular users, you might need a different endpoint
+        toast('Regular user creation not yet implemented');
+        return;
+      }
+      
       setReset({
         email: '',
+        userType: 'user',
         role: '',
       });
       closeModal();
-    }, 600);
+    } catch (error) {
+      toast.error('Failed to create user');
+      console.error('Error creating user:', error);
+    }
   };
 
   return (
@@ -43,6 +61,13 @@ export default function CreateUser() {
       resetValues={reset}
       onSubmit={onSubmit}
       validationSchema={createUserSchema}
+      useFormProps={{
+        defaultValues: {
+          email: '',
+          userType: 'user',
+          role: '',
+        },
+      }}
       className="grid grid-cols-1 gap-6 p-6 @container md:grid-cols-2 [&_.rizzui-input-label]:font-medium [&_.rizzui-input-label]:text-gray-900"
     >
       {({ register, control, watch, formState: { errors } }) => {
@@ -66,6 +91,30 @@ export default function CreateUser() {
             />
 
             <Controller
+              name="userType"
+              control={control}
+              render={({ field: { name, onChange, value } }) => (
+                <Select
+                  options={userTypeOptions}
+                  value={value}
+                  onChange={onChange}
+                  name={name}
+                  label="User Type"
+                  placeholder="Select user type"
+                  className="col-span-full"
+                  error={errors?.userType?.message}
+                  getOptionValue={(option: { value: string; label: string }) => option.value}
+                  displayValue={(selected: string) =>
+                    userTypeOptions.find((option: { value: string; label: string }) => option.value === selected)?.label ??
+                    selected
+                  }
+                  dropdownClassName="!z-[1]"
+                  inPortal={false}
+                />
+              )}
+            />
+
+            <Controller
               name="role"
               control={control}
               render={({ field: { name, onChange, value } }) => (
@@ -77,9 +126,9 @@ export default function CreateUser() {
                   label="Role"
                   className="col-span-full"
                   error={errors?.role?.message}
-                  getOptionValue={(option) => option.value}
+                  getOptionValue={(option: { value: string; label: string }) => option.value}
                   displayValue={(selected: string) =>
-                    roles.find((option) => option.value === selected)?.label ??
+                    roles.find((option: { value: string; label: string }) => option.value === selected)?.label ??
                     selected
                   }
                   dropdownClassName="!z-[1]"
@@ -98,7 +147,7 @@ export default function CreateUser() {
               </Button>
               <Button
                 type="submit"
-                isLoading={isLoading}
+                isLoading={addUserAsEmployeeMutation.isPending}
                 className="w-full @xl:w-auto"
               >
                 Create User

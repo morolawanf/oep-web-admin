@@ -3,6 +3,7 @@ import './src/env.mjs';
 
 const nextConfig = {
   images: {
+    unoptimized: false,
     remotePatterns: [
       {
         protocol: 'https',
@@ -47,6 +48,10 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'isomorphic-furyroad.vercel.app',
+      },
+      {
+        protocol: 'https',
+        hostname: 'oeptest.b-cdn.net',
       },
     ],
   },

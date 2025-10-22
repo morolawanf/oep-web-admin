@@ -1,106 +1,44 @@
-import { ROLES } from '@/config/constants';
-import { avatarIds } from '@core/utils/get-avatar';
-import { getRandomArrayElement } from '@core/utils/get-random-array-element';
+// Simplified roles data without avatars and colors
+// Roles are now managed through the backend Role model
 
-export const users = [
-  {
-    id: 1,
-    role: ROLES.Administrator,
-    avatar: `https://isomorphic-furyroad.s3.amazonaws.com/public/avatars-blur/avatar-${getRandomArrayElement(
-      avatarIds
-    )}.webp`,
-  },
-  {
-    id: 2,
-    role: ROLES.Administrator,
-    avatar: `https://isomorphic-furyroad.s3.amazonaws.com/public/avatars-blur/avatar-${getRandomArrayElement(
-      avatarIds
-    )}.webp`,
-  },
-  {
-    id: 3,
-    role: ROLES.Administrator,
-    avatar: `https://isomorphic-furyroad.s3.amazonaws.com/public/avatars-blur/avatar-${getRandomArrayElement(
-      avatarIds
-    )}.webp`,
-  },
-  {
-    id: 4,
-    role: ROLES.Administrator,
-    avatar: `https://isomorphic-furyroad.s3.amazonaws.com/public/avatars-blur/avatar-${getRandomArrayElement(
-      avatarIds
-    )}.webp`,
-  },
-  {
-    id: 5,
-    role: ROLES.Administrator,
-    avatar: `https://isomorphic-furyroad.s3.amazonaws.com/public/avatars-blur/avatar-${getRandomArrayElement(
-      avatarIds
-    )}.webp`,
-  },
-  {
-    id: 6,
-    role: ROLES.Administrator,
-    avatar: `https://isomorphic-furyroad.s3.amazonaws.com/public/avatars-blur/avatar-${getRandomArrayElement(
-      avatarIds
-    )}.webp`,
-  },
-];
-
-export const rolesList = [
-  {
-    name: ROLES.Administrator,
-    color: '#2465FF',
-    users,
-  },
-  {
-    name: ROLES.Manager,
-    color: '#F5A623',
-    users,
-  },
-  {
-    name: ROLES.Sales,
-    color: '#FF1A1A',
-    users,
-  },
-  {
-    name: ROLES.Support,
-    color: '#8A63D2',
-    users,
-  },
-  {
-    name: ROLES.Developer,
-    color: '#FF1A1A',
-    users,
-  },
-  {
-    name: ROLES.HRD,
-    color: '#11A849',
-    users,
-  },
-  {
-    name: ROLES.RestrictedUser,
-    color: '#4E36F5',
-    users,
-  },
-  {
-    name: ROLES.Customer,
-    color: '#0070F3',
-    users,
-  },
-];
+export interface Role {
+  _id: string;
+  name: string;
+  description?: string;
+  permissions: Array<{
+    resource: string;
+    actions: string[];
+  }>;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
 
 export const roleActions = [
   {
     id: 1,
-    name: 'Add User',
+    name: 'Edit Role',
   },
   {
     id: 2,
-    name: 'Rename',
+    name: 'View Permissions',
   },
   {
     id: 3,
-    name: 'Remove Role',
+    name: 'Delete Role',
+  },
+];
+
+// User type options for the change user type form
+export const userTypeOptions = [
+  {
+    label: 'User',
+    value: 'user',
+    description: 'Standard customer account with basic permissions',
+  },
+  {
+    label: 'Employee',
+    value: 'employee',
+    description: 'Staff member with access to admin features',
   },
 ];

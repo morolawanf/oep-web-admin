@@ -54,7 +54,37 @@ export const usersColumns = [
     id: 'role',
     size: 150,
     header: 'Role',
-    cell: ({ row }) => row.original.role,
+    cell: ({ row }) => {
+      const role = row.original.role;
+      return (
+        <Badge
+          variant="flat"
+          color={
+            role === 'owner'
+              ? 'primary'
+              : role === 'employee'
+                ? 'secondary'
+                : 'warning'
+          }
+          className="capitalize"
+        >
+          {role}
+        </Badge>
+      );
+    },
+  }),
+  columnHelper.accessor('permissionCount', {
+    id: 'permissionCount',
+    size: 150,
+    header: 'Permissions',
+    cell: ({ row }) => {
+      const count = row.original.permissionCount || 0;
+      return (
+        <Badge variant="outline" color="info">
+          {count} {count === 1 ? 'permission' : 'permissions'}
+        </Badge>
+      );
+    },
   }),
   columnHelper.accessor('createdAt', {
     id: 'createdAt',
@@ -72,8 +102,10 @@ export const usersColumns = [
       },
     }) => (
       <TableRowActionGroup
+        viewUrl={`/roles-permissions/${row.original._id}`}
+        editUrl={`/roles-permissions/${row.original._id}`}
         deletePopoverTitle={`Delete this user`}
-        deletePopoverDescription={`Are you sure you want to delete this #${row.original.id} user?`}
+        deletePopoverDescription={`Are you sure you want to delete ${row.original.fullName}?`}
         onDelete={() => meta?.handleDeleteRow?.(row.original)}
       />
     ),

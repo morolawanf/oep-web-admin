@@ -21,6 +21,7 @@ export default function SignIn() {
           continue.
         </>
       }
+      
       description="By signing up, you will gain access to exclusive content, special
       offers, and be the first to hear about exciting news and updates."
       bannerTitle="The simplest way to manage your workspace."
@@ -41,6 +42,7 @@ export default function SignIn() {
           />
         </div>
       }
+      showBackButton={false}
     >
       <SignInForm />
     </AuthWrapperOne>
