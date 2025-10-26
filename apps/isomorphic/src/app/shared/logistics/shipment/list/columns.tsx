@@ -40,7 +40,7 @@ export const shipmentListColumns = [
     header: 'Tracking ID',
     cell: ({ row }) => (
       <Link
-        href={routes.logistics.shipmentDetails(row.original.id)}
+  href={routes.eCommerce.shipment.shipmentDetails(row.original.id)}
         className="duration-200 hover:text-gray-900 hover:underline"
       >
         {row.original.trackingId}
@@ -120,8 +120,8 @@ export const shipmentListColumns = [
         onDelete={() => {
           meta?.handleDeleteRow?.(row.original);
         }}
-        editUrl={routes.logistics.editShipment(row.original.id)}
-        viewUrl={routes.logistics.shipmentDetails(row.original.id)}
+  editUrl={routes.eCommerce.shipment.editShipment(row.original.id)}
+  viewUrl={routes.eCommerce.shipment.shipmentDetails(row.original.id)}
         deletePopoverDescription={`Are you sure you want to delete this #${row.original.id} shipment?`}
       />
     ),

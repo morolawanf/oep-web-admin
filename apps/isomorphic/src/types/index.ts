@@ -123,3 +123,7 @@ export interface FlightingCardProps {
   best?: boolean;
   quickest?: boolean;
 }
+
+// Export logistics types
+export * from './logistics.types';
+export * from './shipment.types';

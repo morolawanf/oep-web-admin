@@ -39,6 +39,22 @@ export const routes = {
     cart: '/ecommerce/cart',
     checkout: '/ecommerce/checkout',
     trackingId: (id: string) => `/ecommerce/tracking/${id}`,
+    // Moved under eCommerce: Shipment and Logistics
+    shipment: {
+      dashboard: '/ecommerce/shipment',
+      shipmentList: '/ecommerce/shipment/shipments',
+      customerProfile: '/ecommerce/shipment/customer-profile',
+      createShipment: '/ecommerce/shipment/shipments/create',
+      editShipment: (id: string) => `/ecommerce/shipment/shipments/${id}/edit`,
+      shipmentDetails: (id: string) => `/ecommerce/shipment/shipments/${id}`,
+      tracking: (id: string) => `/ecommerce/shipment/tracking/${id}`,
+    },
+    logistics: {
+      home: '/ecommerce/logistics',
+      createConfig: '/ecommerce/logistics/create',
+      configDetails: (id: string) => `/ecommerce/logistics/${id}`,
+      editConfig: (id: string) => `/ecommerce/logistics/${id}/edit`,
+    },
   },
   searchAndFilter: {
     realEstate: '/search/real-estate',
@@ -58,15 +74,6 @@ export const routes = {
     createTemplate: '/support/templates/create',
     viewTemplate: (id: string) => `/support/templates/${id}`,
     editTemplate: (id: string) => `/support/templates/${id}/edit`,
-  },
-  logistics: {
-    dashboard: '/logistics',
-    shipmentList: '/logistics/shipments',
-    customerProfile: '/logistics/customer-profile',
-    createShipment: '/logistics/shipments/create',
-    editShipment: (id: string) => `/logistics/shipments/${id}/edit`,
-    shipmentDetails: (id: string) => `/logistics/shipments/${id}`,
-    tracking: (id: string) => `/logistics/tracking/${id}`,
   },
   appointment: {
     dashboard: '/appointment',
@@ -182,6 +189,10 @@ export const routes = {
     otp5: '/auth/otp-5',
   },
   signIn: '/signin',
+  returns: {
+    list: '/returns',
+    details: (id: string) => `/returns/${id}`,
+  },
   storefront: {
     signUpPage: `${process.env.NEXT_PUBLIC_STOREFRONT_URL}/register`,
     forgotPasswordPage: `${process.env.NEXT_PUBLIC_STOREFRONT_URL}/forgot-password`,

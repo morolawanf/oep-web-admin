@@ -6,6 +6,7 @@ import { Badge, Button, Checkbox, ActionIcon, Tooltip } from 'rizzui';
 import { PiEyeBold, PiCopyBold } from 'react-icons/pi';
 import { formatDate } from '@core/utils/format-date';
 import toast from 'react-hot-toast';
+import Link from 'next/link';
 
 const columnHelper = createColumnHelper<Transaction>();
 
@@ -211,6 +212,7 @@ export const transactionsColumns = (onViewTransaction: (transaction: Transaction
     size: 120,
     header: 'Actions',
     cell: ({ row }) => (
+      <Link href={`/ecommerce/transactions/${row.original._id}`}>
       <Button
         variant="outline"
         size="sm"
@@ -219,6 +221,7 @@ export const transactionsColumns = (onViewTransaction: (transaction: Transaction
         <PiEyeBold className="mr-1.5 h-4 w-4" />
         View
       </Button>
+      </Link>
     ),
   }),
 ];

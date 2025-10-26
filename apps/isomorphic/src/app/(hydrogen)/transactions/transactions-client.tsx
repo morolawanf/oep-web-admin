@@ -64,6 +64,12 @@ export default function TransactionsClient() {
         transactions={transactions}
         onViewTransaction={handleViewTransaction}
         isLoading={isLoading}
+        onPageChange={(page, pageSize) =>
+          setFilters((prev) => {
+            if (prev.page === page && prev.limit === pageSize) return prev; // no-op to avoid loops
+            return { ...prev, page, limit: pageSize };
+          })
+        }
       />
 
       {/* Transaction Detail Drawer */}

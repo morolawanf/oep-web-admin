@@ -52,7 +52,8 @@ export default function ProductForm({
   isModalView = false,
   apiErrors = null,
 }: ProductFormProps) {
-  const { data: categoryOptions = [], isLoading: categoriesLoading } = useParentCategoryOptions();
+  const { data: categoryOptions = [], isLoading: categoriesLoading } =
+    useParentCategoryOptions();
   const [slugTouched, setSlugTouched] = useState(false);
 
   return (
@@ -86,7 +87,15 @@ export default function ProductForm({
       }}
       className="flex flex-grow flex-col @container [&_label]:font-medium"
     >
-      {({ register, control, setValue, getValues, watch, formState: { errors, isSubmitting }, setError }) => {
+      {({
+        register,
+        control,
+        setValue,
+        getValues,
+        watch,
+        formState: { errors, isSubmitting },
+        setError,
+      }) => {
         const productName = watch('name');
         const currentSlug = watch('slug');
         const descriptionImages = watch('description_images') || [];
@@ -103,7 +112,7 @@ export default function ProductForm({
               }
             });
           }
-        }, [apiErrors, setError]);
+        }, [apiErrors]);
 
         return (
           <>
@@ -154,7 +163,10 @@ export default function ProductForm({
                         />
                       )}
                     />
-                    <SlugPreview productName={productName} currentSlug={currentSlug} />
+                    <SlugPreview
+                      productName={productName}
+                      currentSlug={currentSlug}
+                    />
                   </div>
                 </VeritcalFormBlockWrapper>
 
@@ -226,7 +238,9 @@ export default function ProductForm({
                       label="Low Stock Threshold"
                       placeholder="5"
                       min="0"
-                      {...register('lowStockThreshold', { valueAsNumber: true })}
+                      {...register('lowStockThreshold', {
+                        valueAsNumber: true,
+                      })}
                       error={errors.lowStockThreshold?.message as string}
                     />
                   </div>
@@ -307,7 +321,9 @@ export default function ProductForm({
                       placeholder="0.00"
                       step="0.01"
                       min="0"
-                      {...register('shipping.addedCost', { valueAsNumber: true })}
+                      {...register('shipping.addedCost', {
+                        valueAsNumber: true,
+                      })}
                       error={errors.shipping?.addedCost?.message as string}
                     />
                     <Input
@@ -316,7 +332,9 @@ export default function ProductForm({
                       placeholder="0"
                       step="0.01"
                       min="0"
-                      {...register('shipping.increaseCostBy', { valueAsNumber: true })}
+                      {...register('shipping.increaseCostBy', {
+                        valueAsNumber: true,
+                      })}
                       error={errors.shipping?.increaseCostBy?.message as string}
                     />
                     <Input
@@ -324,7 +342,9 @@ export default function ProductForm({
                       label="Added Days"
                       placeholder="0"
                       min="0"
-                      {...register('shipping.addedDays', { valueAsNumber: true })}
+                      {...register('shipping.addedDays', {
+                        valueAsNumber: true,
+                      })}
                       error={errors.shipping?.addedDays?.message as string}
                     />
                   </div>
@@ -338,19 +358,28 @@ export default function ProductForm({
                 >
                   <div className="space-y-4">
                     {(watch('specifications') || []).map((spec, index) => (
-                      <div key={index} className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                      <div
+                        key={index}
+                        className="grid grid-cols-1 gap-4 md:grid-cols-2"
+                      >
                         <Input
                           label="Specification Name"
                           placeholder="e.g., Material"
                           {...register(`specifications.${index}.key`)}
-                          error={errors.specifications?.[index]?.key?.message as string}
+                          error={
+                            errors.specifications?.[index]?.key
+                              ?.message as string
+                          }
                         />
                         <div className="flex gap-2">
                           <Input
                             label="Value"
                             placeholder="e.g., Plastic"
                             {...register(`specifications.${index}.value`)}
-                            error={errors.specifications?.[index]?.value?.message as string}
+                            error={
+                              errors.specifications?.[index]?.value
+                                ?.message as string
+                            }
                             className="flex-grow"
                           />
                           <Button
@@ -360,7 +389,10 @@ export default function ProductForm({
                             className="mt-6"
                             onClick={() => {
                               const specs = getValues('specifications') || [];
-                              setValue('specifications', specs.filter((_, i) => i !== index));
+                              setValue(
+                                'specifications',
+                                specs.filter((_, i) => i !== index)
+                              );
                             }}
                           >
                             <PiTrash className="h-4 w-4" />
@@ -373,7 +405,10 @@ export default function ProductForm({
                       variant="outline"
                       onClick={() => {
                         const specs = getValues('specifications') || [];
-                        setValue('specifications', [...specs, { key: '', value: '' }]);
+                        setValue('specifications', [
+                          ...specs,
+                          { key: '', value: '' },
+                        ]);
                       }}
                     >
                       + Add Specification
@@ -389,7 +424,10 @@ export default function ProductForm({
                 >
                   <div className="space-y-4">
                     {(watch('dimension') || []).map((dim, index) => (
-                      <div key={index} className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                      <div
+                        key={index}
+                        className="grid grid-cols-1 gap-4 md:grid-cols-2"
+                      >
                         <Controller
                           name={`dimension.${index}.key`}
                           control={control}
@@ -406,7 +444,10 @@ export default function ProductForm({
                               ]}
                               value={field.value}
                               onChange={field.onChange}
-                              error={errors.dimension?.[index]?.key?.message as string}
+                              error={
+                                errors.dimension?.[index]?.key
+                                  ?.message as string
+                              }
                             />
                           )}
                         />
@@ -415,7 +456,10 @@ export default function ProductForm({
                             label="Value"
                             placeholder="e.g., 10cm"
                             {...register(`dimension.${index}.value`)}
-                            error={errors.dimension?.[index]?.value?.message as string}
+                            error={
+                              errors.dimension?.[index]?.value
+                                ?.message as string
+                            }
                             className="flex-grow"
                           />
                           <Button
@@ -425,7 +469,10 @@ export default function ProductForm({
                             className="mt-6"
                             onClick={() => {
                               const dims = getValues('dimension') || [];
-                              setValue('dimension', dims.filter((_, i) => i !== index));
+                              setValue(
+                                'dimension',
+                                dims.filter((_, i) => i !== index)
+                              );
                             }}
                           >
                             <PiTrash className="h-4 w-4" />
@@ -438,7 +485,10 @@ export default function ProductForm({
                       variant="outline"
                       onClick={() => {
                         const dims = getValues('dimension') || [];
-                        setValue('dimension', [...dims, { key: 'length' as const, value: '' }]);
+                        setValue('dimension', [
+                          ...dims,
+                          { key: 'length' as const, value: '' },
+                        ]);
                       }}
                     >
                       + Add Dimension
@@ -454,22 +504,35 @@ export default function ProductForm({
                 >
                   <div className="space-y-4">
                     {(watch('pricingTiers') || []).map((tier, index) => (
-                      <div key={index} className="grid grid-cols-1 gap-4 rounded-lg border border-gray-200 p-4 md:grid-cols-5">
+                      <div
+                        key={index}
+                        className="grid grid-cols-1 gap-4 rounded-lg border border-gray-200 p-4 md:grid-cols-5"
+                      >
                         <Input
                           type="number"
                           label="Min Quantity"
                           placeholder="1"
                           min="1"
-                          {...register(`pricingTiers.${index}.minQty`, { valueAsNumber: true })}
-                          error={errors.pricingTiers?.[index]?.minQty?.message as string}
+                          {...register(`pricingTiers.${index}.minQty`, {
+                            valueAsNumber: true,
+                          })}
+                          error={
+                            errors.pricingTiers?.[index]?.minQty
+                              ?.message as string
+                          }
                         />
                         <Input
                           type="number"
                           label="Max Quantity (Optional)"
                           placeholder="10"
                           min="1"
-                          {...register(`pricingTiers.${index}.maxQty`, { valueAsNumber: true })}
-                          error={errors.pricingTiers?.[index]?.maxQty?.message as string}
+                          {...register(`pricingTiers.${index}.maxQty`, {
+                            valueAsNumber: true,
+                          })}
+                          error={
+                            errors.pricingTiers?.[index]?.maxQty
+                              ?.message as string
+                          }
                         />
                         <Controller
                           name={`pricingTiers.${index}.strategy`}
@@ -484,7 +547,10 @@ export default function ProductForm({
                               ]}
                               value={field.value}
                               onChange={field.onChange}
-                              error={errors.pricingTiers?.[index]?.strategy?.message as string}
+                              error={
+                                errors.pricingTiers?.[index]?.strategy
+                                  ?.message as string
+                              }
                             />
                           )}
                         />
@@ -494,8 +560,13 @@ export default function ProductForm({
                           placeholder="0"
                           step="0.01"
                           min="0"
-                          {...register(`pricingTiers.${index}.value`, { valueAsNumber: true })}
-                          error={errors.pricingTiers?.[index]?.value?.message as string}
+                          {...register(`pricingTiers.${index}.value`, {
+                            valueAsNumber: true,
+                          })}
+                          error={
+                            errors.pricingTiers?.[index]?.value
+                              ?.message as string
+                          }
                         />
                         <Button
                           type="button"
@@ -504,7 +575,10 @@ export default function ProductForm({
                           className="mt-6"
                           onClick={() => {
                             const tiers = getValues('pricingTiers') || [];
-                            setValue('pricingTiers', tiers.filter((_, i) => i !== index));
+                            setValue(
+                              'pricingTiers',
+                              tiers.filter((_, i) => i !== index)
+                            );
                           }}
                         >
                           <PiTrash className="h-4 w-4" />
@@ -518,7 +592,11 @@ export default function ProductForm({
                         const tiers = getValues('pricingTiers') || [];
                         setValue('pricingTiers', [
                           ...tiers,
-                          { minQty: 1, strategy: 'fixedPrice' as const, value: 0 },
+                          {
+                            minQty: 1,
+                            strategy: 'fixedPrice' as const,
+                            value: 0,
+                          },
                         ]);
                       }}
                     >
@@ -531,8 +609,10 @@ export default function ProductForm({
 
             <div
               className={cn(
-                'sticky bottom-0 z-40 flex items-center gap-3 bg-gray-0/10 backdrop-blur @lg:gap-4 @xl:grid @xl:auto-cols-max @xl:grid-flow-col justify-end',
-                isModalView ? '-mx-10 -mb-7 px-10 py-5' : 'py-5 border-t border-gray-200',
+                'sticky bottom-0 z-40 flex items-center justify-end gap-3 bg-gray-0/10 backdrop-blur @lg:gap-4 @xl:grid @xl:auto-cols-max @xl:grid-flow-col',
+                isModalView
+                  ? '-mx-10 -mb-7 px-10 py-5'
+                  : 'border-t border-gray-200 py-5'
               )}
             >
               {onDelete && mode === 'update' && (

@@ -18,7 +18,7 @@ export const pageLinks = [
   },
   {
     name: 'Logistics',
-    href: routes.logistics.dashboard,
+  href: routes.eCommerce.logistics.home,
   },
   {
     name: 'Analytics',
@@ -78,24 +78,8 @@ export const pageLinks = [
     href: routes.eCommerce.createCategory,
   },
   {
-    name: 'Edit Category',
-    href: routes.eCommerce.editCategory(DUMMY_ID),
-  },
-  {
     name: 'Orders',
     href: routes.eCommerce.orders,
-  },
-  {
-    name: 'Order Details',
-    href: routes.eCommerce.orderDetails(DUMMY_ID),
-  },
-  {
-    name: 'Create Order',
-    href: routes.eCommerce.createOrder,
-  },
-  {
-    name: 'Edit Order',
-    href: routes.eCommerce.editOrder(DUMMY_ID),
   },
   {
     name: 'Reviews',
@@ -130,28 +114,12 @@ export const pageLinks = [
     href: routes.invoice.home,
   },
   {
-    name: 'Invoice Details',
-    href: routes.invoice.details(DUMMY_ID),
-  },
-  {
     name: 'Create Invoice',
     href: routes.invoice.create,
   },
   {
-    name: 'Edit Invoice',
-    href: routes.invoice.edit(DUMMY_ID),
-  },
-  {
     name: 'Shipment List',
-    href: routes.logistics.shipmentList,
-  },
-  {
-    name: 'Shipment Details',
-    href: routes.logistics.shipmentDetails(DUMMY_ID),
-  },
-  {
-    name: 'Tracking',
-    href: routes.logistics.tracking(DUMMY_ID),
+  href: routes.eCommerce.shipment.shipmentList,
   },
   {
     name: 'File Manager',

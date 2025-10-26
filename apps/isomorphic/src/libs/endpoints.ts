@@ -215,6 +215,58 @@ export const api = {
     statistics: '/admin/transactions/statistics',
     refund: (id: string) => `/admin/transactions/${id}/refund`,
   },
+
+  // Return endpoints
+  returns: {
+    list: '/admin/returns',
+    statistics: '/admin/returns/statistics',
+    byId: (id: string) => `/admin/returns/${id}`,
+    updateStatus: (id: string) => `/admin/returns/${id}/status`,
+    processRefund: (id: string) => `/admin/returns/${id}/refund`,
+    delete: (id: string) => `/admin/returns/${id}`,
+  },
+
+  // Logistics Configuration endpoints
+  logistics: {
+    // Admin endpoints
+    countries: '/admin/logistics/countries', // Get all countries (id, code, name)
+    byCountry: (country: string) => `/admin/logistics/one/${country}`, // Get full config by country name
+    createConfig: '/admin/logistics/config', // Create full logistics config
+    updateConfig: (id: string) => `/admin/logistics/config/${id}`, // Update config by MongoDB _id
+    createEmptyCountry: '/admin/logistics/country/add', // Create empty country shell
+    deleteCountry: (id: string) => `/admin/logistics/country/${id}`, // Delete country by MongoDB _id
+
+    // Public endpoints
+    publicCountries: '/logistics/countries', // Public country list
+    locationsTree: '/logistics/locations-tree', // Location hierarchy without prices
+    publicConfig: (country: string) => `/logistics/config/${country}`, // Get logistics config by country name
+    quote: '/logistics/quote', // Get shipping quote for single product
+    cartShipping: '/logistics/cart/flat-shipping', // Calculate cart shipping
+    trackShipment: (trackingNumber: string) =>
+      `/logistics/track/${trackingNumber}`, // Track shipment
+  },
+
+  shipment: {
+    // Admin endpoints
+    list: '/admin/shipment', // GET with ?page=1&limit=10&status=Shipped
+    byId: (id: string) => `/admin/shipment/${id}`, // GET single shipment
+    create: '/admin/shipment', // POST create shipment
+    update: (id: string) => `/admin/shipment/${id}`, // PUT update shipment
+    delete: (id: string) => `/admin/shipment/${id}`, // DELETE shipment
+    updateStatus: (id: string) => `/admin/shipment/${id}/status`, // PATCH update status
+    tracking: (id: string) => `/admin/shipment/${id}/tracking`, // GET tracking history
+    addTracking: (id: string) => `/admin/shipment/${id}/tracking`, // POST add tracking entry
+    bulkUpdateStatus: '/admin/shipment/bulk/status', // POST bulk status update
+    byStatus: (status: string) => `/admin/shipment/filter/status/${status}`, // GET filter by status
+
+    // Public/User endpoints
+    publicTracking: (trackingNumber: string) =>
+      `/logistics/track/${trackingNumber}`, // GET public tracking
+    userShipments: '/user/shipments', // GET user's shipments
+    orderShipment: (orderId: string) => `/user/orders/${orderId}/shipment`, // GET shipment for order
+    orderDeliveryStatus: (orderId: string) =>
+      `/user/orders/${orderId}/delivery-status`, // GET delivery status
+  },
 } as const;
 
 export default api;

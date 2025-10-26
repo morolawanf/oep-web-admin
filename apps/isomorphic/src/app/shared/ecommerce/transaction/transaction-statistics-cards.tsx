@@ -145,7 +145,7 @@ export default function TransactionStatisticsCards() {
       {/* Total Refunded */}
       <StatCard
         title="Total Refunded"
-        value={formatCurrency(statistics.totalRefunded)}
+        value={formatCurrency(statistics.totalRefunded ?? (statistics as any).amountReturned ?? 0)}
         icon={<PiArrowCounterClockwiseDuotone className="h-6 w-6" />}
         variant="info"
         description={`${statistics.refunded + statistics.partially_refunded} refunds processed`}

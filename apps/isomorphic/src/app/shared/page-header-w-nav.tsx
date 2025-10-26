@@ -11,6 +11,7 @@ export type PageHeaderTypes = {
   breadcrumb: { name: string; href?: string }[];
   className?: string;
   href: string;
+  buttonText?: string;
 };
 
 export default function PageHeaderWithNavigation({
@@ -18,6 +19,7 @@ export default function PageHeaderWithNavigation({
   breadcrumb,
   href,
   className,
+  buttonText
 }: React.PropsWithChildren<PageHeaderTypes>) {
   return (
     <header className={cn('mb-6 @container xs:-mt-2 lg:mb-7', className)}>
@@ -48,7 +50,7 @@ export default function PageHeaderWithNavigation({
         <Link href={href}>
           <Button className="w-full @lg:w-auto">
             <PiPlusBold className="me-1.5 h-[17px] w-[17px]" />
-            Create Campaign
+            {buttonText || 'Create Campaign'}
           </Button>
         </Link>
       </div>

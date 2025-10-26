@@ -1,40 +1,36 @@
-import { Button } from 'rizzui/button';
-import { routes } from '@/config/routes';
+import { Metadata } from 'next';
 import PageHeader from '@/app/shared/page-header';
-import Link from 'next/link';
-import ReturnsView from '@/app/shared/ecommerce/returns/order-view';
+import ReturnDetailsClient from './return-details-client';
 
-export default async function ReturnsDetailsPage({ params }: any) {
-  const id = (await params).id;
-  const pageHeader = {
-    title: `Returns #${id}`,
-    breadcrumb: [
-      {
-        href: routes.eCommerce.dashboard,
-        name: 'E-Commerce',
-      },
-      {
-        href: routes.eCommerce.returns,
-        name: 'Returnss',
-      },
-      {
-        name: id,
-      },
-    ],
-  };
+export const metadata: Metadata = {
+  title: 'Return Details | Admin Dashboard',
+  description: 'View and manage return request details',
+};
+
+const pageHeader = {
+  title: 'Return Details',
+  breadcrumb: [
+    {
+      href: '/returns',
+      name: 'Returns',
+    },
+    {
+      name: 'Details',
+    },
+  ],
+};
+
+export default async function ReturnDetailsPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+
   return (
     <>
-      <PageHeader title={pageHeader.title} breadcrumb={pageHeader.breadcrumb}>
-        <Link
-          href={routes.eCommerce.editReturns(id)}
-          className="mt-4 w-full @lg:mt-0 @lg:w-auto"
-        >
-          <Button as="span" className="w-full @lg:w-auto">
-            Edit Returns
-          </Button>
-        </Link>
-      </PageHeader>
-      <ReturnsView />
+      <PageHeader title={pageHeader.title} breadcrumb={pageHeader.breadcrumb} />
+      <ReturnDetailsClient returnId={id} />
     </>
   );
 }
