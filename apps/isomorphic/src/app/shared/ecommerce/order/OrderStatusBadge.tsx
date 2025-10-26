@@ -9,7 +9,10 @@ interface OrderStatusBadgeProps {
 
 const statusConfig: Record<
   OrderStatus,
-  { label: string; color: 'warning' | 'info' | 'secondary' | 'primary' | 'success' | 'danger' }
+  {
+    label: string;
+    color: 'warning' | 'info' | 'secondary' | 'primary' | 'success' | 'danger';
+  }
 > = {
   pending: { label: 'Pending', color: 'warning' },
   confirmed: { label: 'Confirmed', color: 'info' },

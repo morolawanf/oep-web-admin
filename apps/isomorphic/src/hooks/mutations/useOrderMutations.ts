@@ -34,7 +34,10 @@ export function useUpdateOrderStatus(
       orderId: string;
       data: UpdateOrderStatusInput;
     }) => {
-      const response = await apiClient.put(api.orders.updateStatus(orderId), data);
+      const response = await apiClient.put(
+        api.orders.updateStatus(orderId),
+        data
+      );
       return response.data;
     },
     onSuccess: (data, variables) => {
@@ -213,7 +216,10 @@ export function useUpdateOrderNotes(
       orderId: string;
       data: UpdateNotesInput;
     }) => {
-      const response = await apiClient.put(api.orders.updateNotes(orderId), data);
+      const response = await apiClient.put(
+        api.orders.updateNotes(orderId),
+        data
+      );
       return response.data;
     },
     onSuccess: (data, variables) => {

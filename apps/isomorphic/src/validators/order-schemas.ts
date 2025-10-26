@@ -70,7 +70,9 @@ export const updateNotesSchema = z.object({
 });
 
 export type UpdateStatusInput = z.infer<typeof updateStatusSchema>;
-export type UpdatePaymentStatusInput = z.infer<typeof updatePaymentStatusSchema>;
+export type UpdatePaymentStatusInput = z.infer<
+  typeof updatePaymentStatusSchema
+>;
 export type UpdateTrackingInput = z.infer<typeof updateTrackingSchema>;
 export type ProcessRefundInput = z.infer<typeof processRefundSchema>;
 export type CancelOrderInput = z.infer<typeof cancelOrderSchema>;

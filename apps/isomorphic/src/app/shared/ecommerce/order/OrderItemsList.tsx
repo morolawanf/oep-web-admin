@@ -40,16 +40,34 @@ export default function OrderItemsList({ items }: OrderItemsListProps) {
                 </Text>
               )}
               <Text className="text-sm text-gray-600">
-                Quantity: {item.quantity} × {formatPrice({ amount: item.price, currencyCode: 'USD', locale: 'en-US', fractions: 2 })}
+                Quantity: {item.quantity} ×{' '}
+                {formatPrice({
+                  amount: item.price,
+                  currencyCode: 'USD',
+                  locale: 'en-US',
+                  fractions: 2,
+                })}
               </Text>
             </div>
             <div className="text-right">
               <Text className="font-semibold">
-                {formatPrice({ amount: item.subtotal, currencyCode: 'USD', locale: 'en-US', fractions: 2 })}
+                {formatPrice({
+                  amount: item.subtotal,
+                  currencyCode: 'USD',
+                  locale: 'en-US',
+                  fractions: 2,
+                })}
               </Text>
               {item.discount > 0 && (
                 <Text className="text-sm text-green-600">
-                  -{formatPrice({ amount: item.discount, currencyCode: 'USD', locale: 'en-US', fractions: 2 })} off
+                  -
+                  {formatPrice({
+                    amount: item.discount,
+                    currencyCode: 'USD',
+                    locale: 'en-US',
+                    fractions: 2,
+                  })}{' '}
+                  off
                 </Text>
               )}
             </div>

@@ -23,11 +23,13 @@ export default function OrderTimeline({ statusHistory }: OrderTimelineProps) {
             <div className="flex-1">
               <Text className="font-medium capitalize">{history.status}</Text>
               <Text className="text-sm text-gray-600">
-                {new Date(history.updatedAt).toLocaleString()}{' '}
-                by {history.updatedBy?.firstName} {history.updatedBy?.lastName}
+                {new Date(history.updatedAt).toLocaleString()} by{' '}
+                {history.updatedBy?.firstName} {history.updatedBy?.lastName}
               </Text>
               {history.notes && (
-                <Text className="mt-1 text-sm text-gray-700">{history.notes}</Text>
+                <Text className="mt-1 text-sm text-gray-700">
+                  {history.notes}
+                </Text>
               )}
             </div>
           </div>

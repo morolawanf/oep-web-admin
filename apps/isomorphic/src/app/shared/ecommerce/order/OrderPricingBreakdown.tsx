@@ -8,8 +8,11 @@ interface OrderPricingBreakdownProps {
   order: Order;
 }
 
-export default function OrderPricingBreakdown({ order }: OrderPricingBreakdownProps) {
-  const format = (amount: number) => formatPrice({ amount, currencyCode: 'USD', locale: 'en-US', fractions: 2 });
+export default function OrderPricingBreakdown({
+  order,
+}: OrderPricingBreakdownProps) {
+  const format = (amount: number) =>
+    formatPrice({ amount, currencyCode: 'USD', locale: 'en-US', fractions: 2 });
 
   return (
     <div className="mb-6 rounded-lg border p-4">

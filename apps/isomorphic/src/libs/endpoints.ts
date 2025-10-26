@@ -74,7 +74,8 @@ export const api = {
     updateNotes: (id: string) => `/admin/orders/${id}/notes`,
     refund: (id: string) => `/admin/orders/${id}/refund`,
     cancel: (id: string) => `/admin/orders/${id}/cancel`,
-    resendNotification: (id: string) => `/admin/orders/${id}/resend-notification`,
+    resendNotification: (id: string) =>
+      `/admin/orders/${id}/resend-notification`,
     statistics: '/admin/orders/statistics',
     bulkUpdate: '/admin/orders/bulk-update',
     export: '/admin/orders/export',

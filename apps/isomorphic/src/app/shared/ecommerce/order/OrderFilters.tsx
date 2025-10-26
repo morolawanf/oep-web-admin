@@ -1,7 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { OrdersQueryParams, OrderStatus, PaymentStatus } from '@/types/order.types';
+import {
+  OrdersQueryParams,
+  OrderStatus,
+  PaymentStatus,
+} from '@/types/order.types';
 import { Input, Select, Button } from 'rizzui';
 import { PiMagnifyingGlassBold, PiTrashDuotone } from 'react-icons/pi';
 import { useDebounce } from '@/hooks/use-debounce';
@@ -11,7 +15,10 @@ interface OrderFiltersProps {
   onChange: (params: Partial<OrdersQueryParams>) => void;
 }
 
-export default function OrderFilters({ currentParams, onChange }: OrderFiltersProps) {
+export default function OrderFilters({
+  currentParams,
+  onChange,
+}: OrderFiltersProps) {
   const [search, setSearch] = useState(currentParams.search || '');
   const debouncedSearch = useDebounce(search, 500);
 
@@ -65,7 +72,9 @@ export default function OrderFilters({ currentParams, onChange }: OrderFiltersPr
       <Select
         placeholder="Payment Status"
         value={currentParams.paymentStatus || ''}
-        onChange={(value: any) => onChange({ paymentStatus: value || undefined })}
+        onChange={(value: any) =>
+          onChange({ paymentStatus: value || undefined })
+        }
         options={[
           { label: 'All Payments', value: '' },
           { label: 'Pending', value: 'pending' },

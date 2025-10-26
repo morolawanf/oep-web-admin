@@ -66,7 +66,9 @@ export const ordersColumns = (onViewOrder: (order: Order) => void) => [
     id: 'paymentStatus',
     size: 140,
     header: 'Payment',
-    cell: ({ row }) => <PaymentStatusBadge status={row.original.paymentStatus} />,
+    cell: ({ row }) => (
+      <PaymentStatusBadge status={row.original.paymentStatus} />
+    ),
   }),
 
   columnHelper.accessor('status', {

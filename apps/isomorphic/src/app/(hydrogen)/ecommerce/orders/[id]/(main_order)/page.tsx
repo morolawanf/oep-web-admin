@@ -37,8 +37,8 @@ export default async function OrderDetailsPage({ params }: any) {
       </PageHeader>
       <div className="p-6">
         <Text className="text-center text-gray-500">
-          Order details are shown in the drawer on the main orders page.
-          Click "Back to Orders" and then click the eye icon to view order details.
+          Order details are shown in the drawer on the main orders page. Click
+          "Back to Orders" and then click the eye icon to view order details.
         </Text>
       </div>
     </>

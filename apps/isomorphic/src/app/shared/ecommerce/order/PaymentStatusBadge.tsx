@@ -18,7 +18,9 @@ const statusConfig: Record<
   partially_refunded: { label: 'Partial Refund', color: 'warning' },
 };
 
-export default function PaymentStatusBadge({ status }: PaymentStatusBadgeProps) {
+export default function PaymentStatusBadge({
+  status,
+}: PaymentStatusBadgeProps) {
   const config = statusConfig[status];
 
   return (

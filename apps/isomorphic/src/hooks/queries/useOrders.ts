@@ -16,9 +16,12 @@ export function useOrders(
   return useQuery<OrdersListResponse>({
     queryKey: ['orders', params],
     queryFn: async () => {
-      const response = await apiClient.get<OrdersListResponse>(api.orders.list, {
-        params,
-      });
+      const response = await apiClient.get<OrdersListResponse>(
+        api.orders.list,
+        {
+          params,
+        }
+      );
       if (!response.data) {
         throw new Error('No data returned from orders API');
       }

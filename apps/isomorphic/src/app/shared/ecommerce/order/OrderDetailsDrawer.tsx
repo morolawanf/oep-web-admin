@@ -26,7 +26,9 @@ export default function OrderDetailsDrawer({
         {/* Header */}
         <div className="mb-6 flex items-center justify-between border-b pb-4">
           <div>
-            <Text className="text-2xl font-bold">Order #{order.orderNumber}</Text>
+            <Text className="text-2xl font-bold">
+              Order #{order.orderNumber}
+            </Text>
             <Text className="text-sm text-gray-600">
               {new Date(order.createdAt).toLocaleString()}
             </Text>
@@ -59,7 +61,9 @@ export default function OrderDetailsDrawer({
         <div className="mb-6 grid grid-cols-2 gap-4">
           <div className="rounded-lg border p-4">
             <Text className="mb-2 font-semibold">Payment Method</Text>
-            <Text className="capitalize">{order.paymentMethod.replace('_', ' ')}</Text>
+            <Text className="capitalize">
+              {order.paymentMethod.replace('_', ' ')}
+            </Text>
             {order.paymentDetails.transactionId && (
               <Text className="text-sm text-gray-600">
                 ID: {order.paymentDetails.transactionId}
@@ -97,7 +101,9 @@ export default function OrderDetailsDrawer({
             {order.internalNotes && (
               <div>
                 <Text className="text-sm font-medium">Internal Notes:</Text>
-                <Text className="text-sm text-gray-600">{order.internalNotes}</Text>
+                <Text className="text-sm text-gray-600">
+                  {order.internalNotes}
+                </Text>
               </div>
             )}
           </div>

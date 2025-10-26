@@ -47,7 +47,9 @@ export default async function EditOrderPage({ params }: any) {
       </PageHeader>
       <div className="p-6">
         <Text className="text-center text-gray-500">
-          Order editing functionality is coming soon. Currently, you can update order status, tracking, and process refunds from the order details drawer.
+          Order editing functionality is coming soon. Currently, you can update
+          order status, tracking, and process refunds from the order details
+          drawer.
         </Text>
       </div>
     </>

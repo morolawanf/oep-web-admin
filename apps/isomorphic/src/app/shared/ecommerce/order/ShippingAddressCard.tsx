@@ -7,7 +7,9 @@ interface ShippingAddressCardProps {
   address: ShippingAddress;
 }
 
-export default function ShippingAddressCard({ address }: ShippingAddressCardProps) {
+export default function ShippingAddressCard({
+  address,
+}: ShippingAddressCardProps) {
   return (
     <div className="mb-6 rounded-lg border p-4">
       <Text className="mb-3 font-semibold">Shipping Address</Text>
