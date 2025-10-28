@@ -77,7 +77,7 @@ export default function CampaignProductsSection({
               .map((product) => ({
                 label: product.name,
                 value: product._id,
-                image: product.coverImage || product.image || '',
+                image: product.description_images.find((img) => img.cover_image)?.url,
               }));
           }, [productsData, field.value]);
 
@@ -185,8 +185,7 @@ export default function CampaignProductsSection({
                               />
                               <Image
                                 src={
-                                  product.coverImage ||
-                                  product.image ||
+                                  product.description_images.find((img) => img.cover_image)?.url ||
                                   '/placeholder.png'
                                 }
                                 alt={product.name}

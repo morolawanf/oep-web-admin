@@ -6,7 +6,7 @@ import { useTanStackTable } from '@core/components/table/custom/use-TanStack-Tab
 import TablePagination from '@core/components/table/pagination';
 import { TableClassNameProps } from '@core/components/table/table-types';
 import cn from '@core/utils/class-names';
-import { Alert } from 'rizzui';
+import { Alert, Loader } from 'rizzui';
 import toast from 'react-hot-toast';
 import { exportToCSV } from '@core/utils/export-to-csv';
 import { handleApiError } from '@/libs/axios';
@@ -36,7 +36,7 @@ export default function ShipmentsTable({
   paginationClassName?: string;
 }) {
   // Fetch shipments (first page with a larger limit to allow client-side pagination similar to Products)
-  const { data, isLoading, error, isError } = useShipments({ page: 1, limit: 200 });
+  const { data, isLoading, error, isError } = useShipments({ page: 1, limit: 30 });
   const deleteShipment = useDeleteShipment();
   const [componentError, setComponentError] = useState<string | null>(null);
 
@@ -81,7 +81,11 @@ export default function ShipmentsTable({
     );
   }
 
-  if (isLoading) return <TableSkeleton />;
+  if (isLoading) return <div className="p-6 flex">
+            <p>Loading shipments...</p> 
+            <Loader variant="spinner" size="xl" />
+
+  </div>;
 
   if (isError) {
     return (
@@ -100,13 +104,14 @@ export default function ShipmentsTable({
   }
 
   return (
-    <>
+    <div className='mt-4'>
+    
       {!hideFilters && <Filters table={table} />}
       <Table table={table} variant="modern" classNames={classNames} />
       {!hideFooter && <TableFooter table={table} onExport={handleExportData} />}
       {!hidePagination && (
         <TablePagination table={table} className={cn('py-4', paginationClassName)} />
       )}
-    </>
+    </div>
   );
 }

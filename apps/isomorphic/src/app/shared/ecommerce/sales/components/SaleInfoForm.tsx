@@ -176,11 +176,11 @@ export default function SaleInfoForm({
                       setSelectedProduct({
                         _id: product._id,
                         name: product.name,
-                        image: product.coverImage || product.image || '',
+                        image: product.description_images.find((img) => img.cover_image)?.url || '',
                         stock: product.stock,
                         slug: product.slug,
                         category: product.category,
-                        subCategories: product.subCategories || { _id: '', name: '' },
+                        // subCategories: product.subCategories || { _id: '', name: '' },
                         attributes: product.attributes || [],
                       });
                       setValue('variants', [
@@ -197,7 +197,7 @@ export default function SaleInfoForm({
                     }}
                   >
                     <img
-                      src={product.coverImage || product.image || '/placeholder.png'}
+                      src={product.description_images.find((img) => img.cover_image)?.url || '/placeholder.png'}
                       alt={product.name}
                       className="h-12 w-12 flex-shrink-0 rounded-md border border-gray-200 object-cover"
                     />

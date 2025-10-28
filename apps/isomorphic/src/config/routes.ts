@@ -55,6 +55,11 @@ export const routes = {
       configDetails: (id: string) => `/ecommerce/logistics/${id}`,
       editConfig: (id: string) => `/ecommerce/logistics/${id}/edit`,
     },
+    delivery: {
+      list: '/ecommerce/delivery',
+      details: (id: string) => `/ecommerce/delivery/${id}`,
+      edit: (id: string) => `/ecommerce/delivery/${id}/edit`,
+    },
   },
   searchAndFilter: {
     realEstate: '/search/real-estate',

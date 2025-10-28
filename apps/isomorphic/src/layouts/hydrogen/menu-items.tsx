@@ -60,6 +60,7 @@ import {
   PiUserDuotone,
   PiUserGearDuotone,
   PiUserPlusDuotone,
+  PiTruckDuotone,
 } from 'react-icons/pi';
 import { GoHome, GoPeople } from 'react-icons/go';
 import { MdOutlineCampaign, MdOutlineSell, MdPayments } from 'react-icons/md';
@@ -157,6 +158,42 @@ export const menuItems = [
     permission: { resource: ['transactions'], action: 'read' },
   },
   {
+    name: 'Analytics',
+    href: '#',
+    icon: <PiChartLineUpDuotone />,
+    permission: { resource: ['analytics'], action: 'read' },
+    dropdownItems: [
+      {
+        name: 'Sales',
+        href: '/analytics/sales',
+      },
+      {
+        name: 'Orders',
+        href: '/analytics/orders',
+      },
+      {
+        name: 'Transactions',
+        href: '/analytics/transactions',
+      },
+      {
+        name: 'Users',
+        href: '/analytics/users',
+      },
+      {
+        name: 'Products',
+        href: '/analytics/products',
+      },
+      {
+        name: 'Reviews',
+        href: '/analytics/reviews',
+      },
+      {
+        name: 'Coupons',
+        href: '/analytics/coupons',
+      },
+    ],
+  },
+  {
     name: 'Logistics',
     href: routes.eCommerce.logistics.home,
     icon: <PiPackageDuotone />,
@@ -167,6 +204,12 @@ export const menuItems = [
     href: routes.eCommerce.shipment.dashboard,
     icon: <PiAirplaneTiltDuotone />,
     permission: { resource: ['logistics'], action: 'read' },
+  },
+  {
+    name: 'Delivery',
+    href: routes.eCommerce.delivery.list,
+    icon: <PiTruckDuotone />,
+    permission: { resource: ['delivery'], action: 'read' },
   },
   {
     name: 'Invoice',

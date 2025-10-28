@@ -103,11 +103,24 @@ export interface TransactionOrder {
   isPaid?: boolean;
 }
 
+// Return reference in transactions (when populated)
+export interface TransactionReturn {
+  _id: string;
+  orderId: string;
+  reason: string;
+  status: string;
+  refundAmount: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
 // Main Transaction Interface
 export interface Transaction {
   _id: string;
-  orderId: string | TransactionOrder;
+  orderId?: string | TransactionOrder;
+  returnId?: string | TransactionReturn;
   userId: string | TransactionUser;
+  transactionType?: 'order_payment' | 'return_refund';
   reference: string;
   amount: number;
   currency: string;
@@ -129,6 +142,7 @@ export interface Transaction {
   // Populated fields (from aggregation)
   user?: TransactionUser;
   order?: TransactionOrder;
+  return?: TransactionReturn;
 }
 
 // Filters for transaction queries

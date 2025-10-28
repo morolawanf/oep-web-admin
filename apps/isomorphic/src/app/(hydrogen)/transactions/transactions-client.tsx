@@ -17,7 +17,7 @@ export default function TransactionsClient() {
   // Filters state
   const [filters, setFilters] = useState<FilterType>({
     page: 1,
-    limit: 10,
+    limit: 20,
   });
 
   // Detail drawer state

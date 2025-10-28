@@ -7,6 +7,7 @@ import { PiEyeBold, PiCopyBold } from 'react-icons/pi';
 import { formatDate } from '@core/utils/format-date';
 import toast from 'react-hot-toast';
 import Link from 'next/link';
+import { routes } from '@/config/routes';
 
 const columnHelper = createColumnHelper<Transaction>();
 
@@ -140,6 +141,35 @@ export const transactionsColumns = (onViewTransaction: (transaction: Transaction
       return <span className="text-xs text-gray-400">N/A</span>;
     },
   }),
+  columnHelper.display({
+    id: 'returnId',
+    size: 220,
+    header: 'Return ID',
+    cell: ({ row }) => {
+      const refunds = row.original.refunds || [];
+      if (refunds.length > 0 && refunds[0]?.refundId) {
+        const rid = refunds[0].refundId;
+        return (
+          <div className="flex items-center gap-2">
+            <span className="font-mono text-sm">{rid}</span>
+            <Tooltip content="Copy return ID">
+              <ActionIcon
+                variant="text"
+                size="sm"
+                onClick={() => copyToClipboard(rid, 'Return ID')}
+              >
+                <PiCopyBold className="h-3.5 w-3.5" />
+              </ActionIcon>
+            </Tooltip>
+            {refunds.length > 1 && (
+              <span className="text-[11px] text-gray-500">+{refunds.length - 1} more</span>
+            )}
+          </div>
+        );
+      }
+      return <span className="text-xs text-gray-400">N/A</span>;
+    },
+  }),
   columnHelper.accessor('amount', {
     id: 'amount',
     size: 140,
@@ -212,7 +242,7 @@ export const transactionsColumns = (onViewTransaction: (transaction: Transaction
     size: 120,
     header: 'Actions',
     cell: ({ row }) => (
-      <Link href={`/ecommerce/transactions/${row.original._id}`}>
+      <Link href={routes.transactions.details(row.original._id)}>
       <Button
         variant="outline"
         size="sm"

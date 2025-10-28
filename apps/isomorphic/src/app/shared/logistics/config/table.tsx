@@ -23,7 +23,7 @@ const columnHelper = createColumnHelper<CountryListItem>();
 
 export default function LogisticsConfigTable() {
   const router = useRouter();
-  const { data: countries = [], isLoading, error } = useLogisticsCountries();
+  const { data: countries = [], isLoading, isPending, error } = useLogisticsCountries();
   const deleteCountry = useDeleteCountry();
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -159,6 +159,7 @@ useEffect(() => {
       {/* Table */}
       <Table
         table={table}
+        isLoading={isLoading || isPending}
         variant="modern"
         classNames={{
           container: 'border border-muted rounded-md',

@@ -26,6 +26,7 @@ export enum PermissionResource {
   INVOICES = 'invoices',
   LOGISTICS = 'logistics',
   TRANSACTIONS = 'transactions',
+  DELIVERY = 'delivery',
 }
 
 /**
@@ -86,6 +87,7 @@ export const usePermissions = () => {
       
       return response.data;
     },
+    placeholderData: { legacyRole: 'employee', roles: [] },
     staleTime: 10 * 60 * 1000, // 10 minutes - permissions don't change frequently
     refetchOnMount: false,
     refetchOnWindowFocus: false,

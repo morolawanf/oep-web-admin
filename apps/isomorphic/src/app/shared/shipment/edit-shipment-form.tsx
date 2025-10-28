@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Input, Textarea, Select } from 'rizzui';
+import { useCouriers } from '@/hooks/queries/useCouriers';
 import { useUpdateShipment, useShipment } from '@/hooks/use-shipment';
 import {
   updateShipmentSchema,
@@ -23,6 +24,7 @@ export default function EditShipmentForm({
   const router = useRouter();
   const { data: shipment, isLoading } = useShipment(shipmentId);
   const { mutate: updateShipment, isPending } = useUpdateShipment(shipmentId);
+  const { data: couriers } = useCouriers();
 
   const {
     register,
@@ -78,12 +80,34 @@ export default function EditShipmentForm({
           <div className="text-lg font-semibold">{shipment.trackingNumber}</div>
         </div>
         <div className="grid gap-4 md:grid-cols-2">
-          <Input
-            label="Courier"
-            placeholder="e.g., DHL, FedEx, UPS"
-            {...register('courier')}
-            error={errors.courier?.message}
-          />
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-gray-900">
+              Courier
+            </label>
+            <Select
+              value={shipment?.courier ?? ''}
+              onChange={(value) => {
+                // Populate the plain courier field with selected courier's name or email
+                const selected = (couriers || []).find((c) => c._id === value);
+                const label = selected ? (selected.name || selected.email) : String(value || '');
+                // eslint-disable-next-line @typescript-eslint/no-floating-promises
+                reset({
+                  ...((shipment as any) || {}),
+                  courier: label,
+                });
+              }}
+              options={(couriers || []).map((c) => ({ label: `${c.name} (${c.email})`, value: c._id }))}
+              placeholder="Select courier user"
+            />
+            <p className="mt-1 text-xs text-gray-500">Selecting will set courier name to the chosen user</p>
+            {/* Keep raw input for manual override */}
+            <Input
+              className="mt-2"
+              placeholder="Or type courier name (e.g., DHL, UPS)"
+              {...register('courier')}
+              error={errors.courier?.message}
+            />
+          </div>
           <Input
             label="Shipping Cost"
             type="number"

@@ -45,7 +45,7 @@ export function useUpdateOrderStatus(
       queryClient.invalidateQueries({ queryKey: ['order', variables.orderId] });
       queryClient.invalidateQueries({ queryKey: ['orderStatistics'] });
       toast.success('Order status updated successfully');
-      options?.onSuccess?.(data, variables, {} as any);
+      options?.onSuccess?.(data!, variables, {} as any);
     },
     onError: (error, variables) => {
       toast.error('Failed to update order status');
@@ -82,7 +82,7 @@ export function useUpdatePaymentStatus(
       queryClient.invalidateQueries({ queryKey: ['orders'] });
       queryClient.invalidateQueries({ queryKey: ['order', variables.orderId] });
       toast.success('Payment status updated successfully');
-      options?.onSuccess?.(data, variables, {} as any);
+      options?.onSuccess?.(data!, variables, {} as any);
     },
     onError: (error, variables) => {
       toast.error('Failed to update payment status');
@@ -119,7 +119,7 @@ export function useUpdateTracking(
       queryClient.invalidateQueries({ queryKey: ['orders'] });
       queryClient.invalidateQueries({ queryKey: ['order', variables.orderId] });
       toast.success('Tracking information updated successfully');
-      options?.onSuccess?.(data, variables, {} as any);
+      options?.onSuccess?.(data!, variables, {} as any);
     },
     onError: (error, variables) => {
       toast.error('Failed to update tracking information');
@@ -154,7 +154,7 @@ export function useProcessRefund(
       queryClient.invalidateQueries({ queryKey: ['order', variables.orderId] });
       queryClient.invalidateQueries({ queryKey: ['orderStatistics'] });
       toast.success('Refund processed successfully');
-      options?.onSuccess?.(data, variables, {} as any);
+      options?.onSuccess?.(data!, variables, {} as any);
     },
     onError: (error, variables) => {
       toast.error('Failed to process refund');
@@ -189,7 +189,7 @@ export function useCancelOrder(
       queryClient.invalidateQueries({ queryKey: ['order', variables.orderId] });
       queryClient.invalidateQueries({ queryKey: ['orderStatistics'] });
       toast.success('Order cancelled successfully');
-      options?.onSuccess?.(data, variables, {} as any);
+      options?.onSuccess?.(data!, variables, {} as any);
     },
     onError: (error, variables) => {
       toast.error('Failed to cancel order');
@@ -225,7 +225,7 @@ export function useUpdateOrderNotes(
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['order', variables.orderId] });
       toast.success('Notes updated successfully');
-      options?.onSuccess?.(data, variables, {} as any);
+      options?.onSuccess?.(data!, variables, {} as any);
     },
     onError: (error, variables) => {
       toast.error('Failed to update notes');

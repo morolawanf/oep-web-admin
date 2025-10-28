@@ -43,7 +43,7 @@ export const useCreateReview = (
 
   return useMutation<Review, Error, CreateReviewInput, MutationContext>({
     mutationFn: async (data: CreateReviewInput) => {
-      const response = await apiClient.post<Review>(api.reviews.create, data);
+      const response = await apiClient.post<Review>('/', data);
       if (!response.data) {
         throw new Error('Failed to create review');
       }
