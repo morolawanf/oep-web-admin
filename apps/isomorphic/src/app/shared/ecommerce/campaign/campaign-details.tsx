@@ -1,15 +1,17 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { routes } from '@/config/routes';
 import { useCampaign } from '@/hooks/queries/useCampaigns';
 import { useDeleteCampaign } from '@/hooks/mutations/useCampaignMutations';
-import { Button, Text, Loader, Badge } from 'rizzui';
+import { Button, Text, Loader, Badge, Tooltip } from 'rizzui';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import Image from 'next/image';
 import { PiPencilSimpleBold } from 'react-icons/pi';
 import DeletePopover from '@core/components/delete-popover';
+import { getCdnUrl } from '@core/utils/cdn-url';
 
 interface CampaignDetailsProps {
   id: string;
@@ -75,6 +77,39 @@ export default function CampaignDetails({ id }: CampaignDetailsProps) {
     }
   };
 
+  // Helpers for product rendering
+  const formatPrice = (price?: number) =>
+    typeof price === 'number'
+      ? price.toLocaleString('en-US', { style: 'currency', currency: 'USD' })
+      : '—';
+
+  // Attempt to find sales that reference a product (supporting legacy/new shapes)
+  const getSalesForProduct = (productId: string) => {
+    if (!Array.isArray(campaign.sales)) return [] as Array<{ _id: string; title: string }>;
+    const matches: Array<{ _id: string; title: string }> = [];
+    for (const sale of campaign.sales) {
+      if (!sale || typeof sale === 'string') continue;
+      // Legacy: sale.product?._id
+      const anySale: any = sale as any;
+      if (anySale.product && typeof anySale.product === 'object' && anySale.product._id === productId) {
+        matches.push({ _id: sale._id, title: sale.title });
+        continue;
+      }
+      // Alternative: sale.products as array of ids/objects
+      if (Array.isArray(anySale.products)) {
+        const found = anySale.products.some((p: any) => {
+          if (!p) return false;
+          if (typeof p === 'string') return p === productId;
+          return p._id === productId;
+        });
+        if (found) {
+          matches.push({ _id: sale._id, title: sale.title });
+        }
+      }
+    }
+    return matches;
+  };
+
   return (
     <div className="space-y-6">
       {/* Header with Actions */}
@@ -118,7 +153,7 @@ export default function CampaignDetails({ id }: CampaignDetailsProps) {
           <Text className="mb-4 text-lg font-semibold">Campaign Image</Text>
           <div className="relative aspect-video w-full max-w-2xl overflow-hidden rounded-lg">
             <Image
-              src={campaign.image}
+              src={getCdnUrl(campaign.image)}
               alt={campaign.title}
               fill
               className="object-cover"
@@ -173,15 +208,19 @@ export default function CampaignDetails({ id }: CampaignDetailsProps) {
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {campaign.products.map((product) => {
               if (typeof product === 'string') return null;
+              const productImg = product.image || product.coverImage || '';
+              const productSales = Array.isArray((product as any).linkedSales)
+                ? (product as any).linkedSales
+                : getSalesForProduct(product._id);
               return (
                 <div
                   key={product._id}
                   className="flex items-center gap-3 rounded-lg border border-gray-200 p-3"
                 >
-                  {(product.image || product.coverImage) && (
+                  {productImg && (
                     <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-md">
                       <Image
-                        src={product.image || product.coverImage || ''}
+                        src={getCdnUrl(productImg)}
                         alt={product.name}
                         fill
                         className="object-cover"
@@ -189,10 +228,52 @@ export default function CampaignDetails({ id }: CampaignDetailsProps) {
                     </div>
                   )}
                   <div className="min-w-0 flex-1">
-                    <Text className="truncate font-medium">{product.name}</Text>
-                    <Text className="text-sm text-gray-600">
-                      ${product.price}
-                    </Text>
+                    <div className="flex items-center gap-2">
+                      {product.slug ? (
+                        <Link
+                          href={routes.eCommerce.productDetails(product.slug)}
+                          className="truncate font-medium text-primary hover:underline"
+                        >
+                          {product.name}
+                        </Link>
+                      ) : (
+                        <Text className="truncate font-medium">{product.name}</Text>
+                      )}
+                      {product.status && (
+                        <Badge variant="flat" size="sm" className="capitalize">
+                          {product.status}
+                        </Badge>
+                      )}
+                      {productSales.length > 0 && (
+                        <Tooltip
+                          content={
+                            <div className="max-w-xs space-y-1">
+                              <Text className="text-xs font-medium">Sales in this campaign:</Text>
+                              {productSales.map((s: any) => (
+                                <Link
+                                  key={s._id}
+                                  href={routes.eCommerce.flashSaleDetails(s._id)}
+                                  className="block text-xs text-primary hover:underline"
+                                >
+                                  • {s.title}
+                                </Link>
+                              ))}
+                            </div>
+                          }
+                        >
+                          <Badge color="primary" size="sm">{productSales.length} sale(s)</Badge>
+                        </Tooltip>
+                      )}
+                    </div>
+                    <div className="mt-0.5 flex items-center gap-2 text-sm text-gray-600">
+                      <span>{formatPrice(product.price)}</span>
+                      {product.slug && (
+                        <span className="truncate text-gray-400">• {product.slug}</span>
+                      )}
+                    </div>
+                    {product.description && (
+                      <Text className="mt-1 line-clamp-2 text-xs text-gray-500">{product.description}</Text>
+                    )}
                   </div>
                 </div>
               );
@@ -216,7 +297,12 @@ export default function CampaignDetails({ id }: CampaignDetailsProps) {
                   className="flex items-start justify-between rounded-lg border border-gray-200 p-4"
                 >
                   <div className="min-w-0 flex-1">
-                    <Text className="font-medium">{sale.title}</Text>
+                    <Link
+                      href={routes.eCommerce.flashSaleDetails(sale._id)}
+                      className="font-medium text-primary hover:underline"
+                    >
+                      {sale.title}
+                    </Link>
                     <Text className="mt-1 text-sm text-gray-600">
                       {sale.type} Sale
                     </Text>

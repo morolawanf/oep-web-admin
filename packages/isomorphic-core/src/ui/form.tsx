@@ -51,8 +51,6 @@ export const Form = <
       methods.reset(resetValues);
     }
   }, [resetValues, methods]);
-
-  console.log(methods.getValues());
   
   return (
     <form

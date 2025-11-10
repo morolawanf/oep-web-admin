@@ -178,6 +178,17 @@ export default function EditCampaign({ id }: EditCampaignProps) {
               />
             </div>
 
+                        {/* Campaign Image */}
+            <div className="rounded-lg border border-gray-200 p-6">
+              <CampaignImageUpload
+                control={control}
+                errors={errors}
+                getValues={getValues}
+                setValue={setValue}
+                watch={watch}
+              />
+            </div>
+
             {/* Campaign Info */}
             <div className="rounded-lg border border-gray-200 p-6">
               <CampaignInfoForm
@@ -188,16 +199,6 @@ export default function EditCampaign({ id }: EditCampaignProps) {
               />
             </div>
 
-            {/* Campaign Image */}
-            <div className="rounded-lg border border-gray-200 p-6">
-              <CampaignImageUpload
-                control={control}
-                errors={errors}
-                getValues={getValues}
-                setValue={setValue}
-                watch={watch}
-              />
-            </div>
 
             {/* Campaign Dates */}
             <div className="rounded-lg border border-gray-200 p-6">

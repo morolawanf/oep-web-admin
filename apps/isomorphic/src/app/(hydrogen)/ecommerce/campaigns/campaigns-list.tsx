@@ -21,6 +21,7 @@ import {
 } from '@/hooks/mutations/useCampaignMutations';
 import toast from 'react-hot-toast';
 import axios from 'axios';
+import { getCdnUrl } from '@core/utils/cdn-url';
 
 type FilterType = 'all' | 'active' | 'inactive' | 'draft';
 
@@ -164,7 +165,7 @@ export default function CampaignsList() {
                 {/* Campaign Image */}
                 <div className="mb-4 overflow-hidden rounded-lg">
                   <Image
-                    src={campaign.image}
+                    src={getCdnUrl(campaign.image)}
                     alt={campaign.title}
                     width={400}
                     height={200}

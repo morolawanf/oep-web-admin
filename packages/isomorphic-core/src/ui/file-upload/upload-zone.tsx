@@ -250,9 +250,9 @@ export default function UploadZone({
 
           // Update form value
           if (typeof initialValue === "string") {
-            setValue(name, uploadedFile);
+            setValue(name, uploadedFile.path);
           } else {
-            setValue(name, [uploadedFile]);
+            setValue(name, [uploadedFile.path]);
           }
 
           toast.success(

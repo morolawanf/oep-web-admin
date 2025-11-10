@@ -1,3 +1,5 @@
+
+
 'use client';
 
 import {
@@ -5,14 +7,19 @@ import {
   ControllerRenderProps,
   FieldErrors,
   UseFormRegister,
+  useWatch,
+  useController,
+  Controller,
 } from 'react-hook-form';
+import { useState } from 'react';
 import { Input, Select, Textarea } from 'rizzui';
 import { FormLabelWithTooltip } from '@core/ui/form-label-with-tooltip';
 import { CreateCampaignInput } from '@/validators/create-campaign.schema';
-import { Controller } from 'react-hook-form';
 import { useCheckCampaignSlug } from '@/hooks/queries/useCheckCampaignSlug';
 import { Text } from 'rizzui';
-
+import slugify from 'slugify';
+import { useDebounce } from '@/hooks/use-debounce';
+import { PiCheckCircle, PiWarningCircle } from 'react-icons/pi';
 const statusOptions = [
   { value: 'draft', label: 'Draft' },
   { value: 'active', label: 'Active' },
@@ -32,47 +39,24 @@ export default function CampaignInfoForm({
   errors,
   excludeId,
 }: CampaignInfoFormProps) {
+  // Track if user manually changed slug
+  const [slugTouched, setSlugTouched] = useState(false);
+
+  // Get slug field controller so we can programmatically update it from title onChange (no refs needed)
+  const { field: slugField } = useController({ name: 'slug', control });
+
+  // Watch current slug value and debounce it for availability checks (like SKU input does)
+  const watchedSlug = useWatch({ control, name: 'slug' });
+  const debouncedSlug = useDebounce(watchedSlug || '', 500);
+  const { data: availability, isLoading: slugCheckLoading, isError: slugCheckError } =
+    useCheckCampaignSlug(debouncedSlug, excludeId);
+
+
+
   // Slug live check - observe current slug value via a Controller
   return (
     <div className="space-y-5">
-      {/* Slug */}
-      <Controller
-        name="slug"
-        control={control}
-        render={({ field }) => {
-          const { data: availability, isFetching } = useCheckCampaignSlug(
-            field.value || '',
-            excludeId
-          );
-          return (
-            <div>
-              <Input
-                label={
-                  <FormLabelWithTooltip
-                    label="Slug"
-                    tooltip="Lowercase unique identifier shown in URLs. Only lowercase letters, numbers, and hyphens."
-                    required
-                  />
-                }
-                placeholder="e.g., summer-sale-2025"
-                value={field.value || ''}
-                onChange={(e) => field.onChange(e.target.value)}
-                error={errors.slug?.message as string}
-              />
-              {field.value && !errors.slug && (
-                <Text className="mt-1 text-xs">
-                  {isFetching
-                    ? 'Checking availability…'
-                    : availability?.available
-                      ? 'Slug is available'
-                      : 'Slug is already in use'}
-                </Text>
-              )}
-            </div>
-          );
-        }}
-      />
-      {/* Title */}
+            {/* Title */}
       <Input
         label={
           <FormLabelWithTooltip
@@ -82,9 +66,70 @@ export default function CampaignInfoForm({
           />
         }
         placeholder="e.g., Summer Sale 2025"
-        {...register('title')}
+        {...register('title', {
+          onChange: (e) => {
+            if (!slugTouched) {
+              const value = e.target.value as string;
+              const nextSlug = slugify(value, { lower: true});
+              slugField.onChange(nextSlug);
+            }
+          },
+        })}
         error={errors.title?.message}
       />
+      {/* Slug */}
+      <div>
+        <Input
+          label={
+            <FormLabelWithTooltip
+              label="Slug"
+              tooltip="Lowercase unique identifier shown in URLs. Only lowercase letters, numbers, and hyphens."
+              required
+            />
+          }
+          placeholder="e.g., summer-sale-2025"
+          value={slugField.value || ''}
+          onChange={(e) => {
+            setSlugTouched(true);
+            slugField.onChange(e.target.value);
+          }}
+          error={(() => {
+            if (errors.slug?.message) return errors.slug.message as string;
+            if (slugCheckError && debouncedSlug) return 'Failed to verify slug availability. Please try again.';
+            if (!slugCheckLoading && debouncedSlug && availability && !availability.available)
+              return 'Slug is already in use';
+            return undefined;
+          })()}
+          suffix={
+            slugCheckLoading && debouncedSlug ? (
+              <div className="flex items-center">
+                <svg
+                  className="h-4 w-4 animate-spin text-gray-400"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
+              </div>
+            ) : slugCheckError && debouncedSlug ? (
+              <PiWarningCircle className="h-5 w-5 text-orange-500" title="Error checking slug" />
+            ) : debouncedSlug && !slugCheckLoading ? (
+              availability && !availability.available ? (
+                <PiWarningCircle className="h-5 w-5 text-red-500" title="Slug already in use" />
+              ) : (
+                <PiCheckCircle className="h-5 w-5 text-green-500" title="Slug available" />
+              )
+            ) : null
+          }
+        />
+      </div>
+
 
       {/* Description */}
       <Textarea

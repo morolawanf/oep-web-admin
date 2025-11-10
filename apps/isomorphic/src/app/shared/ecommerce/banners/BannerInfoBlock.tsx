@@ -21,25 +21,28 @@ export const BannerImageBlock: React.FC<BannerImageBlockProps> = ({
   getValues,
 }) => {
   const [localImageUrl, setLocalImageUrl] = useState(() => getCdnUrl(imageUrl) || '');
+  const bannerImage = getValues('imageUrl');
 
   const removeLocalImage = () => {
     setLocalImageUrl('');
     setValue('imageUrl', '');
   }
+  console.log('bannerImage', bannerImage);
+
   return (
     <HorizontalFormBlockWrapper
       title="Banner Image"
       description="Your banner image here"
       isModalView={true}
     >
-      {localImageUrl ? (
+      {bannerImage ? (
         <div className="col-span-full">
           <div className="relative">
-            <figure className="group relative h-40 w-full max-w-sm rounded-md bg-gray-50">
+            <figure className="group relative h-52 w-full rounded-md bg-gray-50">
                <img
-                src={localImageUrl}
+                src={getCdnUrl(bannerImage)}
                 alt="Banner preview"
-                className="h-full w-full rounded-md object-contain"
+                className="h-full w-full rounded-md object-cover"
               /> 
               <button
                 type="button"
@@ -50,8 +53,11 @@ export const BannerImageBlock: React.FC<BannerImageBlockProps> = ({
               </button>
             </figure>
           </div>
-        </div>
-      ) : (
+        </div>) : null
+        }
+
+
+      {!bannerImage  ? (
         <UploadZone
           label="Upload Banner Image"
           name="imageUrl"
@@ -65,16 +71,18 @@ export const BannerImageBlock: React.FC<BannerImageBlockProps> = ({
               | 'category'
               | '_id'
               | 'createdAt',
-            value: FileType[]
-          ) => {            
-            setValue(name as keyof CreateBannerFormInput, value[0]?.path || '');
+            value: string
+          ) => {
+            setValue(name as keyof CreateBannerFormInput, value);
             if (name === 'imageUrl') {
-              setLocalImageUrl(value[0]?.url || '');
+              console.log(value);
+
+              setLocalImageUrl(value);
             }
           }}
           className="col-span-full"
         />
-      )}
+      ) :null}
 
       {error ? <Text className="text-md text-red-600">{error}</Text> : null}
     </HorizontalFormBlockWrapper>

@@ -1,3 +1,4 @@
+import { signOut } from '@/app/api/auth/[...nextauth]/route';
 import axios, { AxiosInstance, InternalAxiosRequestConfig, AxiosResponse, AxiosError, AxiosRequestConfig } from 'axios';
 import { getSession } from 'next-auth/react';
 
@@ -51,6 +52,7 @@ baseApiClient.interceptors.request.use(
 // Response interceptor - Handle errors globally
 baseApiClient.interceptors.response.use(
   (response: AxiosResponse) => {
+
     if (process.env.NODE_ENV === 'development') {
       console.log(
         `[API Response] ${response.config.method?.toUpperCase()} ${response.config.url}`,
@@ -84,8 +86,9 @@ baseApiClient.interceptors.response.use(
         if (typeof window !== 'undefined') {
           const currentPath = window.location.pathname;
           if (currentPath !== '/signin' && currentPath !== '/signup') {
+            await signOut();
             // Redirect to sign-in page with callback URL
-            // window.location.href = `/signin?callbackUrl=${encodeURIComponent(currentPath)}`;
+            window.location.href = `/signin?callbackUrl=${encodeURIComponent(currentPath)}`;
           }
         }
       } catch (refreshError) {

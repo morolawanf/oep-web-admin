@@ -4,6 +4,7 @@ import { useCreateBanner } from '@/hooks/mutations/useBannerMutations';
 import { CreateBannerFormInput } from '@/validators/create-banner.schema';
 import { useModal } from '../../modal-views/use-modal';
 import BannerForm from './banner-form';
+import toast from 'react-hot-toast';
 
 export default function CreateBanner({
   isModalView = true,
@@ -18,6 +19,9 @@ export default function CreateBanner({
       onSuccess: () => {
         modalController.closeModal();
       },
+      onError: ()=> {
+        toast.error('Something went wrong, try again')
+      }
     });
   };
 

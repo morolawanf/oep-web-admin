@@ -22,9 +22,9 @@ interface FormLabelWithTooltipProps {
 export function FormLabelWithTooltip({ label, tooltip, required = false, placement = "top-start" }: FormLabelWithTooltipProps) {
   return (
     <div className="flex items-center gap-2">
-      <span>
+      <span >
         {label}
-        {required && " *"}
+       <span className="text-red-500">{required && " *"}</span>
       </span>
       <Tooltip placement={placement} content={tooltip}>
         <Text as="span" className="cursor-help text-gray-400">

@@ -3,12 +3,19 @@ import AuthWrapperOne from '@/app/shared/auth-layout/auth-wrapper-one';
 import Image from 'next/image';
 import UnderlineShape from '@core/components/shape/underline';
 import { metaObject } from '@/config/site.config';
+import { redirect } from 'next/navigation';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '../api/auth/[...nextauth]/auth-options';
 
 export const metadata = {
   ...metaObject('Sign In'),
 };
 
-export default function SignIn() {
+export default async function SignIn() {
+  const session = await getServerSession(authOptions);
+  if (session) {
+    redirect('/');
+  }
   return (
     <AuthWrapperOne
       title={

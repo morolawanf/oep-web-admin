@@ -32,6 +32,7 @@ export default function CampaignImageUpload({
   errors,
 }: CampaignImageUploadProps) {
   const imageValue = watch('image');
+console.log('image valueeeeeee',imageValue);
 
   const handleRemoveImage = () => {
     setValue('image', '');
@@ -59,7 +60,7 @@ export default function CampaignImageUpload({
           )}
         />
       ) : (
-        <div className="relative overflow-hidden rounded-lg border border-gray-200">
+        <div className="relative overflow-hidden rounded-lg border border-gray-200 h-[300px] w-full">
           <img
             src={getCdnUrl(imageValue)}
             alt="Campaign"

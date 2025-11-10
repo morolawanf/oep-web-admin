@@ -14,7 +14,7 @@ export function getCdnUrl(path: string | undefined | null): string {
   if (!path) return '';
   
   // If already a full URL, return as is
-  if (path.startsWith('http://') || path.startsWith('https://')) {
+  if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('blob:')) {
     return path;
   }
   
