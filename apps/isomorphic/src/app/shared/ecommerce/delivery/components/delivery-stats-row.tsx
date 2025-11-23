@@ -55,7 +55,7 @@ export default function DeliveryStatsRow() {
   }
 
   return (
-    <div className="grid grid-cols-2 gap-3 @xl:grid-cols-3 @4xl:grid-cols-6">
+    <div className="grid grid-cols-2 gap-3 @xl:grid-cols-3 min-[1450px]:grid-cols-6">
       {/* <StatCard title="In Warehouse" value={stats['In-Warehouse'] ?? 0} icon={<PiReceiptDuotone className="h-5 w-5" />} variant="secondary" /> */}
       <StatCard title="Shipped" value={stats.Shipped ?? 0} icon={<PiClockDuotone className="h-5 w-5" />} variant="info" />
       <StatCard title="Dispatched" value={stats.Dispatched ?? 0} icon={<PiClockDuotone className="h-5 w-5" />} variant="warning" />

@@ -42,12 +42,34 @@ export interface TrackingHistoryEntry {
 // Order reference (when populated)
 export interface OrderRef {
   _id: string;
-  orderNumber: string;
-  totalAmount: number;
+  orderNumber?: string;
+  totalAmount?: number;
   customerInfo?: {
     name: string;
     email: string;
   };
+  products?: Array<{
+    _id: string;
+    product?: {
+      _id: string;
+      name: string;
+      slug?: string;
+      image?: string;
+      price?: number;
+      description_images?: Array<{
+        url: string;
+        cover_image: boolean;
+      }>;
+    };
+    qty: number;
+    price: number;
+    attributes?: Array<{
+      key: string;
+      value: string;
+    }>;
+    sale?: any;
+    saleDiscount?: number;
+  }>;
 }
 
 // Main shipment interface
