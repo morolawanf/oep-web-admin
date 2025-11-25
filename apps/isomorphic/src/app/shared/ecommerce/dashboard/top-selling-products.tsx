@@ -27,9 +27,17 @@ export default function TopSellingProducts({
   ]);
 
   // Fetch categories performance
-  const { data: categories, isLoading, error } = useCategoriesPerformance({
-    from: rangeDate[0]?.toISOString().split('T')[0] || previousMonthDate.toISOString().split('T')[0],
-    to: rangeDate[1]?.toISOString().split('T')[0] || currentDate.toISOString().split('T')[0],
+  const {
+    data: categories,
+    isLoading,
+    error,
+  } = useCategoriesPerformance({
+    from:
+      rangeDate[0]?.toISOString().split('T')[0] ||
+      previousMonthDate.toISOString().split('T')[0],
+    to:
+      rangeDate[1]?.toISOString().split('T')[0] ||
+      currentDate.toISOString().split('T')[0],
   });
 
   return (
@@ -69,11 +77,13 @@ export default function TopSellingProducts({
           </div>
         ) : !categories || categories.length === 0 ? (
           <div className="flex min-h-[200px] items-center justify-center">
-            <Text className="text-gray-500">No categories found for this period</Text>
+            <Text className="text-gray-500">
+              No categories found for this period
+            </Text>
           </div>
         ) : (
           <Box className="w-full space-y-3.5 divide-y divide-gray-200/70">
-            {categories.map((category) => (
+            {categories.slice(0, 10).map((category) => (
               <SingleCategory
                 key={category.categoryId}
                 id={category.categoryId}

@@ -12,7 +12,10 @@ import { useDrawer } from '@/app/shared/drawer-views/use-drawer';
 import ReviewDetailDrawer from '@/app/shared/ecommerce/review/review-detail-drawer';
 import { Input, Button, Text, Loader, Badge, Avatar } from 'rizzui';
 import { PiStarFill, PiUser, PiMagnifyingGlassBold } from 'react-icons/pi';
-import type { ReviewFilters as ReviewFiltersType, Review } from '@/types/review.types';
+import type {
+  ReviewFilters as ReviewFiltersType,
+  Review,
+} from '@/types/review.types';
 import { useTanStackTable } from '@core/components/table/custom/use-TanStack-Table';
 import Table from '@core/components/table';
 import TablePagination from '@core/components/table/pagination';
@@ -29,7 +32,12 @@ export default function ReviewsByUserClient() {
   const { openDrawer } = useDrawer();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedUserId, setSelectedUserId] = useState<string>('');
-  const [selectedUser, setSelectedUser] = useState<{ _id: string; name: string; email: string; reviewCount: number } | null>(null);
+  const [selectedUser, setSelectedUser] = useState<{
+    _id: string;
+    name: string;
+    email: string;
+    reviewCount: number;
+  } | null>(null);
   const [filters, setFilters] = useState<ReviewFiltersType>({
     page: 1,
     limit: 20,
@@ -37,7 +45,8 @@ export default function ReviewsByUserClient() {
     sortOrder: 'desc',
   });
 
-  const { data: searchResults, isLoading: isSearching } = useUserSearch(searchQuery);
+  const { data: searchResults, isLoading: isSearching } =
+    useUserSearch(searchQuery);
   const {
     data: reviewsData,
     isLoading: isLoadingReviews,
@@ -68,8 +77,12 @@ export default function ReviewsByUserClient() {
               className="rounded-lg"
             />
             <div>
-              <Text className="font-medium text-gray-900">{prod?.name || 'Unknown Product'}</Text>
-              <Text className="text-sm text-gray-500">SKU: {prod?.sku || 'N/A'}</Text>
+              <Text className="font-medium text-gray-900">
+                {prod?.name || 'Unknown Product'}
+              </Text>
+              <Text className="text-sm text-gray-500">
+                SKU: {prod?.sku || 'N/A'}
+              </Text>
             </div>
           </div>
         );
@@ -92,7 +105,9 @@ export default function ReviewsByUserClient() {
               )}
             />
           ))}
-          <Text className="ml-1 text-sm font-medium">{row.original.rating}</Text>
+          <Text className="ml-1 text-sm font-medium">
+            {row.original.rating}
+          </Text>
         </div>
       ),
     }),
@@ -104,9 +119,13 @@ export default function ReviewsByUserClient() {
       cell: ({ row }) => (
         <div>
           {row.original.title && (
-            <Text className="mb-1 font-medium text-gray-900">{row.original.title}</Text>
+            <Text className="mb-1 font-medium text-gray-900">
+              {row.original.title}
+            </Text>
           )}
-          <Text className="line-clamp-2 text-sm text-gray-600">{row.original.review}</Text>
+          <Text className="line-clamp-2 text-sm text-gray-600">
+            {row.original.review}
+          </Text>
         </div>
       ),
     }),
@@ -167,14 +186,14 @@ export default function ReviewsByUserClient() {
       },
     },
   });
-/*
+
   // Update table data when reviews change
   useEffect(() => {
     if (reviews) {
       setData(reviews);
     }
   }, [reviews]); // setData is stable, no need in deps
-*/
+
   const handleViewDetails = (reviewId: string) => {
     openDrawer({
       view: <ReviewDetailDrawer reviewId={reviewId} />,
@@ -225,15 +244,20 @@ export default function ReviewsByUserClient() {
                   <button
                     key={user._id}
                     onClick={() => handleSelectUser(user._id)}
-                    className="flex w-full items-center gap-3 border-b border-muted p-3 text-left transition-colors hover:bg-gray-50 last:border-0"
+                    className="flex w-full items-center gap-3 border-b border-muted p-3 text-left transition-colors last:border-0 hover:bg-gray-50"
                   >
                     <Avatar name={user.name} size="sm" />
                     <div className="flex-1">
-                      <Text className="font-medium text-gray-900">{user.name}</Text>
-                      <Text className="text-sm text-gray-500">{user.email}</Text>
+                      <Text className="font-medium text-gray-900">
+                        {user.name}
+                      </Text>
+                      <Text className="text-sm text-gray-500">
+                        {user.email}
+                      </Text>
                     </div>
                     <Badge variant="flat" className="text-xs">
-                      {user.reviewCount} {user.reviewCount === 1 ? 'review' : 'reviews'}
+                      {user.reviewCount}{' '}
+                      {user.reviewCount === 1 ? 'review' : 'reviews'}
                     </Badge>
                   </button>
                 ))
@@ -253,14 +277,18 @@ export default function ReviewsByUserClient() {
             </Text>
             <div className="flex items-center justify-between rounded-lg border-2 border-primary bg-primary-lighter/20 p-4">
               <div className="flex items-center gap-3">
-                <Avatar 
-                  name={selectedUser.name} 
-                  size="lg" 
+                <Avatar
+                  name={selectedUser.name}
+                  size="lg"
                   className="ring-2 ring-primary"
                 />
                 <div>
-                  <Text className="font-semibold text-gray-900">{selectedUser.name}</Text>
-                  <Text className="text-sm text-gray-600">{selectedUser.email}</Text>
+                  <Text className="font-semibold text-gray-900">
+                    {selectedUser.name}
+                  </Text>
+                  <Text className="text-sm text-gray-600">
+                    {selectedUser.email}
+                  </Text>
                   <Badge color="success" variant="flat" className="mt-1">
                     {totalReviews} {totalReviews === 1 ? 'review' : 'reviews'}
                   </Badge>
@@ -286,7 +314,9 @@ export default function ReviewsByUserClient() {
       {!selectedUserId ? (
         <div className="rounded-lg border border-muted bg-white p-12 text-center">
           <PiUser className="mx-auto mb-4 h-16 w-16 text-gray-400" />
-          <Text className="text-gray-500">Search and select a user to view their reviews</Text>
+          <Text className="text-gray-500">
+            Search and select a user to view their reviews
+          </Text>
         </div>
       ) : isLoadingReviews ? (
         <div className="flex h-96 items-center justify-center rounded-lg border border-muted">
@@ -294,11 +324,15 @@ export default function ReviewsByUserClient() {
         </div>
       ) : error ? (
         <div className="rounded-lg border border-red-200 bg-red-50 p-8 text-center">
-          <Text className="text-red-600">Failed to load reviews. Please try again.</Text>
+          <Text className="text-red-600">
+            Failed to load reviews. Please try again.
+          </Text>
         </div>
       ) : reviews.length === 0 ? (
         <div className="rounded-lg border border-muted bg-white p-12 text-center">
-          <Text className="text-gray-500">This user hasn't written any reviews yet.</Text>
+          <Text className="text-gray-500">
+            This user hasn't written any reviews yet.
+          </Text>
         </div>
       ) : (
         <>

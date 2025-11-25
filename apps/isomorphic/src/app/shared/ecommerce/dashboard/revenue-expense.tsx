@@ -36,30 +36,38 @@ const viewOptions = [
   },
 ];
 
-export default function RevenueExpenseChart({ className }: { className?: string }) {
+export default function RevenueExpenseChart({
+  className,
+}: {
+  className?: string;
+}) {
   const isTablet = useMedia('(max-width: 820px)', false);
-  const [groupBy, setGroupBy] = useState<'days' | 'months' | 'years'>('months');
+  const [groupBy, setGroupBy] = useState<'days' | 'months' | 'years'>('days');
 
   // Default: Last 30 days
   const today = new Date();
   const thirtyDaysAgo = new Date();
   thirtyDaysAgo.setDate(today.getDate() - 30);
-  
-  const dateRange = useMemo(() => ({
-    from: thirtyDaysAgo.toISOString().split('T')[0],
-    to: today.toISOString().split('T')[0],
-    groupBy,
-  }), [groupBy]);
+
+  const dateRange = useMemo(
+    () => ({
+      from: thirtyDaysAgo.toISOString().split('T')[0],
+      to: today.toISOString().split('T')[0],
+      groupBy,
+    }),
+    [groupBy]
+  );
 
   const { data, isLoading } = useRevenueExpenseChart(dateRange);
 
   // Calculate totals for display
   const totals = useMemo(() => {
     if (!data) return { revenue: 0, expense: 0, percentChange: 0 };
-    
+
     const revenue = data.reduce((sum, item) => sum + item.revenue, 0);
     const expense = data.reduce((sum, item) => sum + item.expense, 0);
-    const percentChange = expense > 0 ? ((revenue - expense) / expense) * 100 : 0;
+    const percentChange =
+      expense > 0 ? ((revenue - expense) / expense) * 100 : 0;
 
     return { revenue, expense, percentChange };
   }, [data]);
@@ -71,12 +79,16 @@ export default function RevenueExpenseChart({ className }: { className?: string 
   // Format dates for display
   const chartData = useMemo(() => {
     if (!data) return [];
-    return data.map(item => {
+    return data.map((item) => {
       const date = new Date(item.date);
-      const key = groupBy === 'days' 
-        ? date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-        : date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
-      
+      const key =
+        groupBy === 'days'
+          ? date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+          : date.toLocaleDateString('en-US', {
+              month: 'short',
+              year: 'numeric',
+            });
+
       return {
         ...item,
         key,
@@ -86,7 +98,7 @@ export default function RevenueExpenseChart({ className }: { className?: string 
 
   return (
     <WidgetCard
-      title="Revenue vs Expenses"
+      title="Revenue vs Returns"
       titleClassName="font-normal sm:text-sm text-gray-500 mb-2.5 font-inter"
       description={
         <div className="flex items-center justify-start">
@@ -117,7 +129,7 @@ export default function RevenueExpenseChart({ className }: { className?: string 
       className={className}
     >
       <Legend className="mt-2 flex @2xl:hidden @3xl:flex @5xl:hidden" />
-      
+
       {isLoading ? (
         <div className="flex h-96 items-center justify-center">
           <Text className="text-gray-500">Loading...</Text>
@@ -158,9 +170,9 @@ export default function RevenueExpenseChart({ className }: { className?: string 
                     y2="100%"
                     gradientUnits="userSpaceOnUse"
                   >
-                    <stop offset="0" stopColor="#fef3c7" />
-                    <stop offset="0.8" stopColor="#FCB03D" />
-                    <stop offset="1" stopColor="#FCB03D" />
+                    <stop offset="0" stopColor="#fec7dc" />
+                    <stop offset="0.8" stopColor="#fc3d80" />
+                    <stop offset="1" stopColor="#fc3d80" />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="8 10" strokeOpacity={0.435} />
@@ -197,7 +209,7 @@ export default function RevenueExpenseChart({ className }: { className?: string 
                 <Bar
                   type="bump"
                   dataKey="expense"
-                  stroke="#FCB03D"
+                  stroke="#fc3d80"
                   fill="url(#colorExpense)"
                   barSize={40}
                   radius={[4, 4, 0, 0]}
@@ -224,8 +236,8 @@ function Legend({ className }: { className?: string }) {
         <span>Revenue</span>
       </span>
       <span className="flex items-center gap-1.5">
-        <span className="h-2.5 w-2.5 rounded-full bg-[#F5A623]" />
-        <span>Expenses</span>
+        <span className="h-2.5 w-2.5 rounded-full bg-[#fc3d80]" />
+        <span>Returns</span>
       </span>
     </div>
   );

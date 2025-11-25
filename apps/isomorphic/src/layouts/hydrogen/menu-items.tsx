@@ -213,31 +213,9 @@ export const menuItems = [
   },
   {
     name: 'Invoice',
-    href: '#',
+    href: routes.invoice,
     icon: <PiCurrencyDollarDuotone />,
     permission: { resource: ['invoices'], action: 'read' },
-    dropdownItems: [
-      {
-        name: 'Builder',
-        href: routes.invoice.builder,
-      },
-      {
-        name: 'List',
-        href: routes.invoice.home,
-      },
-      {
-        name: 'Details',
-        href: routes.invoice.details(DUMMY_ID),
-      },
-      {
-        name: 'Create',
-        href: routes.invoice.create,
-      },
-      {
-        name: 'Edit',
-        href: routes.invoice.edit(DUMMY_ID),
-      },
-    ],
   },
   {
     name: 'Account Settings',

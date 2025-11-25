@@ -45,6 +45,11 @@ export default function ProductsTable({
     pageIndex: 0,
     pageSize: pageSize,
   });
+  const [globalFilter, setGlobalFilter] = useState('');
+  const [searchFilter, setSearchFilter] = useState<string | undefined>();
+  const [categoryFilter, setCategoryFilter] = useState<string | undefined>();
+  const [statusFilter, setStatusFilter] = useState<string | undefined>();
+  const [availabilityFilter, setAvailabilityFilter] = useState<'in-stock' | 'out-of-stock' | 'low-stock' | undefined>();
 
   const {
     data: productsData,
@@ -54,6 +59,9 @@ export default function ProductsTable({
   } = useProductsEnhanced({
     page: pagination.pageIndex + 1,
     limit: pagination.pageSize,
+    search: searchFilter,
+    category: categoryFilter,
+    availability: availabilityFilter,
   });
   const deleteProduct = useDeleteProduct();
   const duplicateProduct = useDuplicateProduct();
@@ -68,13 +76,45 @@ export default function ProductsTable({
 
     options: {
       manualPagination: true,
-      rowCount: productsData?.meta.total,
-      onPaginationChange: setPagination,
-
-      initialState: {
+      manualFiltering: true, // We handle filtering manually
+      pageCount: productsData?.meta.pages,
+      state: {
         pagination,
+        globalFilter,
+      },
+      onPaginationChange: setPagination,
+      onGlobalFilterChange: setGlobalFilter,
+      initialState: {
+        columnVisibility: {
+          category: false, // Hide the category column (used only for filtering)
+        },
       },
       meta: {
+        // @ts-ignore - Custom meta properties for filters
+        searchFilter,
+        categoryFilter,
+        statusFilter,
+        availabilityFilter,
+        setSearchFilter: (value: string | undefined) => {
+          setSearchFilter(value);
+          setPagination(prev => ({ ...prev, pageIndex: 0 }));
+        },
+        setCategoryFilter: (value: string | undefined) => {
+          setCategoryFilter(value);
+          setPagination(prev => ({ ...prev, pageIndex: 0 }));
+        },
+        setStatusFilter,
+        setAvailabilityFilter: (value: 'in-stock' | 'out-of-stock' | 'low-stock' | undefined) => {
+          setAvailabilityFilter(value);
+          setPagination(prev => ({ ...prev, pageIndex: 0 }));
+        },
+        clearFilters: () => {
+          setSearchFilter(undefined);
+          setCategoryFilter(undefined);
+          setStatusFilter(undefined);
+          setAvailabilityFilter(undefined);
+          setGlobalFilter('');
+        },
         handleDeleteRow: (row: Product) => {
           if (!row._id) return;
 
@@ -121,12 +161,27 @@ export default function ProductsTable({
     },
   });
 
-  // Sync table data with React Query data
+  useEffect(() => {
+    const state = table.getState();
+    const newPage = state.pagination.pageIndex;
+    if (newPage !== pagination.pageIndex) {
+      setPagination((prev) => ({ ...prev, pageIndex: newPage }));
+    }
+  }, [table.getState().pagination.pageIndex, pagination.pageIndex]);
+
+  // Sync table data with React Query data, with client-side status filtering
   useEffect(() => {
     if (productsData?.data) {
-      setData(productsData.data);
+      let filteredData = productsData.data;
+      
+      // Apply status filter client-side (not supported by API)
+      if (statusFilter) {
+        filteredData = filteredData.filter(product => product.status === statusFilter);
+      }
+      
+      setData(filteredData);
     }
-  }, [productsData, setData]);
+  }, [productsData, statusFilter, setData]);
 
   const selectedData = table
     .getSelectedRowModel()
@@ -165,11 +220,13 @@ export default function ProductsTable({
   return (
     <>
       {!hideFilters && <Filters table={table} />}
-      {isLoading ? (
-        <TableSkeleton />
-      ) : (
-        <Table table={table} variant="modern" classNames={classNames} />
-      )}
+
+      <Table
+        isLoading={isLoading}
+        table={table}
+        variant="modern"
+        classNames={classNames}
+      />
       {!hideFooter && <TableFooter table={table} onExport={handleExportData} />}
       {!hidePagination && (
         <TablePagination

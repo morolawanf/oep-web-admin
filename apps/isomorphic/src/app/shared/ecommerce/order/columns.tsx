@@ -21,7 +21,7 @@ export const ordersColumns = (onViewOrder: (order: Order) => void) => [
     size: 140,
     header: 'Order #',
     cell: ({ row }) => (
-      <Text className="font-medium">#{row.original.orderNumber}</Text>
+      <Text className="font-medium">{row.original._id}</Text>
     ),
   }),
 
@@ -56,8 +56,8 @@ export const ordersColumns = (onViewOrder: (order: Order) => void) => [
       <Text className="font-semibold">
         {formatPrice({
           amount: row.original.total,
-          currencyCode: 'USD',
-          locale: 'en-US',
+          currencyCode: 'NGN',
+          locale: 'en-NG',
           fractions: 2,
         })}
       </Text>

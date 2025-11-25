@@ -10,6 +10,7 @@ import { useScrollPosition } from "@core/hooks/use-Scroll-position";
 import { PiCaretDownFill, PiCaretUpFill } from "react-icons/pi";
 import { CustomBodyCellProps, CustomHeaderCellProps, MainTableProps, PinnedRowProps } from "./table-types";
 import { pinningStyles } from "./table-pinning.style";
+import TableSkeleton from "./TableSkeleton";
 
 export default function MainTable<TData extends Record<string, any>>({
   table,
@@ -26,18 +27,6 @@ export default function MainTable<TData extends Record<string, any>>({
 
   if (!table) return null;
 
-  if (isLoading) {
-    return (
-      <div className="flex h-full min-h-[128px] flex-col items-center justify-center">
-        <Loader variant="spinner" size="xl" />
-        {showLoadingText ? (
-          <Title as="h6" className="-me-2 mt-4 font-medium text-gray-500">
-            Loading...
-          </Title>
-        ) : null}
-      </div>
-    );
-  }
 
   const headerParam = {
     table,
@@ -103,6 +92,17 @@ export default function MainTable<TData extends Record<string, any>>({
               </Table.Header>
             )}
           </Fragment>
+
+{isLoading ? (
+            <TableSkeleton
+              table={table}
+              isLeftScrollable={isLeftScrollable}
+              isRightScrollable={isRightScrollable}
+              rowCount={10}
+              className={classNames?.bodyClassName}
+              rowClassName={classNames?.rowClassName}
+            />
+    ):(
 
           <Table.Body className={classNames?.bodyClassName}>
             {table.getTopRows().map((row) => (
@@ -177,11 +177,11 @@ export default function MainTable<TData extends Record<string, any>>({
                 tableCellClassName={classNames?.cellClassName}
               />
             ))}
-          </Table.Body>
+          </Table.Body>)}
         </Table>
       </Box>
 
-      {isEmpty(table.getRowModel().rows) && (
+      {!isLoading &&  isEmpty(table.getRowModel().rows) && (
         <Box className={cn("py-5 text-center lg:py-8", stickyHeader && "max-h-[600px] overflow-y-auto", classNames?.container)}>
           <Empty /> <Text className="mt-3">No Data</Text>
         </Box>

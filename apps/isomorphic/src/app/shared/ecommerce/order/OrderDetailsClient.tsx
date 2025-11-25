@@ -132,46 +132,60 @@ export default function OrderDetailsClient({ id }: OrderDetailsClientProps) {
           ))}
         </div>
       </div>
-
-      {/* Pricing Breakdown */}
-      <div className="rounded-lg border p-4">
-        <Text className="mb-3 font-semibold text-lg">Pricing Summary</Text>
-        <div className="space-y-2">
-          {order.totalBeforeDiscount && (
-            <div className="flex justify-between">
-              <Text className="text-gray-600">Subtotal:</Text>
-              <Text className="font-medium">₦{order.totalBeforeDiscount.toLocaleString()}</Text>
-            </div>
-          )}
-          {order.coupon && order.couponDiscount && (
-            <div className="flex justify-between text-green-600">
-              <Text>Coupon ({order.coupon.code}):</Text>
-              <Text className="font-medium">-₦{order.couponDiscount.toLocaleString()}</Text>
-            </div>
-          )}
-          <div className="flex justify-between">
-            <Text className="text-gray-600">Shipping:</Text>
-            <Text className="font-medium">₦{(order.shippingPrice || 0).toLocaleString()}</Text>
-          </div>
-          {order.taxPrice && order.taxPrice > 0 && (
-            <div className="flex justify-between">
-              <Text className="text-gray-600">Tax:</Text>
-              <Text className="font-medium">₦{order.taxPrice.toLocaleString()}</Text>
-            </div>
-          )}
-          <div className="flex justify-between border-t pt-2 text-lg font-bold">
-            <Text>Total:</Text>
-            <Text>₦{order.total.toLocaleString()}</Text>
-          </div>
-        </div>
+{/* Pricing Breakdown */}
+<div className="rounded-lg border p-4">
+  <Text className="mb-3 font-semibold text-lg">Pricing Summary</Text>
+  <div className="space-y-2">
+    {/* Check !== undefined instead of truthy */}
+    {order.totalBeforeDiscount !== undefined && (
+      <div className="flex justify-between">
+        <Text className="text-gray-600">Subtotal:</Text>
+        <Text className="font-medium">₦{order.totalBeforeDiscount.toLocaleString()}</Text>
       </div>
+    )}
+    
+    {/* Only show coupon if discount > 0 AND code exists */}
+    {order.coupon?.code && order.couponDiscount! > 0 && (
+      <div className="flex justify-between text-green-600">
+        <Text>Coupon ({order.coupon.code}):</Text>
+        <Text className="font-medium">-₦{order.couponDiscount!.toLocaleString()}</Text>
+      </div>
+    )}
+    
+    {/* Check !== undefined instead of truthy */}
+    {order.shippingPrice !== undefined && (
+      <div className="flex justify-between">
+        <Text className="text-gray-600">Shipping:</Text>
+        <Text className="font-medium">₦{order.shippingPrice.toLocaleString()}</Text>
+      </div>
+    )}
+    
+    {/* Tax only shows if > 0 (this condition is correct) */}
+    {order.taxPrice !== undefined && order.taxPrice > 0 && (
+      <div className="flex justify-between">
+        <Text className="text-gray-600">Tax:</Text>
+        <Text className="font-medium">₦{order.taxPrice.toLocaleString()}</Text>
+      </div>
+    )}
+    
+    {/* Check !== undefined instead of truthy */}
+    {order.total !== undefined && (
+      <div className="flex justify-between border-t pt-2 font-bold">
+        <Text>Total:</Text>
+        <Text>₦{order.total.toLocaleString()}</Text>
+      </div>
+    )}
+  </div>
+</div>
 
       {/* Shipping & Billing Addresses */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         {/* Shipping Address */}
         <div className="rounded-lg border p-4">
           <Text className="mb-3 font-semibold text-lg">Shipping Address</Text>
-          <div className="space-y-1">
+          {order.shippingAddress ?(
+            
+            <div className="space-y-1">
             <Text className="font-medium">
               {order.shippingAddress.firstName} {order.shippingAddress.lastName}
             </Text>
@@ -187,7 +201,12 @@ export default function OrderDetailsClient({ id }: OrderDetailsClientProps) {
             {order.shippingAddress.lga && (
               <Text className="text-sm text-gray-600">LGA: {order.shippingAddress.lga}</Text>
             )}
-          </div>
+          </div>) : (
+
+      <Text className="font-medium">
+              PICKUP
+            </Text>
+          )}
         </div>
 
         {/* Billing Address */}
@@ -246,75 +265,6 @@ export default function OrderDetailsClient({ id }: OrderDetailsClientProps) {
               <div className="flex justify-between">
                 <Text className="text-gray-600">Paid At:</Text>
                 <Text className="font-medium">{new Date(order.transaction.paidAt).toLocaleString()}</Text>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Shipment & Tracking Info */}
-      {order.shipment && (
-        <div className="rounded-lg border p-4">
-          <Text className="mb-3 font-semibold text-lg">Shipment Information</Text>
-          <div className="space-y-3">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Text className="text-sm text-gray-600">Tracking Number:</Text>
-                <Text className="font-medium">{order.shipment.trackingNumber}</Text>
-              </div>
-              <div>
-                <Text className="text-sm text-gray-600">Status:</Text>
-                {getOrderStatusBadge(order.shipment.status)}
-              </div>
-              <div>
-                <Text className="text-sm text-gray-600">Courier:</Text>
-                <Text className="font-medium">{order.shipment.courier}</Text>
-              </div>
-              <div>
-                <Text className="text-sm text-gray-600">Shipping Cost:</Text>
-                <Text className="font-medium">₦{order.shipment.cost.toLocaleString()}</Text>
-              </div>
-              {order.shipment.estimatedDelivery && (
-                <div>
-                  <Text className="text-sm text-gray-600">Estimated Delivery:</Text>
-                  <Text className="font-medium">
-                    {new Date(order.shipment.estimatedDelivery).toLocaleDateString()}
-                  </Text>
-                </div>
-              )}
-              {order.shipment.deliveredOn && (
-                <div>
-                  <Text className="text-sm text-gray-600">Delivered On:</Text>
-                  <Text className="font-medium">
-                    {new Date(order.shipment.deliveredOn).toLocaleString()}
-                  </Text>
-                </div>
-              )}
-            </div>
-
-            {/* Tracking History */}
-            {order.shipment.trackingHistory && order.shipment.trackingHistory.length > 0 && (
-              <div className="mt-4 border-t pt-4">
-                <Text className="mb-3 font-semibold">Tracking History</Text>
-                <div className="space-y-3">
-                  {order.shipment.trackingHistory.map((track: TrackingHistory, index: number) => (
-                    <div key={track._id} className="flex gap-3">
-                      <div className="relative">
-                        <div className="h-3 w-3 rounded-full bg-blue-500"></div>
-                        {index < (order.shipment?.trackingHistory?.length || 0) - 1 && (
-                          <div className="absolute left-1.5 top-3 h-full w-px bg-gray-300"></div>
-                        )}
-                      </div>
-                      <div className="flex-1 pb-4">
-                        <Text className="font-medium">{track.location}</Text>
-                        <Text className="text-sm text-gray-600">{track.description}</Text>
-                        <Text className="text-xs text-gray-500">
-                          {new Date(track.timestamp).toLocaleString()}
-                        </Text>
-                      </div>
-                    </div>
-                  ))}
-                </div>
               </div>
             )}
           </div>

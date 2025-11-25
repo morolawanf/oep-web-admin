@@ -9,6 +9,8 @@ import { createColumnHelper } from '@tanstack/react-table';
 import { Text } from 'rizzui';
 import type { OrderTableRow } from '@/types/analytics.types';
 import { formatCurrency } from '@/utils/format-currency';
+import Link from 'next/link';
+import cn from '@core/utils/class-names';
 
 const columnHelper = createColumnHelper<OrderTableRow>();
 
@@ -17,7 +19,11 @@ export const recentOrderColumns = [
     id: 'id',
     size: 120,
     header: 'Order Id',
-    cell: ({ row }) => <>#{row.original._id.slice(-8).toUpperCase()}</>,
+    cell: ({ row }) => (
+      <Link href={routes.eCommerce.orderDetails(row.original._id)}>
+        {row.original._id}
+      </Link>
+    ),
   }),
   columnHelper.accessor('user', {
     id: 'customer',
@@ -27,16 +33,22 @@ export const recentOrderColumns = [
     cell: ({ row }) => {
       const user = row.original.user;
       if (!user) {
-        return (
-          <Text className="text-gray-500 italic">Unknown Customer</Text>
-        );
+        return <Text className="italic text-gray-500">Unknown Customer</Text>;
       }
       return (
-        <TableAvatar
-          src={''} // No avatar in analytics data
-          name={`${user.firstName || ''} ${user.lastName || ''}`.trim() || 'N/A'}
-          description={user.email?.toLowerCase() || 'No email'}
-        />
+        <figcaption className="grid gap-0.5">
+          <Text
+            className={
+              'font-lexend text-sm font-medium text-gray-900 dark:text-gray-700'
+            }
+          >
+            {`${user.firstName || ''} ${user.lastName || ''}`.trim() || 'N/A'}
+          </Text>
+
+          <Text className="text-[13px] text-gray-500">
+            {user.email?.toLowerCase() || 'No email'}
+          </Text>
+        </figcaption>
       );
     },
   }),
@@ -46,7 +58,7 @@ export const recentOrderColumns = [
     header: 'Items',
     cell: ({ row }) => (
       <Text className="font-medium text-gray-700">
-        {row.original.items?.length || 0}
+        {row.original.products.reduce((sum, item) => sum + item.qty, 0)}
       </Text>
     ),
   }),

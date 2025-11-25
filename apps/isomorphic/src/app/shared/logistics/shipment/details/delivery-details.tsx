@@ -1,112 +1,155 @@
 'use client';
 
-import Image from 'next/image';
-import { avatarIds } from '@core/utils/get-avatar';
-import { getRandomArrayElement } from '@core/utils/get-random-array-element';
-import { Title, Text, Avatar } from 'rizzui';
+import { Title, Text, Badge, Button } from 'rizzui';
 import cn from '@core/utils/class-names';
-import { formatDate } from '@core/utils/format-date';
-import signature from '@public/client-signature.svg';
-import BasicTableWidget from '@core/components/controlled-table/basic-table-widget';
+import type { Order } from '@/types/order.types';
+import Link from 'next/link';
+import { routes } from '@/config/routes';
 
 interface DeliveryDetailsProps {
+  order: Order;
   className?: string;
 }
 
-const data = [
-  {
-    id: 1,
-    date: new Date('2023-08-23T10:18:34.191Z'),
-    deliveredBy: {
-      name: 'Estelle Hansen MD',
-      avatar: `https://isomorphic-furyroad.s3.amazonaws.com/public/avatars-blur/avatar-${getRandomArrayElement(
-        avatarIds
-      )}.png`,
-    },
-    receivedBy: {
-      name: 'Sherry Kulas DVM',
-      avatar: `https://isomorphic-furyroad.s3.amazonaws.com/public/avatars-blur/avatar-${getRandomArrayElement(
-        avatarIds
-      )}.png`,
-    },
-    receiversSignature: 'Shelia Schmeler PhD',
-  },
-];
+const getOrderStatusBadge = (status: string) => {
+  const statusMap: Record<string, { color: any; label: string }> = {
+    'Pending': { color: 'warning', label: 'Pending' },
+    'Processing': { color: 'info', label: 'Processing' },
+    'Shipped': { color: 'secondary', label: 'Shipped' },
+    'Delivered': { color: 'success', label: 'Delivered' },
+    'Cancelled': { color: 'danger', label: 'Cancelled' },
+  };
+  const statusInfo = statusMap[status] || { color: 'default', label: status };
+  return <Badge color={statusInfo.color}>{statusInfo.label}</Badge>;
+};
 
-export const getColumns = () => [
-  {
-    title: <span className="ms-6 block whitespace-nowrap">Date</span>,
-    dataIndex: 'date',
-    key: 'date',
-    width: 200,
-    render: (date: Date) => (
-      <span className="ms-6 block">
-        <Text className="mb-1 font-medium text-gray-700">
-          {formatDate(date, 'MMMM D, YYYY')}
-        </Text>
-        <Text className="text-[13px] text-gray-500">
-          {formatDate(date, 'h:mm A')}
-        </Text>
-      </span>
-    ),
-  },
-  {
-    title: <span className="block whitespace-nowrap">Delivered By</span>,
-    dataIndex: 'deliveredBy',
-    key: 'deliveredBy',
-    width: 300,
-    render: ({ name, avatar }: { name: string; avatar: string }) => (
-      <div className="flex items-center">
-        <Avatar name={name} src={avatar} size="sm" />
-        <div className="ml-3 rtl:ml-0 rtl:mr-3">
-          <Title as="h6" className="mb-0.5 !text-sm font-medium">
-            {name}
-          </Title>
-        </div>
-      </div>
-    ),
-  },
-  {
-    title: <span className="block whitespace-nowrap">Received By</span>,
-    dataIndex: 'receivedBy',
-    key: 'receivedBy',
-    width: 300,
-    render: ({ name, avatar }: { name: string; avatar: string }) => (
-      <div className="flex items-center">
-        <Avatar name={name} src={avatar} size="sm" />
-        <div className="ml-3 rtl:ml-0 rtl:mr-3">
-          <Title as="h6" className="mb-0.5 !text-sm font-medium">
-            {name}
-          </Title>
-        </div>
-      </div>
-    ),
-  },
-  {
-    title: (
-      <span className="block whitespace-nowrap">Receiver&apos;s Signature</span>
-    ),
-    dataIndex: 'receiversSignature',
-    key: 'receiversSignature',
-    width: 300,
-    render: (receiversSignature: string) => (
-      <Image src={signature} alt="clients signature" />
-    ),
-  },
-];
+export default function DeliveryDetails({ order, className }: DeliveryDetailsProps) {
+  const shipment = order.shipment;
+  const shippingAddress = order.shippingAddress || shipment?.shippingAddress;
 
-export default function DeliveryDetails({ className }: DeliveryDetailsProps) {
   return (
-    <BasicTableWidget
-      title="Delivery Details"
-      className={cn('pb-0 lg:pb-0 [&_.rc-table-row:last-child_td]:border-b-0')}
-      data={data}
-      getColumns={getColumns}
-      noGutter
-      enableSearch={false}
-      scroll={{
-        x: 900,
-      }}
-    />
+    <div className={cn('space-y-6', className)}>
+      {order.deliveryType === 'pickup' ? (
+        <div className="rounded-xl border border-gray-300 p-6">
+          <Title as="h3" className="mb-4 text-lg font-semibold">
+            Delivery Details
+          </Title>
+          <div className="flex items-center gap-2 rounded-lg bg-gray-50 p-4">
+            <Text className="font-semibold text-gray-900">Delivery Method:</Text>
+            <Text className="capitalize text-gray-700">Pickup</Text>
+          </div>
+        </div>
+      ) : (
+        <>
+          {/* Shipping Address */}
+          <div className="rounded-xl border border-gray-300 p-6">
+            <Title as="h3" className="mb-4 text-lg font-semibold">
+              Delivery Details
+            </Title>
+            
+            {shippingAddress && (
+              <div>
+                <Text className="mb-2 font-semibold text-gray-900">Shipping Address</Text>
+                <div className="rounded-lg bg-gray-50 p-4 space-y-1">
+                  <Text className="font-medium">
+                    {shippingAddress.firstName} {shippingAddress.lastName}
+                  </Text>
+                  <Text className="text-gray-600">{shippingAddress.phoneNumber}</Text>
+                  <Text className="text-gray-600">{shippingAddress.address1}</Text>
+                  {shippingAddress.address2 && (
+                    <Text className="text-gray-600">{shippingAddress.address2}</Text>
+                  )}
+                  <Text className="text-gray-600">
+                    {shippingAddress.city}, {shippingAddress.state} {shippingAddress.zipCode}
+                  </Text>
+                  {shippingAddress.lga && (
+                    <Text className="text-gray-600">LGA: {shippingAddress.lga}</Text>
+                  )}
+                  <Text className="text-gray-600">{shippingAddress.country}</Text>
+                </div>
+              </div>
+            )}
+
+            {!shippingAddress && (
+              <div className="rounded-lg bg-yellow-50 p-4 text-center">
+                <Text className="text-gray-600">Shipping address not available</Text>
+              </div>
+            )}
+          </div>
+
+          {/* Shipment Information */}
+          {shipment && (
+            <div className="rounded-xl border border-gray-300 p-6">
+              <Title as="h3" className="mb-4 text-lg font-semibold">
+                Shipment Information
+              </Title>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Text className="text-sm text-gray-600">Tracking Number:</Text>
+                  <Text className="font-medium">{shipment.trackingNumber}</Text>
+                </div>
+                <div>
+                  <Text className="text-sm text-gray-600">Status:</Text>
+                  {getOrderStatusBadge(shipment.status)}
+                </div>
+                {shipment.courier && (
+                  <div>
+                    <Text className="text-sm text-gray-600">Courier:</Text>
+                    <Text className="font-medium capitalize">{shipment.courier}</Text>
+                  </div>
+                )}
+                <div>
+                  <Text className="text-sm text-gray-600">Shipping Cost:</Text>
+                  <Text className="font-medium">₦{shipment.cost.toLocaleString()}</Text>
+                </div>
+                {shipment.estimatedDelivery && (
+                  <div>
+                    <Text className="text-sm text-gray-600">Estimated Delivery:</Text>
+                    <Text className="font-medium">
+                      {new Date(shipment.estimatedDelivery).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                      })}
+                    </Text>
+                  </div>
+                )}
+                {shipment.deliveredOn && (
+                  <div>
+                    <Text className="text-sm text-gray-600">Delivered On:</Text>
+                    <Text className="font-medium">
+                      {new Date(shipment.deliveredOn).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                      })}
+                    </Text>
+                  </div>
+                )}
+              </div>
+
+<Link href={routes.eCommerce.shipment.shipmentDetails(shipment._id)}>
+              <Button variant='flat' className='w-full mt-4 hover:bg-black hover:text-white !cursor-pointer rounded-lg'>
+                View shipment
+              </Button>
+</Link>
+            </div>
+          )}
+
+          {/* No shipment created yet */}
+          {!shipment && (
+            <div className="rounded-xl border border-gray-300 p-6">
+              <Title as="h3" className="mb-4 text-lg font-semibold">
+                Shipment Information
+              </Title>
+              <div className="rounded-lg bg-yellow-50 p-4 text-center">
+                <Text className="text-gray-600">Shipment details not available yet</Text>
+              </div>
+            </div>
+          )}
+        </>
+      )}
+    </div>
   );
 }

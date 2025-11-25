@@ -12,6 +12,7 @@ import { getCdnUrl } from '@core/utils/cdn-url';
 import ProductStatusBadge from '../ProductStatusBadge';
 import StockStatus from '../StockStatus';
 import { PiStar, PiCopySimple } from 'react-icons/pi';
+import { formatToNaira } from '@/libs/currencyFormatter';
 
 const columnHelper = createColumnHelper<Product>();
 
@@ -48,9 +49,9 @@ export const productsListColumns = [
             src={getCdnUrl(row.original.description_images?.[0]?.url || '')}
             alt={row.original.name}
             className="object-cover"
-            onError={(e) => {
-              (e.target as HTMLImageElement).src = '/images/placeholder.png';
-            }}
+            // onError={(e) => {
+            //   (e.target as HTMLImageElement).src = '/images/placeholder.png';
+            // }}
           />
         </div>
         <div className="flex flex-col">
@@ -77,6 +78,15 @@ export const productsListColumns = [
       </Text>
     ),
   }),
+  // Hidden column for category filtering
+  columnHelper.accessor('category._id', {
+    id: 'category',
+    enableHiding: true,
+    enableSorting: false,
+    enableColumnFilter: true,
+    header: () => null,
+    cell: () => null,
+  }),
   columnHelper.accessor('stock', {
     id: 'stock',
     size: 200,
@@ -94,7 +104,7 @@ export const productsListColumns = [
     header: 'Price',
     cell: ({ row }) => (
       <Text className="font-medium text-gray-900">
-        ${row.original.price.toFixed(2)}
+        {formatToNaira(row.original.price)}
       </Text>
     ),
   }),
@@ -123,6 +133,7 @@ export const productsListColumns = [
     size: 120,
     header: 'Status',
     enableSorting: false,
+    enableColumnFilter: true,
     cell: ({ row }) => <ProductStatusBadge status={row.original.status} />,
   }),
   columnHelper.display({

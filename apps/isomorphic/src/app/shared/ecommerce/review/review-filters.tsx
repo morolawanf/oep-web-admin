@@ -5,8 +5,9 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button, Input, Select, Badge } from 'rizzui';
+import { useDebounce } from '@/hooks/use-debounce';
 import {
   PiMagnifyingGlassBold,
   PiStarFill,
@@ -25,11 +26,6 @@ interface ReviewFiltersProps {
   onClearFilters: () => void;
 }
 
-const APPROVAL_STATUS_OPTIONS = [
-  { label: 'All Status', value: 'all' },
-  { label: 'Approved', value: 'true' },
-  { label: 'Pending', value: 'false' },
-];
 
 const RATING_OPTIONS = [
   { label: 'All Ratings', value: '' },
@@ -48,19 +44,35 @@ const SORT_OPTIONS = [
   { label: 'Most Helpful', value: 'helpfulness-desc' },
 ];
 
+const APPROVAL_OPTIONS = [
+  { label: 'All Status', value: 'all' },
+  { label: 'Approved', value: 'true' },
+  { label: 'Pending', value: 'false' },
+];
+
 export default function ReviewFilters({
   filters,
   onFilterChange,
   onClearFilters,
 }: ReviewFiltersProps) {
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [searchValue, setSearchValue] = useState(filters.search || '');
+  const debouncedSearch = useDebounce(searchValue, 500);
+
+  // Apply debounced search to filters
+  useEffect(() => {
+    if (debouncedSearch.length >= 2 || debouncedSearch.length === 0) {
+      onFilterChange({ ...filters, search: debouncedSearch || undefined, page: 1 });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedSearch]);
 
   const handleSearchChange = (value: string) => {
-    onFilterChange({ ...filters, search: value, page: 1 });
+    setSearchValue(value);
   };
 
   const handleApprovalChange = (value: string) => {
-    const isApproved = value === 'all' ? 'all' : value === 'true';
+    const isApproved = value === 'all' ? 'all' : value === 'true' ? true : false;
     onFilterChange({ ...filters, isApproved, page: 1 });
   };
 
@@ -83,7 +95,7 @@ export default function ReviewFilters({
   const handleToggleHasReplies = () => {
     onFilterChange({
       ...filters,
-      hasReplies: filters.hasReplies === undefined ? true : filters.hasReplies ? false : undefined,
+      hasReplies: filters.hasReplies === true ? undefined : true,
       page: 1,
     });
   };
@@ -101,7 +113,6 @@ export default function ReviewFilters({
     filters.search,
     filters.isApproved !== 'all' && filters.isApproved !== undefined,
     filters.rating,
-    filters.hasReplies,
     filters.hasImages,
   ].filter(Boolean).length;
 
@@ -117,8 +128,8 @@ export default function ReviewFilters({
         <div className="flex-1 md:max-w-md">
           <Input
             type="search"
-            placeholder="Search reviews..."
-            value={filters.search || ''}
+            placeholder="Search reviews (min 2 chars)..."
+            value={searchValue}
             onChange={(e) => handleSearchChange(e.target.value)}
             onClear={() => handleSearchChange('')}
             clearable={true}
@@ -129,45 +140,19 @@ export default function ReviewFilters({
 
         {/* Quick Filters */}
         <div className="flex flex-wrap items-center gap-2">
-          {/* Approval Status */}
-          <Select
-            value={
-              filters.isApproved === 'all' || filters.isApproved === undefined
-                ? 'all'
-                : filters.isApproved === true
-                ? 'true'
-                : 'false'
-            }
-            onChange={handleApprovalChange}
-            options={APPROVAL_STATUS_OPTIONS}
-            getOptionDisplayValue={(option) => (
-              <div className="flex items-center gap-2">
-                {option.value === 'true' && <PiCheckCircle className="h-4 w-4 text-green-600" />}
-                {option.value === 'false' && (
-                  <PiClockClockwise className="h-4 w-4 text-yellow-600" />
-                )}
-                {option.label}
-              </div>
-            )}
-            displayValue={(value) => {
-              const option = APPROVAL_STATUS_OPTIONS.find((o) => o.value === value);
-              return option?.label || 'Status';
-            }}
-            className="w-40"
-          />
-
           {/* Rating Filter */}
           <Select
             value={filters.rating?.toString() || ''}
             onChange={handleRatingChange}
             options={RATING_OPTIONS}
+            getOptionValue={(option) => option.value}
             getOptionDisplayValue={(option) => (
               <div className="flex items-center gap-2">
                 {option.value && <PiStarFill className="h-4 w-4 text-orange" />}
                 {option.label}
               </div>
             )}
-            displayValue={(value) => {
+            displayValue={(value: string) => {
               const option = RATING_OPTIONS.find((o) => o.value === value);
               return option?.label || 'Rating';
             }}
@@ -179,7 +164,8 @@ export default function ReviewFilters({
             value={currentSort}
             onChange={handleSortChange}
             options={SORT_OPTIONS}
-            displayValue={(value) => {
+            getOptionValue={(option) => option.value}
+            displayValue={(value: string) => {
               const option = SORT_OPTIONS.find((o) => o.value === value);
               return option?.label || 'Sort';
             }}
@@ -230,24 +216,6 @@ export default function ReviewFilters({
           </div>
 
           <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-            {/* Has Replies Filter */}
-            <Button
-              variant="outline"
-              onClick={handleToggleHasReplies}
-              className={cn(
-                'justify-start',
-                filters.hasReplies === true && 'border-primary bg-primary-lighter text-primary',
-                filters.hasReplies === false && 'border-gray-400 bg-gray-100 text-gray-700'
-              )}
-            >
-              <PiCheckCircle className="mr-2 h-4 w-4" />
-              {filters.hasReplies === true
-                ? 'With Replies'
-                : filters.hasReplies === false
-                ? 'Without Replies'
-                : 'Any Replies'}
-            </Button>
-
             {/* Has Images Filter */}
             <Button
               variant="outline"
@@ -299,17 +267,6 @@ export default function ReviewFilters({
                     {filters.rating} Stars
                     <button
                       onClick={() => handleRatingChange('')}
-                      className="ml-1 hover:text-gray-700"
-                    >
-                      <PiX className="h-3 w-3" />
-                    </button>
-                  </Badge>
-                )}
-                {filters.hasReplies !== undefined && (
-                  <Badge variant="outline" className="gap-1">
-                    {filters.hasReplies ? 'With' : 'Without'} Replies
-                    <button
-                      onClick={handleToggleHasReplies}
                       className="ml-1 hover:text-gray-700"
                     >
                       <PiX className="h-3 w-3" />

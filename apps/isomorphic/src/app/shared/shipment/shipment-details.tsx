@@ -11,10 +11,12 @@ import {
 } from 'react-icons/pi';
 import { useShipment, useDeleteShipment } from '@/hooks/use-shipment';
 import { routes } from '@/config/routes';
-import { STATUS_BADGE_CONFIG } from '@/types/shipment.types';
+import { OrderRef, STATUS_BADGE_CONFIG } from '@/types/shipment.types';
 import UpdateStatusModal from './update-status-modal';
 import AddTrackingModal from './add-tracking-modal';
 import DeletePopover from '@core/components/delete-popover';
+import Link from 'next/link';
+import EyeIcon from '@core/components/icons/eye';
 
 interface ShipmentDetailsProps {
   shipmentId: string;
@@ -40,11 +42,15 @@ export default function ShipmentDetails({ shipmentId }: ShipmentDetailsProps) {
   const handleDelete = () => {
     deleteShipment(shipmentId, {
       onSuccess: () => {
-  router.push(routes.eCommerce.shipment.shipmentList);
+        router.push(routes.eCommerce.shipment.shipmentList);
       },
     });
   };
 
+  const getOrderId = (orderId: string | OrderRef) => {
+    if (typeof shipment.orderId === 'string') return shipment.orderId;
+    return shipment.orderId._id;
+  };
   return (
     <div className="space-y-6">
       {/* Header with Actions */}
@@ -74,11 +80,11 @@ export default function ShipmentDetails({ shipmentId }: ShipmentDetailsProps) {
           <Button variant="outline" onClick={() => setShowTrackingModal(true)}>
             Add Tracking
           </Button>
-          <DeletePopover
+          {/* <DeletePopover
             title="Delete Shipment"
             description={`Are you sure you want to delete tracking #${shipment.trackingNumber}?`}
             onDelete={handleDelete}
-          />
+          /> */}
         </div>
       </div>
 
@@ -92,15 +98,27 @@ export default function ShipmentDetails({ shipmentId }: ShipmentDetailsProps) {
           <div className="space-y-3">
             <div>
               <Text className="text-sm text-gray-600">Order ID</Text>
-              <Text className="font-medium">
-                {typeof shipment.orderId === 'string'
-                  ? shipment.orderId
-                  : shipment.orderId.orderNumber || shipment.orderId._id}
-              </Text>
+              <Link
+                className="cursor-pointer hover:underline"
+                href={routes.eCommerce.orderDetails(
+                  getOrderId(shipment.orderId)
+                )}
+              >
+                <Text className="cursor-pointer font-medium hover:underline">
+                  {getOrderId(shipment.orderId)}
+                </Text>
+              </Link>
             </div>
             <div>
               <Text className="text-sm text-gray-600">Courier</Text>
-              <Text className="font-medium">{shipment.courier}</Text>
+              <Link
+                className="cursor-pointer hover:underline"
+                href={routes.users.details(shipment.courierUser)}
+              >
+                <Text className="flex gap-2 font-medium">
+                  {shipment.courier}
+                </Text>
+              </Link>
             </div>
             <div>
               <Text className="text-sm text-gray-600">Shipping Cost</Text>

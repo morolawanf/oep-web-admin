@@ -17,16 +17,16 @@ export function useOrders(
   return useQuery<OrdersListResponse>({
     queryKey: ['orders', params],
     queryFn: async () => {
-      const response = await apiClient.get<OrdersListResponse>(
-        api.orders.list,
-        {
-          params,
-        }
-      );
+      const response = await apiClient.getWithMeta<
+        Order[],
+        { page: number; limit: number; total: number; pages: number }
+      >(api.orders.list, {
+        params,
+      });
       if (!response.data) {
         throw new Error('No data returned from orders API');
       }
-      return response.data;
+      return { orders: response.data, pagination: response.meta! };
     },
     staleTime: 30000, // 30 seconds
     ...options,
@@ -41,9 +41,7 @@ export function useOrderById(
   return useQuery<Order>({
     queryKey: ['order', orderId],
     queryFn: async () => {
-      const response = await apiClient.get<Order>(
-        api.orders.byId(orderId)
-      );
+      const response = await apiClient.get<Order>(api.orders.byId(orderId));
       if (!response.data) {
         throw new Error('No data returned from order details API');
       }

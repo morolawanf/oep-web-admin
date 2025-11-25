@@ -16,7 +16,7 @@ const statusConfig: Record<
 > = {
   pending: { label: 'Pending', color: 'warning' },
   confirmed: { label: 'Confirmed', color: 'info' },
-  completed: { label: 'Completed', color: 'info' },
+  completed: { label: 'Completed', color: 'success' },
   processing: { label: 'Processing', color: 'secondary' },
   shipped: { label: 'Shipped', color: 'primary' },
   delivered: { label: 'Delivered', color: 'success' },

@@ -90,10 +90,6 @@ export const pageLinks = [
     href: routes.eCommerce.orderDetails(DUMMY_ID),
   },
   {
-    name: "Create Order",
-    href: routes.eCommerce.createOrder,
-  },
-  {
     name: "Edit Order",
     href: routes.eCommerce.editOrder(DUMMY_ID),
   },
@@ -128,18 +124,6 @@ export const pageLinks = [
   {
     name: "Invoice List",
     href: routes.invoice.home,
-  },
-  {
-    name: "Invoice Details",
-    href: routes.invoice.details(DUMMY_ID),
-  },
-  {
-    name: "Create Invoice",
-    href: routes.invoice.create,
-  },
-  {
-    name: "Edit Invoice",
-    href: routes.invoice.edit(DUMMY_ID),
   },
   {
     name: "Shipment List",

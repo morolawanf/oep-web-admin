@@ -1,6 +1,6 @@
 /**
  * Analytics API Response Types
- * 
+ *
  * Type definitions for all 31 new analytics endpoints.
  * Maps directly to backend service return types.
  */
@@ -284,6 +284,7 @@ export interface OrderTableRow {
   status: string;
   createdAt: string;
   items: any[]; // Can be typed more specifically if needed
+  products: { qty: number; _id: string }[];
 }
 
 export interface OrdersTableResponse {
@@ -444,7 +445,7 @@ export interface LowStockProductsResponse {
  */
 export interface DateRangeParams {
   from: string; // ISO date string
-  to: string;   // ISO date string
+  to: string; // ISO date string
 }
 
 /**
@@ -623,7 +624,7 @@ export interface PaginatedStatisticsResponse {
  */
 export interface LegacyTimeSeriesParams {
   from: string; // ISO date string
-  to: string;   // ISO date string
+  to: string; // ISO date string
   groupBy: 'days' | 'weeks' | 'months' | 'years'; // Client-side routing param
 }
 
@@ -651,20 +652,20 @@ export interface PaginatedStatisticsParams {
 
 /**
  * Legacy analytics endpoints are organized into:
- * 
+ *
  * 1. **Standalone Endpoints** (5 endpoints):
  *    - getSellerStatistics
  *    - getTotalSales
  *    - getChartData
  *    - getOrderVsReturns
  *    - getRangeCount
- * 
+ *
  * 2. **Paginated Statistics** (4 endpoints with groupBy):
  *    - getPaginatedStatisticsDays
  *    - getPaginatedStatisticsWeeks
  *    - getPaginatedStatisticsMonths
  *    - getPaginatedStatisticsYears
- * 
+ *
  * 3. **Time-Series Metrics** (19 metric groups × 3 time periods = 57 endpoints):
  *    Each group has ByDays, ByMonths, ByYears variants:
  *    - WishlistFrequency
@@ -686,6 +687,6 @@ export interface PaginatedStatisticsParams {
  *    - CurrentCarts
  *    - Sales
  *    - SalesDiscountTotal
- * 
+ *
  * Total: 5 + 4 + 57 = 66 endpoints (note: 2 more than initially counted)
  */

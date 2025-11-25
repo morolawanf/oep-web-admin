@@ -26,6 +26,8 @@ export interface ReviewReply {
 export interface ReviewUser {
   _id: string;
   name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   image?: string;
 }

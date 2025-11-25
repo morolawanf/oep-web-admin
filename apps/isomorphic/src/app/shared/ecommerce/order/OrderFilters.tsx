@@ -24,6 +24,8 @@ export default function OrderFilters({
 
   useEffect(() => {
     if (debouncedSearch !== currentParams.search) {
+      console.log('culprit');
+      
       onChange({ search: debouncedSearch });
     }
   }, [debouncedSearch]);

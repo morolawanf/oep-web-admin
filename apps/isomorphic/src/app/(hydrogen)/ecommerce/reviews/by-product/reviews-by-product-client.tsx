@@ -5,14 +5,20 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useProducts } from '@/hooks/queries/useReviews';
+import { useEffect, useState } from 'react';
 import { useProductReviews } from '@/hooks/queries/useReviews';
+import { useProductSearch } from '@/hooks/queries/useProducts';
 import { useDrawer } from '@/app/shared/drawer-views/use-drawer';
+import { useModal } from '@/app/shared/modal-views/use-modal';
+import { useDebounce } from '@/hooks/use-debounce';
 import ReviewDetailDrawer from '@/app/shared/ecommerce/review/review-detail-drawer';
-import { Select, Button, Text, Loader, Badge, Avatar } from 'rizzui';
+import { Button, Text, Loader, Badge, Avatar, Input, Title } from 'rizzui';
 import { PiStarFill, PiPackage } from 'react-icons/pi';
-import type { ReviewFilters as ReviewFiltersType, Review } from '@/types/review.types';
+import type {
+  ReviewFilters as ReviewFiltersType,
+  Review,
+} from '@/types/review.types';
+import type { Product } from '@/hooks/queries/useProducts';
 import { useTanStackTable } from '@core/components/table/custom/use-TanStack-Table';
 import Table from '@core/components/table';
 import TablePagination from '@core/components/table/pagination';
@@ -20,15 +26,109 @@ import { createColumnHelper } from '@tanstack/react-table';
 import cn from '@core/utils/class-names';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import { getCdnUrl } from '@core/utils/cdn-url';
+import Link from 'next/link';
+import { routes } from '@/config/routes';
 
 dayjs.extend(relativeTime);
 
 const columnHelper = createColumnHelper<Review>();
 
+function ProductSelectorModal({
+  onSelectProduct,
+}: {
+  onSelectProduct: (product: Product) => void;
+}) {
+  const [searchTerm, setSearchTerm] = useState('');
+  const debouncedSearch = useDebounce(searchTerm, 500);
+  const { closeModal } = useModal();
+
+  const {
+    data: products,
+    isLoading,
+    isFetching,
+    error: searchError,
+  } = useProductSearch(debouncedSearch, debouncedSearch.trim().length > 0);
+
+  const handleSelectProduct = (product: Product) => {
+    closeModal();
+    onSelectProduct(product);
+  };
+
+  return (
+    <div className="m-auto w-full max-w-4xl p-6">
+      <Title as="h3" className="mb-6">
+        Select Product to View Reviews
+      </Title>
+
+      <Input
+        type="search"
+        placeholder="Search by product name, SKU..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        className="mb-4"
+      />
+
+      {!debouncedSearch ? (
+        <div className="py-12 text-center">
+          <Text className="text-gray-500">
+            Start typing to search for products
+          </Text>
+        </div>
+      ) : isLoading || isFetching ? (
+        <div className="flex items-center justify-center py-12">
+          <Loader variant="spinner" size="xl" />
+        </div>
+      ) : searchError ? (
+        <div className="rounded-lg border border-red-200 bg-red-50 p-8 text-center">
+          <Text className="text-red-600">
+            Error searching products. Please try again.
+          </Text>
+        </div>
+      ) : products && products.length > 0 ? (
+        <div className="space-y-2">
+          {products.map((product) => (
+            <div
+              key={product._id}
+              className="flex cursor-pointer items-center gap-4 rounded-lg border border-muted p-4 transition-colors hover:bg-gray-50"
+              onClick={() => handleSelectProduct(product)}
+            >
+              <Avatar
+                src={getCdnUrl(product.description_images?.[0]?.url)}
+                name={product.name}
+                size="lg"
+                className="rounded-lg"
+              />
+              <Link
+                href={routes.eCommerce.productDetails(product._id)}
+                className="flex-1"
+              >
+                <Text className="font-medium text-gray-900">
+                  {product.name}
+                </Text>
+                <Text className="text-sm text-gray-600">ID: {product._id}</Text>
+              </Link>
+              <Button size="sm" variant="outline">
+                Select
+              </Button>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="py-12 text-center">
+          <Text className="text-gray-500">
+            No products found matching "{debouncedSearch}"
+          </Text>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function ReviewsByProductClient() {
   const { openDrawer } = useDrawer();
-  const [selectedProductId, setSelectedProductId] = useState<string>('');
-  const [selectedProduct, setSelectedProduct] = useState<{ _id: string; name: string; sku: number; image: string } | null>(null);
+  const { openModal } = useModal();
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [filters, setFilters] = useState<ReviewFiltersType>({
     page: 1,
     limit: 20,
@@ -36,13 +136,12 @@ export default function ReviewsByProductClient() {
     sortOrder: 'desc',
   });
 
-  const { data: products, isLoading: isLoadingProducts } = useProducts();
   const {
     data: reviewsData,
     isLoading: isLoadingReviews,
     error,
-  } = useProductReviews(selectedProductId, filters, {
-    enabled: !!selectedProductId,
+  } = useProductReviews(selectedProduct?._id || '', filters, {
+    enabled: !!selectedProduct,
   });
 
   const reviews = reviewsData?.reviews || [];
@@ -64,7 +163,9 @@ export default function ReviewsByProductClient() {
               <Text className="font-medium text-gray-900">
                 {user?.name || 'Unknown User'}
               </Text>
-              <Text className="text-sm text-gray-500">{user?.email || 'N/A'}</Text>
+              <Text className="text-sm text-gray-500">
+                {user?.email || 'N/A'}
+              </Text>
             </div>
           </div>
         );
@@ -87,7 +188,9 @@ export default function ReviewsByProductClient() {
               )}
             />
           ))}
-          <Text className="ml-1 text-sm font-medium">{row.original.rating}</Text>
+          <Text className="ml-1 text-sm font-medium">
+            {row.original.rating}
+          </Text>
         </div>
       ),
     }),
@@ -99,9 +202,13 @@ export default function ReviewsByProductClient() {
       cell: ({ row }) => (
         <div>
           {row.original.title && (
-            <Text className="mb-1 font-medium text-gray-900">{row.original.title}</Text>
+            <Text className="mb-1 font-medium text-gray-900">
+              {row.original.title}
+            </Text>
           )}
-          <Text className="line-clamp-2 text-sm text-gray-600">{row.original.review}</Text>
+          <Text className="line-clamp-2 text-sm text-gray-600">
+            {row.original.review}
+          </Text>
         </div>
       ),
     }),
@@ -162,19 +269,31 @@ export default function ReviewsByProductClient() {
       },
     },
   });
-/*
-  // Update table data when reviews change
   useEffect(() => {
     if (reviews) {
       setData(reviews);
     }
-  }, [reviews]); // setData is stable, no need in deps
-*/
+  }, [reviews, setData]);
+
   const handleViewDetails = (reviewId: string) => {
     openDrawer({
       view: <ReviewDetailDrawer reviewId={reviewId} />,
       placement: 'right',
       containerClassName: 'max-w-2xl',
+    });
+  };
+
+  const handleOpenProductSelector = () => {
+    openModal({
+      view: (
+        <ProductSelectorModal
+          onSelectProduct={(product) => {
+            setSelectedProduct(product);
+            setFilters((prev) => ({ ...prev, page: 1 })); // Reset to first page
+          }}
+        />
+      ),
+      customSize: 900,
     });
   };
 
@@ -187,67 +306,50 @@ export default function ReviewsByProductClient() {
           <Text className="font-semibold text-gray-900">Select Product</Text>
         </div>
 
-        {isLoadingProducts ? (
-          <div className="flex h-20 items-center justify-center">
-            <Loader variant="spinner" />
-          </div>
-        ) : (
-          <>
-            <Select
-              value={selectedProductId}
-              onChange={(value) => {
-                const productId = value as string;
-                setSelectedProductId(productId);
-                const product = products?.find((p) => p._id === productId);
-                if (product) {
-                  setSelectedProduct(product);
-                }
-              }}
-              options={
-                products?.map((p) => ({
-                  label: p.name,
-                  value: p._id,
-                })) || []
-              }
-              placeholder="Select a product..."
-              displayValue={(value) => {
-                const product = products?.find((p) => p._id === value);
-                return product?.name || 'Select a product...';
-              }}
-              className="mb-4"
-            />
+        <Button
+          onClick={handleOpenProductSelector}
+          variant="outline"
+          className="w-full"
+        >
+          <PiPackage className="me-1.5 h-[17px] w-[17px]" />
+          {selectedProduct ? 'Change Product' : 'Select Product'}
+        </Button>
 
-            {selectedProduct && (
-              <div className="mt-4 space-y-2">
-                <Text className="text-xs font-medium uppercase text-gray-500">
-                  Currently Viewing Reviews For:
+        {selectedProduct && (
+          <div className="mt-4 space-y-2">
+            <Text className="text-xs font-medium uppercase text-gray-500">
+              Currently Viewing Reviews For:
+            </Text>
+            <div className="flex items-center gap-3 rounded-lg border-2 border-primary bg-primary-lighter/20 p-4">
+              <Avatar
+                src={selectedProduct.description_images?.[0]?.url}
+                name={selectedProduct.name}
+                size="lg"
+                className="rounded-lg ring-2 ring-primary"
+              />
+              <div className="flex-1">
+                <Text className="font-semibold text-gray-900">
+                  {selectedProduct.name}
                 </Text>
-                <div className="flex items-center gap-3 rounded-lg border-2 border-primary bg-primary-lighter/20 p-4">
-                  <Avatar
-                    src={selectedProduct.image}
-                    name={selectedProduct.name}
-                    size="lg"
-                    className="rounded-lg ring-2 ring-primary"
-                  />
-                  <div className="flex-1">
-                    <Text className="font-semibold text-gray-900">{selectedProduct.name}</Text>
-                    <Text className="text-sm text-gray-600">SKU: {selectedProduct.sku}</Text>
-                    <Badge color="success" variant="flat" className="mt-1">
-                      {totalReviews} {totalReviews === 1 ? 'review' : 'reviews'}
-                    </Badge>
-                  </div>
-                </div>
+                <Text className="text-sm text-gray-600">
+                  SKU: {selectedProduct.sku}
+                </Text>
+                <Badge color="success" variant="flat" className="mt-1">
+                  {totalReviews} {totalReviews === 1 ? 'review' : 'reviews'}
+                </Badge>
               </div>
-            )}
-          </>
+            </div>
+          </div>
         )}
       </div>
 
       {/* Reviews Table */}
-      {!selectedProductId ? (
+      {!selectedProduct ? (
         <div className="rounded-lg border border-muted bg-white p-12 text-center">
           <PiPackage className="mx-auto mb-4 h-16 w-16 text-gray-400" />
-          <Text className="text-gray-500">Select a product to view its reviews</Text>
+          <Text className="text-gray-500">
+            Select a product to view its reviews
+          </Text>
         </div>
       ) : isLoadingReviews ? (
         <div className="flex h-96 items-center justify-center rounded-lg border border-muted">
@@ -255,11 +357,15 @@ export default function ReviewsByProductClient() {
         </div>
       ) : error ? (
         <div className="rounded-lg border border-red-200 bg-red-50 p-8 text-center">
-          <Text className="text-red-600">Failed to load reviews. Please try again.</Text>
+          <Text className="text-red-600">
+            Failed to load reviews. Please try again.
+          </Text>
         </div>
       ) : reviews.length === 0 ? (
         <div className="rounded-lg border border-muted bg-white p-12 text-center">
-          <Text className="text-gray-500">No reviews found for this product.</Text>
+          <Text className="text-gray-500">
+            No reviews found for this product.
+          </Text>
         </div>
       ) : (
         <>

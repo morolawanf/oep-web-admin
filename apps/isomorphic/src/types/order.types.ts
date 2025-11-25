@@ -105,7 +105,8 @@ export interface Order {
     image?: string;
   };
   items?: OrderItem[]; // Optional for backward compatibility
-  products?: Array<{ // New API format
+  products?: Array<{
+    // New API format
     _id: string;
     name: string;
     slug: string;
@@ -131,11 +132,11 @@ export interface Order {
 
   // Payment
   paymentMethod?: PaymentMethod;
-  paymentStatus?: PaymentStatus;
+  paymentStatus: PaymentStatus;
   paymentDetails?: PaymentDetails;
   isPaid?: boolean; // New API field
   paidAt?: string; // New API field
-  
+
   // Transaction details (new API format)
   transaction?: {
     _id: string;
@@ -155,14 +156,14 @@ export interface Order {
   trackingNumber?: string;
   carrier?: string;
   deliveryType?: string; // New API field ('shipping' | 'pickup')
-  
+
   // Contact info (new API format)
   contact?: {
     name: string | null;
     phone: string;
     email: string;
   };
-  
+
   // Shipment details (new API format)
   shipment?: {
     _id: string;
@@ -213,15 +214,12 @@ export interface Order {
 
 // API Response Types
 export interface OrdersListResponse {
-  success: boolean;
   orders: Order[];
-  totalQty?: number;
-  totalOrders: number;
   pagination: {
     total: number;
     page: number;
     limit: number;
-    totalPages: number;
+    pages: number;
   };
   stats?: {
     totalRevenue: number;

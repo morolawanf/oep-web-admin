@@ -17,12 +17,19 @@ export function FilterDrawerView({
   drawerTitle,
   setOpenDrawer,
   children,
+  onApply,
 }: React.PropsWithChildren<{
   drawerTitle?: string;
   hasSearched?: boolean;
   setOpenDrawer: React.Dispatch<React.SetStateAction<boolean>>;
   isOpen?: boolean;
+  onApply?: () => void;
 }>) {
+  const handleApply = () => {
+    onApply?.();
+    setOpenDrawer(false);
+  };
+
   return (
     <Drawer
       size="sm"
@@ -52,7 +59,7 @@ export function FilterDrawerView({
         </div>
         <Button
           size="lg"
-          onClick={() => setOpenDrawer(false)}
+          onClick={handleApply}
           className="mt-5 h-11 w-full text-sm"
         >
           Show Results

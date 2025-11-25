@@ -1,6 +1,6 @@
 /**
  * Reviews Analytics Client Component
- * 
+ *
  * Displays comprehensive review analytics including:
  * - Overview metrics (total reviews, average rating, positive/negative)
  * - Rating distribution breakdown (1-5 stars)
@@ -63,8 +63,10 @@ export default function ReviewsAnalyticsClient() {
   };
 
   // Fetch data
-  const { data: overview, isLoading: loadingOverview } = useReviewsOverview(dateParams);
-  const { data: ratingDist, isLoading: loadingRating } = useRatingDistribution(dateParams);
+  const { data: overview, isLoading: loadingOverview } =
+    useReviewsOverview(dateParams);
+  const { data: ratingDist, isLoading: loadingRating } =
+    useRatingDistribution(dateParams);
   const { data: sentiment, isLoading: loadingSentiment } = useReviewSentiment({
     ...dateParams,
     groupBy,
@@ -76,13 +78,14 @@ export default function ReviewsAnalyticsClient() {
     rating: ratingFilter === 'all' ? undefined : Number(ratingFilter),
     status: statusFilter === 'all' ? undefined : statusFilter,
   });
+  console.log({ reviews });
 
   return (
     <>
       <PageHeader title={pageHeader.title} breadcrumb={pageHeader.breadcrumb} />
 
       {/* Date Range Selector */}
-      <div className="mb-6 flex gap-4 items-center">
+      <div className="mb-6 flex items-center gap-4">
         <div>
           <Text className="mb-1 text-sm font-medium">From</Text>
           <DatePicker
@@ -112,8 +115,11 @@ export default function ReviewsAnalyticsClient() {
       </div>
 
       {/* Charts Section */}
-      <div className="grid grid-cols-1 gap-6 mb-6 @container lg:grid-cols-2">
-        <RatingDistributionChart data={ratingDist || []} isLoading={loadingRating} />
+      <div className="mb-6 grid grid-cols-1 gap-6 @container lg:grid-cols-2">
+        <RatingDistributionChart
+          data={ratingDist || []}
+          isLoading={loadingRating}
+        />
         <ReviewSentimentChart
           data={sentiment || []}
           isLoading={loadingSentiment}

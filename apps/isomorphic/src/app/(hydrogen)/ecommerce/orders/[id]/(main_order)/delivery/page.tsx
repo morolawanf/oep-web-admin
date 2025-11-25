@@ -1,15 +1,11 @@
-import InvoiceDetails from '@/app/shared/logistics/shipment/details/invoice-details';
-import DeliveryDetails from '@/app/shared/logistics/shipment/details/delivery-details';
-import TrackingHistory from '@/app/shared/logistics/shipment/details/tracking-history';
+import DeliveryPageClient from './DeliveryPageClient';
 
-export default function Page() {
-  return (
-    <>
-      <div className="mt-2 flex flex-col gap-y-6 @container sm:gap-y-10">
-        <InvoiceDetails />
-        <DeliveryDetails />
-        <TrackingHistory />
-      </div>
-    </>
-  );
+interface PageProps {
+  params: Promise<{ id: string }>;
+}
+
+export default async function Page({ params }: PageProps) {
+  const orderId = (await params).id;
+
+  return <DeliveryPageClient orderId={orderId} />;
 }

@@ -7,14 +7,20 @@
 
 import { useState, useEffect } from 'react';
 import { useReviews } from '@/hooks/queries/useReviews';
-import { useDeleteReview, useBulkModerateReviews } from '@/hooks/mutations/useReviewMutations';
+import {
+  useDeleteReview,
+  useBulkModerateReviews,
+} from '@/hooks/mutations/useReviewMutations';
 import { useDrawer } from '@/app/shared/drawer-views/use-drawer';
 import ReviewStatisticsCards from '@/app/shared/ecommerce/review/review-statistics-cards';
 import ReviewFilters from '@/app/shared/ecommerce/review/review-filters';
 import ReviewDetailDrawer from '@/app/shared/ecommerce/review/review-detail-drawer';
 import { Button, Checkbox, Text, Loader, Badge } from 'rizzui';
 import { PiStarFill, PiTrash, PiCheckCircle, PiXCircle } from 'react-icons/pi';
-import type { ReviewFilters as ReviewFiltersType, Review } from '@/types/review.types';
+import type {
+  ReviewFilters as ReviewFiltersType,
+  Review,
+} from '@/types/review.types';
 import { useTanStackTable } from '@core/components/table/custom/use-TanStack-Table';
 import Table from '@core/components/table';
 import TablePagination from '@core/components/table/pagination';
@@ -22,6 +28,8 @@ import { createColumnHelper } from '@tanstack/react-table';
 import cn from '@core/utils/class-names';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import { routes } from '@/config/routes';
+import Link from 'next/link';
 
 dayjs.extend(relativeTime);
 
@@ -38,6 +46,8 @@ export default function ReviewsPageClient() {
   });
 
   const { data: reviewsData, isLoading, error } = useReviews(filters);
+  console.log(reviewsData);
+
   const deleteMutation = useDeleteReview();
   const bulkModerateMutation = useBulkModerateReviews();
 
@@ -80,12 +90,14 @@ export default function ReviewsPageClient() {
         const user = typeof reviewBy === 'object' ? reviewBy : null;
         return (
           <div className="flex items-start gap-2">
-            <div>
-              <Text className="font-medium text-gray-900">
-                {user?.name || 'Unknown User'}
+            <Link href={routes.users.details(user!._id)} className="group">
+              <Text className="font-medium text-gray-900 group-hover:underline">
+                {user!.firstName + user!.lastName}
               </Text>
-              <Text className="text-sm text-gray-500">{user?.email || 'N/A'}</Text>
-            </div>
+              <Text className="text-sm text-gray-500">
+                {user?.email || 'N/A'}
+              </Text>
+            </Link>
           </div>
         );
       },
@@ -99,10 +111,14 @@ export default function ReviewsPageClient() {
         const product = row.original.product;
         const prod = typeof product === 'object' ? product : null;
         return (
-          <div>
-            <Text className="font-medium text-gray-900">{prod?.name || 'Unknown Product'}</Text>
-            <Text className="text-sm text-gray-500">SKU: {prod?.sku || 'N/A'}</Text>
-          </div>
+          <Link
+            href={routes.eCommerce.productDetails(prod!._id)}
+            className="group"
+          >
+            <Text className="font-medium text-gray-900 group-hover:underline">
+              {prod?.name || 'Unknown Product'}
+            </Text>
+          </Link>
         );
       },
     }),
@@ -123,7 +139,9 @@ export default function ReviewsPageClient() {
               )}
             />
           ))}
-          <Text className="ml-1 text-sm font-medium">{row.original.rating}</Text>
+          <Text className="ml-1 text-sm font-medium">
+            {row.original.rating}
+          </Text>
         </div>
       ),
     }),
@@ -135,9 +153,13 @@ export default function ReviewsPageClient() {
       cell: ({ row }) => (
         <div>
           {row.original.title && (
-            <Text className="mb-1 font-medium text-gray-900">{row.original.title}</Text>
+            <Text className="mb-1 font-medium text-gray-900">
+              {row.original.title}
+            </Text>
           )}
-          <Text className="line-clamp-2 text-sm text-gray-600">{row.original.review}</Text>
+          <Text className="line-clamp-2 text-sm text-gray-600">
+            {row.original.review}
+          </Text>
         </div>
       ),
     }),
@@ -200,9 +222,10 @@ export default function ReviewsPageClient() {
       },
       enableRowSelection: true,
       onRowSelectionChange: (updater) => {
-        const selection = typeof updater === 'function'
-          ? updater(table.getState().rowSelection)
-          : updater;
+        const selection =
+          typeof updater === 'function'
+            ? updater(table.getState().rowSelection)
+            : updater;
         const selectedIds = Object.keys(selection).map(
           (index) => reviews[Number(index)]._id
         );
@@ -212,11 +235,11 @@ export default function ReviewsPageClient() {
   });
 
   // Update table data when reviews change
-//   useEffect(() => {
-//     if (reviews) {
-//       setData(reviews);
-//     }
-//   }, [reviews, setData]);
+  useEffect(() => {
+    if (reviews) {
+      setData(reviews);
+    }
+  }, [reviews, setData]);
 
   const handleViewDetails = (reviewId: string) => {
     openDrawer({
@@ -297,7 +320,9 @@ export default function ReviewsPageClient() {
   if (error) {
     return (
       <div className="rounded-lg border border-red-200 bg-red-50 p-8 text-center">
-        <Text className="text-red-600">Failed to load reviews. Please try again.</Text>
+        <Text className="text-red-600">
+          Failed to load reviews. Please try again.
+        </Text>
       </div>
     );
   }
@@ -360,7 +385,9 @@ export default function ReviewsPageClient() {
         </div>
       ) : reviews.length === 0 ? (
         <div className="rounded-lg border border-muted bg-white p-12 text-center">
-          <Text className="text-gray-500">No reviews found matching your filters.</Text>
+          <Text className="text-gray-500">
+            No reviews found matching your filters.
+          </Text>
         </div>
       ) : (
         <>
@@ -372,11 +399,7 @@ export default function ReviewsPageClient() {
               rowClassName: 'cursor-pointer hover:bg-gray-50',
             }}
           />
-          <div className="mt-4 flex items-center justify-between">
-            <Text className="text-sm text-gray-600">
-              Showing {reviews.length} of {totalReviews.toLocaleString()} reviews (Page{' '}
-              {filters.page} of {totalPages})
-            </Text>
+          <div className="mt-4 flex items-center justify-end">
             <TablePagination table={table} className="py-4" />
           </div>
         </>

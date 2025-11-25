@@ -4,7 +4,7 @@ import { routes } from '@/config/routes';
 import ShipmentDetails from '@/app/shared/shipment/shipment-details';
 
 export const metadata: Metadata = {
-  title: 'Shipment Details | Admin Dashboard',
+  title: 'Shipment Details ',
   description: 'View shipment details',
 };
 
@@ -21,11 +21,11 @@ export default function ShipmentDetailsPage({
     title: 'Shipment Details',
     breadcrumb: [
       {
-  href: routes.eCommerce.logistics.home,
+        href: routes.eCommerce.logistics.home,
         name: 'Logistics',
       },
       {
-  href: routes.eCommerce.shipment.shipmentList,
+        href: routes.eCommerce.shipment.shipmentList,
         name: 'Shipments',
       },
       {

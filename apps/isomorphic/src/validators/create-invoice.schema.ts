@@ -14,9 +14,6 @@ export const invoiceFormSchema = z.object({
   createDate: z.date({
     required_error: messages.createDateIsRequired,
   }),
-  dueDate: z.date({
-    required_error: messages.dueDateIsRequired,
-  }),
   status: z.string({
     required_error: messages.statusIsRequired,
   }),

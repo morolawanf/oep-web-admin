@@ -50,21 +50,37 @@ export const useReviews = (
     queryFn: async () => {
       // Prepare query params - convert isApproved to backend format
       const params: Record<string, any> = { ...filters };
-      
+
       // Backend expects isApproved as 'true' or 'false' string, or omitted for all
       if (params.isApproved === 'all' || params.isApproved === undefined) {
         delete params.isApproved;
       } else if (typeof params.isApproved === 'boolean') {
         params.isApproved = params.isApproved ? 'true' : 'false';
       }
-      
-      const response = await apiClient.get<PaginatedReviews>(api.reviews.list, {
+
+      const response = await apiClient.getWithMeta<
+        Review[],
+        {
+          total: number;
+          page: number;
+          limit: number;
+          pages: number;
+        }
+      >(api.reviews.list, {
         params,
       });
       if (!response.data) {
         throw new Error('No data returned from reviews API');
       }
-      return response.data;
+      return {
+        reviews: response.data,
+        pagination: response.meta || {
+          total: 1,
+          page: 1,
+          limit: 15,
+          pages: 1,
+        },
+      };
     },
     staleTime: 2 * 60 * 1000, // 2 minutes (reviews change frequently)
     retry: 2,
@@ -110,14 +126,14 @@ export const useProductReviews = (
     queryFn: async () => {
       // Prepare query params - convert isApproved to backend format
       const params: Record<string, any> = { ...filters };
-      
+
       // Backend expects isApproved as 'true' or 'false' string, or omitted for all
       if (params.isApproved === 'all' || params.isApproved === undefined) {
         delete params.isApproved;
       } else if (typeof params.isApproved === 'boolean') {
         params.isApproved = params.isApproved ? 'true' : 'false';
       }
-      
+
       const response = await apiClient.get<PaginatedReviews>(
         api.reviews.byProduct(productId),
         {
@@ -151,27 +167,33 @@ export const useUserReviews = (
     queryFn: async () => {
       // Prepare query params - convert isApproved to backend format
       const params: Record<string, any> = { ...filters };
-      
+
       // Backend expects isApproved as 'true' or 'false' string, or omitted for all
       if (params.isApproved === 'all' || params.isApproved === undefined) {
         delete params.isApproved;
       } else if (typeof params.isApproved === 'boolean') {
         params.isApproved = params.isApproved ? 'true' : 'false';
       }
-      
-      const response = await apiClient.get<PaginatedReviews>(
-        api.reviews.byUser(userId),
+
+      const response = await apiClient.getWithMeta<
+        Review[],
         {
-          params,
+          total: number;
+          page: number;
+          limit: number;
+          pages: number;
         }
-      );
+      >(api.reviews.byUser(userId), {
+        params,
+      });
       if (!response.data) {
         throw new Error('No reviews found for this user');
       }
-      return response.data;
+      return { reviews: response.data, pagination: response.meta! };
     },
     enabled: !!userId, // Only run if userId exists
-    staleTime: 2 * 60 * 1000, // 2 minutes
+    staleTime: 3 * 60 * 1000, // 2 minutes
+    retry: 2,
     ...options,
   });
 };
@@ -180,7 +202,10 @@ export const useUserReviews = (
  * Fetch review statistics
  */
 export const useReviewStatistics = (
-  options?: Omit<UseQueryOptions<ReviewStatistics, Error>, 'queryKey' | 'queryFn'>
+  options?: Omit<
+    UseQueryOptions<ReviewStatistics, Error>,
+    'queryKey' | 'queryFn'
+  >
 ) => {
   return useQuery<ReviewStatistics, Error>({
     queryKey: reviewKeys.statistics(),
@@ -226,7 +251,10 @@ export const useMoodAnalytics = (
  * Uses the new list-minimal endpoint
  */
 export const useProducts = (
-  options?: Omit<UseQueryOptions<MinimalProduct[], Error>, 'queryKey' | 'queryFn'>
+  options?: Omit<
+    UseQueryOptions<MinimalProduct[], Error>,
+    'queryKey' | 'queryFn'
+  >
 ) => {
   return useQuery<MinimalProduct[], Error>({
     queryKey: reviewKeys.products(),

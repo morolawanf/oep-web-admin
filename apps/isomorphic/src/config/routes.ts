@@ -126,13 +126,7 @@ export const routes = {
     list: '/users',
     details: (id: string) => `/users/${id}`,
   },
-  invoice: {
-    home: '/invoice',
-    create: '/invoice/create',
-    details: (id: string) => `/invoice/${id}`,
-    edit: (id: string) => `/invoice/${id}/edit`,
-    builder: '/invoice/builder',
-  },
+  invoice: '/invoice',
   imageViewer: '/image-viewer',
   widgets: {
     cards: '/widgets/cards',

@@ -1,158 +1,88 @@
 'use client';
 
-import Image from 'next/image';
-import { Text, Badge } from 'rizzui';
+import { Text } from 'rizzui';
 import cn from '@core/utils/class-names';
 import { formatDate } from '@core/utils/format-date';
 import BasicTableWidget from '@core/components/controlled-table/basic-table-widget';
-
-export const data = [
-  {
-    id: 4,
-    date: '2023-08-23T14:49:10.954Z',
-    updatedAt: '2023-08-23T14:49:10.954Z',
-    currentLocation: {
-      country: 'Congo',
-      countryCode: 'CD',
-    },
-    status: 'Delivered',
-    remarks: 'Order has been delivered',
-  },
-  {
-    id: 3,
-    date: '2023-08-22T14:49:10.954Z',
-    updatedAt: '2023-08-22T14:49:10.954Z',
-    currentLocation: {
-      country: 'Singapore',
-      countryCode: 'SG',
-    },
-    status: 'Out For Delivery',
-    remarks: 'Our agent has picked-up you order for Delivery',
-  },
-  {
-    id: 2,
-    date: '2023-08-21T14:49:10.954Z',
-    updatedAt: '2023-08-21T14:49:10.954Z',
-    currentLocation: {
-      country: 'Faroe Islands',
-      countryCode: 'FO',
-    },
-    status: 'In Transit',
-    remarks: 'OSD On The Way To (Last Mile) Hub',
-  },
-  {
-    id: 1,
-    date: '2023-08-20T14:49:10.954Z',
-    updatedAt: '2023-08-20T14:49:10.954Z',
-    currentLocation: {
-      country: 'Micronesia',
-      countryCode: 'FM',
-    },
-    status: 'Accepted',
-    remarks: 'Order has been confirmed',
-  },
-];
-
-const statusColors = {
-  Accepted: 'info',
-  'In Transit': 'secondary',
-  'Out For Delivery': 'primary',
-  Delivered: 'success',
-};
+import type { Order } from '@/types/order.types';
 
 export const getColumns = () => [
   {
     title: <span className="ml-6 block">Date</span>,
-    dataIndex: 'date',
-    key: 'date',
+    dataIndex: 'timestamp',
+    key: 'timestamp',
     width: 200,
-    render: (date: Date) => (
+    render: (timestamp: Date) => (
       <div className="ml-6">
         <Text className="mb-1 font-medium text-gray-700">
-          {formatDate(date, 'MMMM D, YYYY')}
+          {formatDate(timestamp, 'MMMM D, YYYY')}
         </Text>
         <Text className="text-[13px] text-gray-500">
-          {formatDate(date, 'h:mm A')}
+          {formatDate(timestamp, 'h:mm A')}
         </Text>
       </div>
     ),
   },
   {
-    title: 'Updated At',
-    dataIndex: 'updatedAt',
-    key: 'updatedAt',
+    title: 'Location',
+    dataIndex: 'location',
+    key: 'location',
     width: 200,
-    render: (updatedAt: Date) => (
-      <>
-        <Text className="mb-1 font-medium text-gray-700">
-          {formatDate(updatedAt, 'MMMM D, YYYY')}
-        </Text>
-        <Text className="text-[13px] text-gray-500">
-          {formatDate(updatedAt, 'h:mm A')}
-        </Text>
-      </>
+    render: (location?: string) => (
+      <Text className="text-gray-700">{location || 'N/A'}</Text>
     ),
   },
   {
-    title: 'Current Location',
-    dataIndex: 'currentLocation',
-    key: 'currentLocation',
-    width: 200,
-    render: ({
-      country,
-      countryCode,
-    }: {
-      country: string;
-      countryCode: string;
-    }) => (
-      <div className="flex items-center gap-2">
-        <figure className="relative h-10 w-10">
-          <Image
-            fill
-            quality={100}
-            alt={`${country} Flag icon`}
-            className="object-contain"
-            src={`https://flagcdn.com/${countryCode.toLowerCase()}.svg`}
-          />
-        </figure>
-
-        <span className="whitespace-nowrap">{country}</span>
-      </div>
+    title: 'Description',
+    dataIndex: 'description',
+    key: 'description',
+    width: 300,
+    render: (description?: string) => (
+      <Text className="text-gray-700">{description || 'N/A'}</Text>
     ),
-  },
-  {
-    title: 'Status',
-    dataIndex: 'status',
-    key: 'status',
-    width: 200,
-    render: (status: string) => {
-      return (
-        // @ts-ignore
-        <Badge color={statusColors[status]} rounded="md">
-          {status}
-        </Badge>
-      );
-    },
-  },
-  {
-    title: 'Remarks',
-    dataIndex: 'remarks',
-    key: 'remarks',
-    width: 200,
-    render: (remarks: string) => <p>{remarks}</p>,
   },
 ];
 
-export default function TrackingHistoryTable({
-  className,
-}: {
+interface TrackingHistoryTableProps {
+  order: Order;
   className?: string;
-}) {
+}
+
+export default function TrackingHistoryTable({
+  order,
+  className,
+}: TrackingHistoryTableProps) {
+  const trackingHistory = order.shipment?.trackingHistory || [];
+  const hasTracking = trackingHistory.length > 0;
+
+  // If pickup order, show message
+  if (order.deliveryType === 'pickup') {
+    return (
+      <div className={cn('rounded-xl border border-gray-300 p-6', className)}>
+        <Text className="text-center text-gray-600">
+          Tracking history not available for pickup orders
+        </Text>
+      </div>
+    );
+  }
+
+  // If no tracking history yet
+  if (!hasTracking) {
+    return (
+      <div className={cn('rounded-xl border border-gray-300 p-6', className)}>
+        <Text className="mb-2 text-lg font-semibold">Tracking History</Text>
+        <div className="rounded-lg bg-yellow-50 p-4 text-center">
+          <Text className="text-gray-600">No tracking history available yet</Text>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <BasicTableWidget
       title="Tracking History"
-      className={cn('pb-0 lg:pb-0 [&_.rc-table-row:last-child_td]:border-b-0')}
-      data={data}
+      className={cn('pb-0 lg:pb-0 [&_.rc-table-row:last-child_td]:border-b-0', className)}
+      data={trackingHistory}
       getColumns={getColumns}
       noGutter
       enableSearch={false}

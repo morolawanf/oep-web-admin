@@ -14,12 +14,31 @@ import {
   PiXCircle,
 } from 'react-icons/pi';
 import cn from '@core/utils/class-names';
+import {
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+  Tooltip,
+  Legend,
+} from 'recharts';
 
 interface StatCardProps {
   title: string;
   value: number | string;
   icon: React.ReactNode;
   color: 'blue' | 'yellow' | 'green' | 'red' | 'purple';
+}
+
+function getColorForRating(rating: number): string {
+  const colors: Record<number, string> = {
+    5: '#16a34a', // green-600
+    4: '#65a30d', // lime-600
+    3: '#ca8a04', // yellow-600
+    2: '#ea580c', // orange-600
+    1: '#dc2626', // red-600
+  };
+  return colors[rating] || '#64748b'; // gray-500 fallback
 }
 
 function StatCard({ title, value, icon, color }: StatCardProps) {
@@ -35,7 +54,9 @@ function StatCard({ title, value, icon, color }: StatCardProps) {
     <div className="rounded-lg border border-muted bg-white p-6 shadow-sm transition-shadow hover:shadow-md">
       <div className="flex items-start justify-between">
         <div className="flex-1">
-          <Text className="mb-1 text-sm font-medium text-gray-600">{title}</Text>
+          <Text className="mb-1 text-sm font-medium text-gray-600">
+            {title}
+          </Text>
           <Title as="h3" className="mb-2 text-3xl font-bold text-gray-900">
             {value}
           </Title>
@@ -82,14 +103,6 @@ export default function ReviewStatisticsCards() {
         color="blue"
       />
 
-      {/* Pending Reviews */}
-      <StatCard
-        title="Pending Reviews"
-        value={stats.pending.toLocaleString()}
-        icon={<PiClockClockwise className="h-6 w-6" />}
-        color="yellow"
-      />
-
       {/* Approved Reviews */}
       <StatCard
         title="Approved Reviews"
@@ -110,7 +123,9 @@ export default function ReviewStatisticsCards() {
       <div className="rounded-lg border border-muted bg-white p-6 shadow-sm transition-shadow hover:shadow-md md:col-span-2">
         <div className="flex items-start justify-between">
           <div className="flex-1">
-            <Text className="mb-1 text-sm font-medium text-gray-600">Average Rating</Text>
+            <Text className="mb-1 text-sm font-medium text-gray-600">
+              Average Rating
+            </Text>
             <div className="mb-2 flex items-center gap-2">
               <Title as="h3" className="text-3xl font-bold text-gray-900">
                 {stats.averageRating.toFixed(1)}
@@ -141,32 +156,77 @@ export default function ReviewStatisticsCards() {
 
       {/* Rating Distribution */}
       <div className="rounded-lg border border-muted bg-white p-6 shadow-sm transition-shadow hover:shadow-md md:col-span-2">
-        <Text className="mb-4 text-sm font-medium text-gray-700">Rating Distribution</Text>
-        <div className="space-y-3">
-          {stats.ratingDistribution &&
-            Object.entries(stats.ratingDistribution)
-              .sort(([a], [b]) => Number(b) - Number(a))
-              .map(([rating, count]) => {
-                const percentage =
-                  stats.total > 0 ? ((count / stats.total) * 100).toFixed(1) : '0';
-                return (
-                  <div key={rating} className="flex items-center gap-3">
-                    <div className="flex w-16 items-center gap-1">
-                      <Text className="text-sm font-medium text-gray-700">{rating}</Text>
-                      <PiStarFill className="h-3 w-3 fill-orange text-orange" />
-                    </div>
-                    <div className="relative h-2 flex-1 overflow-hidden rounded-full bg-gray-200">
-                      <div
-                        className="h-full bg-orange transition-all"
-                        style={{ width: `${percentage}%` }}
-                      />
-                    </div>
-                    <Text className="w-16 text-right text-sm text-gray-600">
-                      {count} ({percentage}%)
-                    </Text>
-                  </div>
-                );
-              })}
+        <Text className="mb-4 text-sm font-medium text-gray-700">
+          Rating Distribution
+        </Text>
+        <div className="h-[300px]">
+          {(() => {
+            // Prepare chart data
+            const chartData = stats.ratingDistribution
+              ? Object.entries(stats.ratingDistribution)
+                  .filter(([rating, count]) => count > 0)
+                  .sort(([a], [b]) => Number(b) - Number(a))
+                  .map(([rating, count]) => ({
+                    name: `${rating} ⭐`,
+                    value: count,
+                    color: getColorForRating(Number(rating)),
+                  }))
+              : [];
+
+            const total = stats.total;
+
+            return (
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={chartData}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={({ name, percent }) =>
+                      `${name}`
+                    }
+                    outerRadius={100}
+                    innerRadius={60}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {chartData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    content={({ active, payload }) => {
+                      if (!active || !payload || !payload.length) return null;
+
+                      const data = payload[0].payload;
+                      const percentage = ((data.value / total) * 100).toFixed(1);
+
+                      return (
+                        <div className="rounded-lg border border-gray-200 bg-white p-3 shadow-lg">
+                          <p className="mb-1 text-sm font-medium text-gray-900">
+                            {data.name}
+                          </p>
+                          <p className="text-sm text-gray-600">
+                            {data.value.toLocaleString()} reviews ({percentage}%)
+                          </p>
+                        </div>
+                      );
+                    }}
+                  />
+                  <Legend
+                    verticalAlign="bottom"
+                    height={36}
+                    iconType="circle"
+                    formatter={(value, entry: any) => {
+                      const percentage = ((entry.payload.value / total) * 100).toFixed(1);
+                      return `${value}`;
+                    }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            );
+          })()}
         </div>
       </div>
     </div>

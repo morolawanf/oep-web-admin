@@ -8,6 +8,7 @@ import { Avatar, Box, Flex, Loader, Text } from 'rizzui';
 import { useTopProductsRevenue } from '@/hooks/queries/analytics/useAnalyticsCharts';
 import { formatCurrency } from '@/utils/format-currency';
 import { PiImageSquare } from 'react-icons/pi';
+import { getCdnUrl } from '@core/utils/cdn-url';
 
 const currentDate = new Date();
 const previousMonthDate = new Date(
@@ -23,9 +24,17 @@ export default function BestSellers({ className }: { className?: string }) {
   ]);
 
   // Fetch top products
-  const { data: products, isLoading, error } = useTopProductsRevenue({
-    from: rangeDate[0]?.toISOString().split('T')[0] || previousMonthDate.toISOString().split('T')[0],
-    to: rangeDate[1]?.toISOString().split('T')[0] || currentDate.toISOString().split('T')[0],
+  const {
+    data: products,
+    isLoading,
+    error,
+  } = useTopProductsRevenue({
+    from:
+      rangeDate[0]?.toISOString().split('T')[0] ||
+      previousMonthDate.toISOString().split('T')[0],
+    to:
+      rangeDate[1]?.toISOString().split('T')[0] ||
+      currentDate.toISOString().split('T')[0],
     limit: 10,
   });
 
@@ -66,7 +75,9 @@ export default function BestSellers({ className }: { className?: string }) {
           </div>
         ) : !products || products.length === 0 ? (
           <div className="flex min-h-[200px] items-center justify-center">
-            <Text className="text-gray-500">No products found for this period</Text>
+            <Text className="text-gray-500">
+              No products found for this period
+            </Text>
           </div>
         ) : (
           <Box className="w-full space-y-3.5 divide-y divide-gray-200/70">
@@ -103,10 +114,10 @@ function SingleProduct({
     <Flex align="end" className={cn('pt-3.5 first:pt-0', className)}>
       <Flex justify="start" align="center" gap="3">
         {image ? (
-          <Avatar
-            src={image}
-            name={title}
-            className="rounded-md border border-gray-200/50 bg-gray-100"
+          <img
+            src={getCdnUrl(image)}
+            alt={title}
+            className="h-[40px] w-[40px] rounded-md border border-gray-200/50 bg-gray-100 object-cover"
           />
         ) : (
           <Box className="flex h-10 w-10 items-center justify-center rounded-md border border-gray-200/50 bg-gray-100 p-2">
@@ -115,7 +126,9 @@ function SingleProduct({
         )}
         <Box className="space-y-1">
           <Text className="font-semibold text-gray-900">{title}</Text>
-          <Text className="text-xs text-gray-500">Revenue: {formatCurrency(price)}</Text>
+          <Text className="text-xs text-gray-500">
+            Revenue: {formatCurrency(price)}
+          </Text>
         </Box>
       </Flex>
       <Text as="span" className="font-semibold text-gray-500">
