@@ -37,7 +37,7 @@ export interface ReviewProduct {
   _id: string;
   name: string;
   sku: number;
-  image: string;
+  description_images: {cover_image: boolean, url: string}[];
   slug: string;
 }
 
@@ -185,6 +185,7 @@ export interface UserSearchResult {
   _id: string;
   name: string;
   email: string;
+  image: string;
   reviewCount: number;
 }
 

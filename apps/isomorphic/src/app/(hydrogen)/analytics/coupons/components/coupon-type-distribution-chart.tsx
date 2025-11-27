@@ -2,7 +2,14 @@
 
 import WidgetCard from '@core/components/cards/widget-card';
 import { Text } from 'rizzui';
-import { Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
+import {
+  Cell,
+  Legend,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
+} from 'recharts';
 
 interface CouponTypeDistributionChartProps {
   data?: Array<{
@@ -41,7 +48,6 @@ export default function CouponTypeDistributionChart({
     label: TYPE_LABELS[item.type] || item.type,
     color: COUPON_TYPE_COLORS[item.type] || '#6b7280',
   }));
-
   const total = chartData.reduce((sum, item) => sum + item.count, 0);
 
   return (
@@ -58,11 +64,9 @@ export default function CouponTypeDistributionChart({
                 data={chartData}
                 cx="50%"
                 cy="50%"
-                labelLine={false}
-                label={({ name, percent }) =>
-                  `${name}: ${(percent * 100).toFixed(0)}%`
-                }
+                innerRadius={50}
                 outerRadius={100}
+                cornerRadius={7}
                 fill="#8884d8"
                 dataKey="count"
               >
@@ -75,7 +79,8 @@ export default function CouponTypeDistributionChart({
                   if (!active || !payload || !payload.length) return null;
 
                   const data = payload[0].payload;
-                  const percentage = total > 0 ? ((data.count / total) * 100).toFixed(1) : '0.0';
+                  const percentage =
+                    total > 0 ? ((data.count / total) * 100).toFixed(1) : '0.0';
 
                   return (
                     <div className="rounded-lg border border-gray-200 bg-white p-3 shadow-lg">
@@ -93,14 +98,23 @@ export default function CouponTypeDistributionChart({
                 verticalAlign="bottom"
                 height={36}
                 content={({ payload }) => (
-                  <div className="flex justify-center gap-6 mt-4">
+                  <div className="mt-4 flex justify-center gap-6">
                     {payload?.map((entry, index) => (
-                      <div key={`legend-${index}`} className="flex items-center gap-2">
+                      <div
+                        key={`legend-${index}`}
+                        className="flex items-center gap-2"
+                      >
+                        <Text className="text-sm text-gray-600">
+                          {/* @ts-ignore */}
+                          {entry.payload?.label as unknown as string}
+                        </Text>
                         <div
                           className="h-3 w-3 rounded-sm"
                           style={{ backgroundColor: entry.color }}
                         />
-                        <Text className="text-sm text-gray-600">{entry.value}</Text>
+                        <Text className="text-sm text-gray-600">
+                          {entry.payload?.value}
+                        </Text>
                       </div>
                     ))}
                   </div>

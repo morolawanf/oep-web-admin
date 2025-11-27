@@ -8,6 +8,8 @@ import { createColumnHelper } from '@tanstack/react-table';
 import { Badge, Text, Tooltip, ActionIcon } from 'rizzui';
 import type { UserListItem, UserRole } from '@/types/user';
 import { PiCheckCircleFill, PiXCircleFill } from 'react-icons/pi';
+import { getCdnUrl } from '@core/utils/cdn-url';
+import { formatToNaira } from '@/libs/currencyFormatter';
 
 type UsersColumnsProps = {
   onDeleteUser: (user: UserListItem) => void;
@@ -50,7 +52,7 @@ export const getUsersColumns = ({ onDeleteUser, onSuspendUser }: UsersColumnsPro
     enableSorting: false,
     cell: ({ row }) => (
       <TableAvatar
-        src={row.original.image || ''}
+        src={getCdnUrl(row.original.image || '')}
         name={`${row.original.firstName} ${row.original.lastName}`}
         description={row.original.email.toLowerCase()}
       />
@@ -83,7 +85,7 @@ export const getUsersColumns = ({ onDeleteUser, onSuspendUser }: UsersColumnsPro
     size: 140,
     header: 'Total Spent',
     cell: ({ row }) => (
-      <Text className="font-medium">${row.original.totalSpent.toFixed(2)}</Text>
+      <Text className="font-medium">{formatToNaira(row.original.totalSpent)}</Text>
     ),
   }),
   columnHelper.accessor('emailVerified', {
@@ -138,7 +140,7 @@ export const getUsersColumns = ({ onDeleteUser, onSuspendUser }: UsersColumnsPro
   }),
   columnHelper.display({
     id: 'action',
-    size: 140,
+    size: 60,
     header: 'Actions',
     cell: ({ row }) => (
       <TableRowActionGroup

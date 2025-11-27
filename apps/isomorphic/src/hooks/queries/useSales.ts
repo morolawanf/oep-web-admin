@@ -28,13 +28,14 @@ export const useSales = (filters?: SalesFilters) => {
         params.append('deleted', filters.deleted.toString());
       if (filters?.search) params.append('search', filters.search);
 
-      const response = await apiClient.get<PaginatedSales>(
-        `${api.sales.list}?${params.toString()}`
-      );
+      const response = await apiClient.getWithMeta<
+        Sale[],
+        { page: number; total: number; limit: number; pages: number }
+      >(`${api.sales.list}?${params.toString()}`);
       if (!response.data) {
         throw new Error('No data returned');
       }
-      return response.data;
+      return { sales: response.data, pagination: response.meta! };
     },
     staleTime: 30 * 1000, // 30 seconds
     refetchOnMount: true,

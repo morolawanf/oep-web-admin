@@ -5,15 +5,14 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useProductReviews } from '@/hooks/queries/useReviews';
 import { useProductSearch } from '@/hooks/queries/useProducts';
 import { useDrawer } from '@/app/shared/drawer-views/use-drawer';
-import { useModal } from '@/app/shared/modal-views/use-modal';
 import { useDebounce } from '@/hooks/use-debounce';
 import ReviewDetailDrawer from '@/app/shared/ecommerce/review/review-detail-drawer';
-import { Button, Text, Loader, Badge, Avatar, Input, Title } from 'rizzui';
-import { PiStarFill, PiPackage } from 'react-icons/pi';
+import { Button, Text, Loader, Badge, Input } from 'rizzui';
+import { PiStarFill, PiPackage, PiMagnifyingGlassBold } from 'react-icons/pi';
 import type {
   ReviewFilters as ReviewFiltersType,
   Review,
@@ -27,107 +26,15 @@ import cn from '@core/utils/class-names';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { getCdnUrl } from '@core/utils/cdn-url';
-import Link from 'next/link';
-import { routes } from '@/config/routes';
 
 dayjs.extend(relativeTime);
 
 const columnHelper = createColumnHelper<Review>();
 
-function ProductSelectorModal({
-  onSelectProduct,
-}: {
-  onSelectProduct: (product: Product) => void;
-}) {
-  const [searchTerm, setSearchTerm] = useState('');
-  const debouncedSearch = useDebounce(searchTerm, 500);
-  const { closeModal } = useModal();
-
-  const {
-    data: products,
-    isLoading,
-    isFetching,
-    error: searchError,
-  } = useProductSearch(debouncedSearch, debouncedSearch.trim().length > 0);
-
-  const handleSelectProduct = (product: Product) => {
-    closeModal();
-    onSelectProduct(product);
-  };
-
-  return (
-    <div className="m-auto w-full max-w-4xl p-6">
-      <Title as="h3" className="mb-6">
-        Select Product to View Reviews
-      </Title>
-
-      <Input
-        type="search"
-        placeholder="Search by product name, SKU..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        className="mb-4"
-      />
-
-      {!debouncedSearch ? (
-        <div className="py-12 text-center">
-          <Text className="text-gray-500">
-            Start typing to search for products
-          </Text>
-        </div>
-      ) : isLoading || isFetching ? (
-        <div className="flex items-center justify-center py-12">
-          <Loader variant="spinner" size="xl" />
-        </div>
-      ) : searchError ? (
-        <div className="rounded-lg border border-red-200 bg-red-50 p-8 text-center">
-          <Text className="text-red-600">
-            Error searching products. Please try again.
-          </Text>
-        </div>
-      ) : products && products.length > 0 ? (
-        <div className="space-y-2">
-          {products.map((product) => (
-            <div
-              key={product._id}
-              className="flex cursor-pointer items-center gap-4 rounded-lg border border-muted p-4 transition-colors hover:bg-gray-50"
-              onClick={() => handleSelectProduct(product)}
-            >
-              <Avatar
-                src={getCdnUrl(product.description_images?.[0]?.url)}
-                name={product.name}
-                size="lg"
-                className="rounded-lg"
-              />
-              <Link
-                href={routes.eCommerce.productDetails(product._id)}
-                className="flex-1"
-              >
-                <Text className="font-medium text-gray-900">
-                  {product.name}
-                </Text>
-                <Text className="text-sm text-gray-600">ID: {product._id}</Text>
-              </Link>
-              <Button size="sm" variant="outline">
-                Select
-              </Button>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <div className="py-12 text-center">
-          <Text className="text-gray-500">
-            No products found matching "{debouncedSearch}"
-          </Text>
-        </div>
-      )}
-    </div>
-  );
-}
-
 export default function ReviewsByProductClient() {
   const { openDrawer } = useDrawer();
-  const { openModal } = useModal();
+  const [searchQuery, setSearchQuery] = useState('');
+  const debouncedSearchQuery = useDebounce(searchQuery, 500);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [filters, setFilters] = useState<ReviewFiltersType>({
     page: 1,
@@ -136,6 +43,13 @@ export default function ReviewsByProductClient() {
     sortOrder: 'desc',
   });
 
+  // Only search if debounced query is 2+ characters
+  const shouldSearch = debouncedSearchQuery.length >= 2;
+  const { data: searchResults, isLoading: isSearching } = useProductSearch(
+    shouldSearch ? debouncedSearchQuery : '',
+    shouldSearch
+  );
+
   const {
     data: reviewsData,
     isLoading: isLoadingReviews,
@@ -143,11 +57,14 @@ export default function ReviewsByProductClient() {
   } = useProductReviews(selectedProduct?._id || '', filters, {
     enabled: !!selectedProduct,
   });
-
-  const reviews = reviewsData?.reviews || [];
+  
+  
+  
+  const reviews = useMemo(() => reviewsData?.reviews || [], [reviewsData?.reviews]);
   const pagination = reviewsData?.pagination;
   const totalReviews = pagination?.total || 0;
-
+  
+  console.log(reviews);
   const columns = [
     columnHelper.accessor('reviewBy', {
       id: 'customer',
@@ -161,7 +78,7 @@ export default function ReviewsByProductClient() {
           <div className="flex items-start gap-2">
             <div>
               <Text className="font-medium text-gray-900">
-                {user?.name || 'Unknown User'}
+                {user?.firstName + ' ' + user?.lastName}
               </Text>
               <Text className="text-sm text-gray-500">
                 {user?.email || 'N/A'}
@@ -261,6 +178,7 @@ export default function ReviewsByProductClient() {
     tableData: reviews,
     columnConfig: columns,
     options: {
+      
       initialState: {
         pagination: {
           pageIndex: filters.page ? filters.page - 1 : 0,
@@ -269,11 +187,13 @@ export default function ReviewsByProductClient() {
       },
     },
   });
+
+  // Update table data when reviews change
   useEffect(() => {
     if (reviews) {
       setData(reviews);
     }
-  }, [reviews, setData]);
+  }, [reviews, setData]); // setData is stable, safe to include
 
   const handleViewDetails = (reviewId: string) => {
     openDrawer({
@@ -283,61 +203,114 @@ export default function ReviewsByProductClient() {
     });
   };
 
-  const handleOpenProductSelector = () => {
-    openModal({
-      view: (
-        <ProductSelectorModal
-          onSelectProduct={(product) => {
-            setSelectedProduct(product);
-            setFilters((prev) => ({ ...prev, page: 1 })); // Reset to first page
-          }}
-        />
-      ),
-      customSize: 900,
-    });
+  const handleSelectProduct = (productId: string) => {
+    const product = searchResults?.find((p) => p._id === productId);
+    if (product) {
+      setSelectedProduct(product);
+      setSearchQuery('');
+      setFilters((prev) => ({ ...prev, page: 1 })); // Reset to first page
+    }
   };
 
   return (
     <div className="space-y-6">
-      {/* Product Selector */}
+      {/* Product Search */}
       <div className="rounded-lg border border-muted bg-white p-6">
         <div className="mb-4 flex items-center gap-2">
           <PiPackage className="h-5 w-5 text-gray-600" />
-          <Text className="font-semibold text-gray-900">Select Product</Text>
+          <Text className="font-semibold text-gray-900">Search Product</Text>
         </div>
 
-        <Button
-          onClick={handleOpenProductSelector}
-          variant="outline"
-          className="w-full"
-        >
-          <PiPackage className="me-1.5 h-[17px] w-[17px]" />
-          {selectedProduct ? 'Change Product' : 'Select Product'}
-        </Button>
+        <div className="relative">
+          <Input
+            type="search"
+            placeholder="Search by product name, SKU (min 2 characters)..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onClear={() => setSearchQuery('')}
+            clearable={true}
+            prefix={<PiMagnifyingGlassBold className="h-4 w-4" />}
+            className="mb-2"
+          />
+
+          {/* Search Results Dropdown */}
+          {searchQuery.length >= 2 && (
+            <div className="absolute z-10 mt-1 max-h-64 w-full overflow-y-auto rounded-lg border border-muted bg-white shadow-lg">
+              {isSearching ? (
+                <div className="flex items-center justify-center p-4">
+                  <Loader variant="spinner" size="sm" />
+                </div>
+              ) : searchResults && searchResults.length > 0 ? (
+                searchResults.map((product) => (
+                  <button
+                    key={product._id}
+                    onClick={() => handleSelectProduct(product._id)}
+                    className="flex w-full items-center gap-3 border-b border-muted p-3 text-left transition-colors last:border-0 hover:bg-gray-50"
+                  >
+                    <img
+                      src={getCdnUrl(product.description_images?.[0]?.url)}
+                      alt={product.name}
+                      className="h-10 w-10 rounded-lg object-cover"
+                    />
+                    <div className="flex-1">
+                      <Text className="font-medium text-gray-900">
+                        {product.name}
+                      </Text>
+                      <Text className="text-sm text-gray-500">
+                        SKU: {product.sku}
+                      </Text>
+                    </div>
+                    {product.reviewCount !== undefined && (
+                      <Badge variant="flat" className="text-xs">
+                        {product.reviewCount}{' '}
+                        {product.reviewCount === 1 ? 'review' : 'reviews'}
+                      </Badge>
+                    )}
+                  </button>
+                ))
+              ) : (
+                <div className="p-4 text-center">
+                  <Text className="text-sm text-gray-500">No products found</Text>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
 
         {selectedProduct && (
           <div className="mt-4 space-y-2">
             <Text className="text-xs font-medium uppercase text-gray-500">
               Currently Viewing Reviews For:
             </Text>
-            <div className="flex items-center gap-3 rounded-lg border-2 border-primary bg-primary-lighter/20 p-4">
-              <Avatar
-                src={selectedProduct.description_images?.[0]?.url}
-                name={selectedProduct.name}
-                size="lg"
-                className="rounded-lg ring-2 ring-primary"
-              />
-              <div className="flex-1">
-                <Text className="font-semibold text-gray-900">
-                  {selectedProduct.name}
-                </Text>
-                <Text className="text-sm text-gray-600">
-                  SKU: {selectedProduct.sku}
-                </Text>
-                <Badge color="success" variant="flat" className="mt-1">
-                  {totalReviews} {totalReviews === 1 ? 'review' : 'reviews'}
-                </Badge>
+            <div className="flex items-center justify-between rounded-lg border-2 border-primary bg-primary-lighter/20 p-4">
+              <div className="flex items-center gap-3">
+                <img
+                  src={getCdnUrl(selectedProduct.description_images?.[0]?.url)}
+                  alt={selectedProduct.name}
+                  className="h-10 w-10 rounded-lg object-cover"
+                />
+                <div>
+                  <Text className="font-semibold text-gray-900">
+                    {selectedProduct.name}
+                  </Text>
+                  <Text className="text-sm text-gray-600">
+                    SKU: {selectedProduct.sku}
+                  </Text>
+                  <Badge color="success" variant="flat" className="mt-1">
+                    {totalReviews} {totalReviews === 1 ? 'review' : 'reviews'}
+                  </Badge>
+                </div>
               </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setSelectedProduct(null);
+                  setSearchQuery('');
+                }}
+              >
+                Clear Selection
+              </Button>
             </div>
           </div>
         )}
@@ -377,10 +350,7 @@ export default function ReviewsByProductClient() {
               rowClassName: 'cursor-pointer hover:bg-gray-50',
             }}
           />
-          <div className="mt-4 flex items-center justify-between">
-            <Text className="text-sm text-gray-600">
-              Showing {reviews.length} of {totalReviews} reviews
-            </Text>
+          <div className="mt-4 flex items-center justify-end">
             <TablePagination table={table} className="py-4" />
           </div>
         </>

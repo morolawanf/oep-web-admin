@@ -21,3 +21,18 @@ export function formatCurrencyCompact(amount: number): string {
     maximumFractionDigits: 0,
   })}`;
 }
+
+/**
+ * Format number as compact Nigerian Naira (e.g., ₦105.2m, ₦400k, ₦1k, ₦999)
+ * @param amount - Number to format
+ * @returns Formatted string
+ */
+export function formatCurrencyShort(amount: number): string {
+  if (amount >= 1_000_000) {
+    return `₦${(amount / 1_000_000).toFixed(amount % 1_000_000 === 0 ? 0 : 1)}m`;
+  }
+  if (amount >= 1_000) {
+    return `₦${(amount / 1_000).toFixed(amount % 1_000 === 0 ? 0 : 1)}k`;
+  }
+  return `₦${amount}`;
+}

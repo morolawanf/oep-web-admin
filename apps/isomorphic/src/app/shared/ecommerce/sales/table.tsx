@@ -28,24 +28,12 @@ export default function SalesTable() {
     options: {
       initialState: {
         pagination: {
-          pageIndex: filters.page ? filters.page - 1 : 0,
-          pageSize: filters.limit || 10,
+          pageIndex: filters.page ? filters.page - 1 : 1,
+          pageSize: filters.limit || 15,
         },
       },
       manualPagination: true,
-      pageCount: salesData?.total
-        ? Math.ceil(salesData.total / (filters.limit || 10))
-        : 0,
-      onPaginationChange: (updater) => {
-        const newPagination =
-          typeof updater === 'function'
-            ? updater(table.getState().pagination)
-            : updater;
-        setFilters((prev) => ({
-          ...prev,
-          page: newPagination.pageIndex + 1,
-        }));
-      },
+      pageCount: salesData?.pagination?.pages,
       enableColumnResizing: false,
     },
   });
@@ -56,6 +44,18 @@ export default function SalesTable() {
       setData(salesData.sales);
     }
   }, [salesData, setData]);
+
+  useEffect(() => {
+    const state = table.getState();
+    const newPage = state.pagination.pageIndex + 1;
+    if (salesData?.pagination && newPage !== salesData.pagination.page) {
+      setFilters((prev) => ({ ...prev, page: newPage }));
+    }
+  }, [
+    table.getState().pagination.pageIndex,
+    salesData?.pagination,
+    setFilters,
+  ]);
 
   // Handle filter changes
   const handleFilterChange = (newFilters: Partial<SalesFilters>) => {

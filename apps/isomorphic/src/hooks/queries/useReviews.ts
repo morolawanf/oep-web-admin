@@ -134,7 +134,12 @@ export const useProductReviews = (
         params.isApproved = params.isApproved ? 'true' : 'false';
       }
 
-      const response = await apiClient.get<PaginatedReviews>(
+      const response = await apiClient.getWithMeta<Review[], {
+    total: number;
+    page: number;
+    limit: number;
+    pages: number;
+  }>(
         api.reviews.byProduct(productId),
         {
           params,
@@ -143,10 +148,10 @@ export const useProductReviews = (
       if (!response.data) {
         throw new Error('No reviews found for this product');
       }
-      return response.data;
+      return { reviews: response.data, pagination: response.meta! };
     },
     enabled: !!productId, // Only run if productId exists
-    staleTime: 2 * 60 * 1000, // 2 minutes
+    staleTime: 3 * 60 * 1000, // 2 minutes
     ...options,
   });
 };

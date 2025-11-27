@@ -13,6 +13,7 @@ export interface PaginationMeta {
   currentPage: number;
   totalPages: number;
   totalRecords: number;
+  limit: number;
 }
 
 // ============================================
@@ -264,7 +265,7 @@ export interface SalesByCategoryResponse {
 export interface TopSellingProductRow {
   productId: string;
   productName: string;
-  quantitySold: number;
+  unitsSold: number;
   revenue: number;
 }
 
@@ -341,7 +342,7 @@ export interface ProductPerformanceRow {
   productName: string;
   coverImage: string | null;
   revenue: number;
-  quantitySold: number;
+  unitsSold: number;
   averageRating: number;
   reviewCount: number;
 }
@@ -382,13 +383,14 @@ export interface ReviewsTableResponse {
  * Coupons ranked by redemption count
  */
 export interface TopCouponRow {
-  couponCode: string;
-  couponType: string;
-  discountValue: number;
-  redemptionCount: number;
-  totalDiscountGiven: number;
+  code: string;
+  type: string;
+  discount: number;
+  redemptions: number;
+  totalDiscount: number;
+  status: 'Active' | 'Inactive';
+  _id: string;
 }
-
 export interface TopCouponsResponse {
   data: TopCouponRow[];
   pagination: PaginationMeta;
@@ -493,6 +495,7 @@ export interface ReviewsTableParams extends TableParams {
  */
 export interface ProductPerformanceParams extends TableParams {
   category?: string;
+  search?: string;
 }
 
 /**

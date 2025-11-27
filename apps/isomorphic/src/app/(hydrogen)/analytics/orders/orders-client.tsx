@@ -1,6 +1,6 @@
 /**
  * Orders Analytics Client Component
- * 
+ *
  * Displays comprehensive order analytics including:
  * - Overview metrics (total orders, statuses breakdown)
  * - Orders trend chart over time
@@ -53,7 +53,7 @@ export default function OrdersAnalyticsClient() {
   // Table pagination and filter state
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
-  const [statusFilter, setStatusFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState<string | undefined>('');
 
   // Format dates for API
   const dateParams = {
@@ -62,7 +62,8 @@ export default function OrdersAnalyticsClient() {
   };
 
   // Fetch overview data
-  const { data: overview, isLoading: loadingOverview } = useOrdersOverview(dateParams);
+  const { data: overview, isLoading: loadingOverview } =
+    useOrdersOverview(dateParams);
 
   // Fetch trend data
   const { data: trendData, isLoading: loadingTrend } = useOrdersTrend({
@@ -71,14 +72,15 @@ export default function OrdersAnalyticsClient() {
   });
 
   // Fetch status distribution
-  const { data: statusData, isLoading: loadingStatus } = useOrderStatusDistribution(dateParams);
+  const { data: statusData, isLoading: loadingStatus } =
+    useOrderStatusDistribution(dateParams);
 
   // Fetch orders table data
   const { data: ordersData, isLoading: loadingOrders } = useOrdersTable({
     ...dateParams,
     page,
     limit,
-    status: statusFilter === 'all' ? undefined : statusFilter,
+    status: statusFilter === '' ? 'all' : statusFilter,
   });
 
   return (
@@ -86,7 +88,7 @@ export default function OrdersAnalyticsClient() {
       <PageHeader title={pageHeader.title} breadcrumb={pageHeader.breadcrumb} />
 
       {/* Date Range Selector */}
-      <div className="mb-6 flex gap-4 items-center">
+      <div className="mb-6 flex items-center gap-4">
         <div>
           <Text className="mb-1 text-sm font-medium">From</Text>
           <DatePicker
@@ -116,25 +118,29 @@ export default function OrdersAnalyticsClient() {
       </div>
 
       {/* Charts Section */}
-      <div className="grid grid-cols-1 gap-6 mb-6 @container lg:grid-cols-2">
+      <div className="mb-6 grid grid-cols-1 gap-6 @container lg:grid-cols-2">
         <OrdersTrendChart
           data={trendData || []}
           isLoading={loadingTrend}
           groupBy={groupBy}
           onGroupByChange={setGroupBy}
         />
-        <OrderStatusPieChart data={statusData || []} isLoading={loadingStatus} />
+        <OrderStatusPieChart
+          data={statusData || []}
+          isLoading={loadingStatus}
+        />
       </div>
 
       {/* Orders Table */}
       <OrdersDataTable
         data={ordersData}
+        limit={limit}
         onPageChange={setPage}
         onLimitChange={(newLimit: number) => {
           setLimit(newLimit);
           setPage(1); // Reset to first page when changing limit
         }}
-        onStatusFilter={(status: string) => {
+        onStatusFilter={(status?: string) => {
           setStatusFilter(status);
           setPage(1); // Reset to first page when filtering
         }}

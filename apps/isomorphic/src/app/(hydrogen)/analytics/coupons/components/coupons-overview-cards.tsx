@@ -11,6 +11,7 @@ import {
   PiChartLineDuotone,
   PiCurrencyDollarDuotone,
 } from 'react-icons/pi';
+import { formatToNaira } from '@/libs/currencyFormatter';
 
 interface CouponsOverviewCardsProps {
   data?: {
@@ -61,7 +62,7 @@ export default function CouponsOverviewCards({
           <div>
             <Text className="mb-1 text-sm text-gray-500">Active Coupons</Text>
             <Title as="h3" className="text-2xl font-bold">
-              {formatNumber(data?.activeCoupons || 0)}
+              {data?.activeCoupons ?? 0}
             </Title>
           </div>
           <div className={cn('flex h-12 w-12 items-center justify-center rounded-lg bg-green-100')}>
@@ -91,7 +92,7 @@ export default function CouponsOverviewCards({
           <div>
             <Text className="mb-1 text-sm text-gray-500">Total Discount</Text>
             <Title as="h3" className="text-2xl font-bold">
-              {formatCurrency(data?.totalDiscountGiven || 0)}
+              {formatToNaira(data?.totalDiscountGiven || 0)}
             </Title>
           </div>
           <div className={cn('flex h-12 w-12 items-center justify-center rounded-lg bg-orange-100')}>

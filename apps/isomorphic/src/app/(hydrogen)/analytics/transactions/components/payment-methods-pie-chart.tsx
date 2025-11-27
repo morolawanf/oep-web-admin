@@ -68,6 +68,7 @@ export default function PaymentMethodsPieChart({
               <Pie
                 data={chartData}
                 cx="50%"
+                cornerRadius={10}
                 cy="50%"
                 innerRadius={60}
                 outerRadius={116}

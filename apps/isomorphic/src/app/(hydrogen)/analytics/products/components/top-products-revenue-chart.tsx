@@ -14,12 +14,12 @@ import {
 } from 'recharts';
 import { formatNumber } from '@core/utils/format-number';
 import { CustomTooltip } from '@core/components/charts/custom-tooltip';
+import Link from 'next/link';
+import { routes } from '@/config/routes';
+import { TopProductsRevenueData } from '@/types/analytics.types';
 
 interface TopProductsRevenueChartProps {
-  data?: Array<{
-    productName: string;
-    revenue: number;
-  }>;
+  data?: TopProductsRevenueData[];
   isLoading?: boolean;
 }
 
@@ -61,7 +61,7 @@ export default function TopProductsRevenueChart({
           <ResponsiveContainer width="100%" height="100%">
             <ComposedChart
               layout="vertical"
-              margin={{ left: -2 }}
+              margin={{ left: 12 }}
               data={chartData}
               className="[&_.recharts-cartesian-axis-tick-value]:fill-gray-500 rtl:[&_.recharts-cartesian-axis.yAxis]:-translate-x-12"
             >

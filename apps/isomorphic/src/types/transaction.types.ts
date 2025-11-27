@@ -13,7 +13,11 @@ export type TransactionStatus =
   | 'partially_refunded';
 
 // Payment Gateway
-export type TransactionGateway = 'paystack' | 'stripe' | 'flutterwave' | 'manual';
+export type TransactionGateway =
+  | 'paystack'
+  | 'stripe'
+  | 'flutterwave'
+  | 'manual';
 
 // Payment Method
 export type PaymentMethod =
@@ -158,8 +162,7 @@ export interface TransactionFilters {
   endDate?: string;
   minAmount?: number;
   maxAmount?: number;
-  reference?: string;
-  transactionId?: string;
+  search?: string;
 }
 
 // Pagination metadata

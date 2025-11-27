@@ -10,14 +10,20 @@ interface SalesOverviewCardsProps {
   isLoading?: boolean;
 }
 
-export default function SalesOverviewCards({ data, isLoading }: SalesOverviewCardsProps) {
+export default function SalesOverviewCards({
+  data,
+  isLoading,
+}: SalesOverviewCardsProps) {
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 gap-5 @md:grid-cols-2 @xl:grid-cols-4 2xl:gap-6 3xl:gap-8">
         {[...Array(4)].map((_, i) => (
-          <div key={i} className="rounded-lg border border-gray-300 bg-gray-0 p-5 dark:bg-gray-50 animate-pulse">
-            <div className="h-6 bg-gray-200 rounded w-3/4 mb-2"></div>
-            <div className="h-8 bg-gray-200 rounded w-1/2"></div>
+          <div
+            key={i}
+            className="animate-pulse rounded-lg border border-gray-300 bg-gray-0 p-5 dark:bg-gray-50"
+          >
+            <div className="mb-2 h-6 w-3/4 rounded bg-gray-200"></div>
+            <div className="h-8 w-1/2 rounded bg-gray-200"></div>
           </div>
         ))}
       </div>
@@ -47,7 +53,7 @@ export default function SalesOverviewCards({ data, isLoading }: SalesOverviewCar
     },
     {
       id: 2,
-      title: 'Total Orders',
+      title: 'Total Bought',
       metric: data.totalOrders.toLocaleString(),
       increased: isIncrease,
       decreased: !isIncrease,

@@ -4,13 +4,13 @@ import { useState } from 'react';
 import WidgetCard from '@core/components/cards/widget-card';
 import { Badge, Button, Select, Text } from 'rizzui';
 import cn from '@core/utils/class-names';
-import { formatCurrency } from '@core/utils/format-currency';
 import {
   PiCaretDownBold,
   PiCaretUpBold,
   PiCaretUpDownBold,
 } from 'react-icons/pi';
 import type { TopCouponsResponse, TopCouponRow } from '@/types/analytics.types';
+import { formatToNaira } from '@/libs/currencyFormatter';
 
 interface TopCouponsTableProps {
   // Accept backend-shaped response: { data: TopCouponRow[], pagination }
@@ -26,7 +26,9 @@ const LIMIT_OPTIONS = [
   { label: '50 rows', value: '50' },
 ];
 
-const getStatusBadgeColor = (status: string): 'success' | 'warning' | 'danger' | 'secondary' => {
+const getStatusBadgeColor = (
+  status: string
+): 'success' | 'warning' | 'danger' | 'secondary' => {
   const statusLower = status.toLowerCase();
   switch (statusLower) {
     case 'active':
@@ -83,10 +85,9 @@ export default function TopCouponsTable({
   const coupons: TopCouponRow[] = data?.data || [];
   const total = data?.pagination?.totalRecords || 0;
   const currentPage = data?.pagination?.currentPage || 1;
-  const limit = data?.pagination && data.pagination.totalPages
-    ? Math.ceil(data.pagination.totalRecords / data.pagination.totalPages)
-    : 10;
-  const totalPages = data?.pagination?.totalPages || Math.ceil(total / limit || 1);
+  const limit = data?.pagination.limit ?? 10;
+  const totalPages =
+    data?.pagination?.totalPages || Math.ceil(total / limit || 10);
 
   return (
     <WidgetCard
@@ -97,7 +98,9 @@ export default function TopCouponsTable({
         <Select
           value={limit.toString()}
           options={LIMIT_OPTIONS}
-          onChange={(value) => onLimitChange(Number(value))}
+          onChange={(value: { value: string }) =>
+            onLimitChange(Number(value.value))
+          }
           className="w-32"
         />
       }
@@ -126,7 +129,7 @@ export default function TopCouponsTable({
               <th className="px-4 py-3 text-right">
                 <button
                   onClick={() => handleSort('redemptions')}
-                  className="flex items-center gap-1 font-semibold text-gray-700 hover:text-gray-900 ml-auto"
+                  className="ml-auto flex items-center gap-1 font-semibold text-gray-700 hover:text-gray-900"
                 >
                   Redemptions {getSortIcon('redemptions')}
                 </button>
@@ -134,7 +137,7 @@ export default function TopCouponsTable({
               <th className="px-4 py-3 text-right">
                 <button
                   onClick={() => handleSort('totalDiscountGiven')}
-                  className="flex items-center gap-1 font-semibold text-gray-700 hover:text-gray-900 ml-auto"
+                  className="ml-auto flex items-center gap-1 font-semibold text-gray-700 hover:text-gray-900"
                 >
                   Total Discount {getSortIcon('totalDiscountGiven')}
                 </button>
@@ -156,7 +159,7 @@ export default function TopCouponsTable({
                 const rank = (currentPage - 1) * limit + index + 1;
                 return (
                   <tr
-                    key={coupon.couponCode}
+                    key={coupon._id}
                     className={cn(
                       'border-b border-gray-100 transition-colors hover:bg-gray-50',
                       index % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'
@@ -169,40 +172,44 @@ export default function TopCouponsTable({
                     </td>
                     <td className="px-4 py-3">
                       <Text className="font-mono font-semibold text-gray-900">
-                        {coupon.couponCode}
+                        {coupon.code}
                       </Text>
                     </td>
                     <td className="px-4 py-3">
                       <Badge
-                        color={coupon.couponType === 'percentage' ? 'info' : 'success'}
+                        color={
+                          coupon.type === 'percentage' ? 'info' : 'success'
+                        }
                         className="capitalize"
                       >
-                        {coupon.couponType}
+                        {coupon.type}
                       </Badge>
                     </td>
                     <td className="px-4 py-3 text-right">
                       <Text className="font-semibold text-gray-900">
-                        {coupon.couponType === 'percentage'
-                          ? `${coupon.discountValue}%`
-                          : formatCurrency(coupon.discountValue)}
+                        {coupon.type === 'percentage'
+                          ? `${coupon.discount}%`
+                          : formatToNaira(coupon.discount)}
                       </Text>
                     </td>
                     <td className="px-4 py-3 text-right">
                       <Text className="font-semibold text-purple-600">
-                        {coupon.redemptionCount}
+                        {coupon.redemptions}
                       </Text>
                     </td>
                     <td className="px-4 py-3 text-right">
                       <Text className="font-semibold text-green-600">
-                        {formatCurrency(coupon.totalDiscountGiven)}
+                        {formatToNaira(coupon.totalDiscount)}
                       </Text>
                     </td>
                     <td className="px-4 py-3">
                       <Badge
-                        color={getStatusBadgeColor((coupon as any).status || 'unknown')}
+                        color={getStatusBadgeColor(
+                          coupon.type === 'Active' ? 'success' : 'danger'
+                        )}
                         className="capitalize"
                       >
-                        {(coupon as any).status || 'N/A'}
+                        {coupon.status}
                       </Badge>
                     </td>
                   </tr>

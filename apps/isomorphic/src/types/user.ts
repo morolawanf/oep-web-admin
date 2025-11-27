@@ -84,6 +84,12 @@ export interface UserFilters {
 export interface UserListResponse {
   message: string;
   data: UserListItem[];
+  meta?: {
+    total: number;
+    page: number;
+    limit: number;
+    pages: number;
+  };
 }
 
 export interface UserDetailsResponse {

@@ -1,14 +1,20 @@
- 'use client';
+'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { getUsersColumns } from './users-columns';
 import { useUsers } from '@/hooks/queries/useUsers';
-import { useSuspendUser, useDeleteUser } from '@/hooks/mutations/useUserMutations';
+import {
+  useSuspendUser,
+  useDeleteUser,
+} from '@/hooks/mutations/useUserMutations';
 import Table from '@core/components/table';
 import { useTanStackTable } from '@core/components/table/custom/use-TanStack-Table';
 import TablePagination from '@core/components/table/pagination';
 import UsersFilters from './users-filters';
-import type { UserListItem, UserFilters as UserFiltersType } from '@/types/user';
+import type {
+  UserListItem,
+  UserFilters as UserFiltersType,
+} from '@/types/user';
 import { Loader, Text, Button } from 'rizzui';
 
 export default function UsersTable() {
@@ -19,10 +25,11 @@ export default function UsersTable() {
     sort: '-1',
   });
 
-  const { data: users, isLoading, error, refetch } = useUsers(filters);
+  const { data: usersFullData, isLoading, error, refetch } = useUsers(filters);
   const suspendUser = useSuspendUser();
   const deleteUser = useDeleteUser();
 
+  const user = useMemo(() => usersFullData?.data || [], [usersFullData]);
   const handleSuspendUser = (user: UserListItem) => {
     suspendUser.mutate({
       userId: user._id,
@@ -35,7 +42,7 @@ export default function UsersTable() {
   };
 
   const { table, setData } = useTanStackTable<UserListItem>({
-    tableData: users || [],
+    tableData: user,
     columnConfig: getUsersColumns({
       onSuspendUser: handleSuspendUser,
       onDeleteUser: handleDeleteUser,
@@ -52,25 +59,26 @@ export default function UsersTable() {
       },
       enableColumnResizing: false,
       manualPagination: true,
-      pageCount: -1, // Unknown page count for now
-      onPaginationChange: (updater) => {
-        const newState =
-          typeof updater === 'function'
-            ? updater(table.getState().pagination)
-            : updater;
-        setFilters((prev) => ({
-          ...prev,
-          page: newState.pageIndex + 1,
-          limit: newState.pageSize,
-        }));
-      },
+      pageCount: usersFullData?.meta?.pages, 
     },
   });
   useEffect(() => {
-    if(users) {
-        setData(users);
+    if (user) {
+      setData(user);
     }
-    }, [users, setData]);
+  }, [user, setData]);
+  // Handle pagination changes via table state
+  useEffect(() => {
+    const state = table.getState();
+    const newPage = state.pagination.pageIndex + 1;
+    if (usersFullData?.meta && newPage !== usersFullData?.meta.page) {
+      setFilters((prev) => ({
+        ...prev,
+        page: newPage,
+      }));
+    }
+  }, [table.getState().pagination.pageIndex, usersFullData?.meta]);
+
 
   const handleFilterChange = (newFilters: Partial<UserFiltersType>) => {
     setFilters((prev) => ({
@@ -87,19 +95,17 @@ export default function UsersTable() {
         onRefresh={refetch}
         table={table}
       />
-      
+
       {isLoading ? (
-        <div className="flex h-96 items-center justify-center border border-muted rounded-md">
+        <div className="flex h-96 items-center justify-center rounded-md border border-muted">
           <Loader size="xl" />
         </div>
       ) : error ? (
-        <div className="flex h-96 flex-col items-center justify-center border border-muted rounded-md gap-4">
-          <Text className="text-red-600">Failed to load users. Please try again.</Text>
-          <Button
-            onClick={() => refetch()}
-            variant="outline"
-            className="h-9"
-          >
+        <div className="flex h-96 flex-col items-center justify-center gap-4 rounded-md border border-muted">
+          <Text className="text-red-600">
+            Failed to load users. Please try again.
+          </Text>
+          <Button onClick={() => refetch()} variant="outline" className="h-9">
             Retry
           </Button>
         </div>

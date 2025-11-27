@@ -13,18 +13,26 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
+import {
+  formatCurrency,
+  formatCurrencyCompact,
+  formatCurrencyShort,
+} from '@/utils/format-currency';
 
 interface RevenueExpenseChartProps {
   data: RevenueExpenseChartData[];
   isLoading?: boolean;
 }
 
-export default function RevenueExpenseChart({ data, isLoading }: RevenueExpenseChartProps) {
+export default function RevenueExpenseChart({
+  data,
+  isLoading,
+}: RevenueExpenseChartProps) {
   if (isLoading) {
     return (
-      <WidgetCard title="Revenue vs Expenses" className="@container">
-        <div className="h-80 flex items-center justify-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+      <WidgetCard title="Revenue vs Returns" className="@container">
+        <div className="flex h-80 items-center justify-center">
+          <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-gray-900"></div>
         </div>
       </WidgetCard>
     );
@@ -32,9 +40,11 @@ export default function RevenueExpenseChart({ data, isLoading }: RevenueExpenseC
 
   if (!data || data.length === 0) {
     return (
-      <WidgetCard title="Revenue vs Expenses" className="@container">
-        <div className="h-80 flex items-center justify-center">
-          <Text className="text-gray-500">No data available for the selected period</Text>
+      <WidgetCard title="Revenue vs Returns" className="@container">
+        <div className="flex h-80 items-center justify-center">
+          <Text className="text-gray-500">
+            No data available for the selected period
+          </Text>
         </div>
       </WidgetCard>
     );
@@ -42,8 +52,8 @@ export default function RevenueExpenseChart({ data, isLoading }: RevenueExpenseC
 
   return (
     <WidgetCard
-      title="Revenue vs Expenses"
-      description="Monthly revenue and expense comparison"
+      title="Revenue vs Returns"
+      description="Monthly revenue and returns comparison"
       className="@container"
     >
       <div className="mt-5 h-80 w-full @sm:h-96">
@@ -77,7 +87,7 @@ export default function RevenueExpenseChart({ data, isLoading }: RevenueExpenseC
               axisLine={false}
               tickLine={false}
               tick={{ fill: '#6b7280', fontSize: 12 }}
-              tickFormatter={(value) => `₦${(value / 1000).toFixed(0)}k`}
+              tickFormatter={(value) => `${formatCurrencyShort(value)}`}
             />
             <Tooltip content={<CustomTooltip />} />
             <Area
@@ -91,6 +101,7 @@ export default function RevenueExpenseChart({ data, isLoading }: RevenueExpenseC
             <Area
               type="monotone"
               dataKey="expense"
+              xlinkTitle="returns"
               stroke="#f59e0b"
               strokeWidth={2}
               fillOpacity={1}

@@ -69,7 +69,7 @@ export default function EcommerceDashboard() {
 
         {hasPermission([PermissionResource.SALES], PermissionAction.READ) ? (
           <>
-            <ProfitWidget className="relative @4xl:col-span-2 @7xl:col-span-12" />
+            {/* <ProfitWidget className="relative @4xl:col-span-2 @7xl:col-span-12" /> */}
             {/* <TotalProfitLoss className="relative @4xl:col-span-2 @7xl:col-span-12" /> */}
             <BestSellers className="@7xl:col-span-6 @[90rem]:col-span-4" />
             <TopSellingProducts className="@7xl:col-span-6 @[90rem]:col-span-5 @[112rem]:col-span-4" />

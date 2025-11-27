@@ -68,8 +68,8 @@ export default function OrderStatusPieChart({
                 outerRadius="100%"
                 data={chartData}
                 cx="50%"
-                cornerRadius="50%"
-                paddingAngle={3}
+                cornerRadius="10%"
+                paddingAngle={1}
                 cy="50%"
                 labelLine={false}
                 fill="#8884d8"

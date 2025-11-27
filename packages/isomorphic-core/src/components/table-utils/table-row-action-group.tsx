@@ -11,6 +11,7 @@ export default function TableRowActionGroup({
   onDelete,
   editUrl,
   viewUrl = "#",
+  hideDelete = false,
   deletePopoverTitle = "Delete the appointment",
   deletePopoverDescription = "Are you sure you want to delete this item?",
   className,
@@ -21,6 +22,7 @@ export default function TableRowActionGroup({
   deletePopoverTitle?: string;
   deletePopoverDescription?: string;
   className?: string;
+  hideDelete?: boolean;
 }) {
   return (
     <Flex
@@ -53,11 +55,11 @@ export default function TableRowActionGroup({
           </ActionIcon>
         </Link>
       </Tooltip>
-      <DeletePopover
+      {hideDelete && <DeletePopover
         title={deletePopoverTitle}
         description={deletePopoverDescription}
         onDelete={onDelete}
-      />
+      />}
     </Flex>
   );
 }

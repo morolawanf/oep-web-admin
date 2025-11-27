@@ -274,7 +274,7 @@ export const api = {
     byId: (id: string) => `/admin/reviews/${id}`,
     byUser: (userId: string) => `/admin/reviews/user/${userId}`,
     byProduct: (productId: string) =>
-      `/admin/reviews/products/${productId}/reviews`,
+      `/admin/reviews/product/${productId}`,
     approve: (reviewId: string) => `/admin/reviews/${reviewId}/approve`,
     delete: (reviewId: string) => `/admin/reviews/${reviewId}`,
     moodAnalytics: '/admin/reviews/analytics/mood',
@@ -290,10 +290,8 @@ export const api = {
 
   // Settings endpoints
   settings: {
-    general: '/admin/settings/general',
-    shipping: '/admin/settings/shipping',
-    payment: '/admin/settings/payment',
-    notifications: '/admin/settings/notifications',
+    get: '/settings',
+    update: '/settings',
   },
 
   // File upload endpoints

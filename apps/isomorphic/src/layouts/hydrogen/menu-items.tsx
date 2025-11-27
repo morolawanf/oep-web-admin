@@ -231,7 +231,8 @@ export const menuItems = [
   },
   {
     name: 'Store Settings',
-    href: routes.jobBoard.dashboard,
+    href: routes.storeSettings,
     icon: <PiShapesDuotone />,
+    permission: { resource: ['settings'], action: 'update' },
   },
 ];

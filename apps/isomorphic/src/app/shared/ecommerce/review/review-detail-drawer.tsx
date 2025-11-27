@@ -212,11 +212,11 @@ export default function ReviewDetailDrawer({
             </Text>
             {isReviewProduct(review.product) ? (
               <div className="flex items-center gap-3">
-                <Avatar
-                  name={review.product.name}
-                  src={getCdnUrl(review.product.image)}
-                  size="lg"
-                  className="rounded-lg"
+                
+                <img
+                  alt={review.product.name}
+                  src={getCdnUrl(review.product.description_images.find(img => img.cover_image)?.url || '')}
+                  className="rounded-lg h-10 w-10 object-cover"
                 />
                 <div>
                   <Title as="h6" className="text-sm font-medium">

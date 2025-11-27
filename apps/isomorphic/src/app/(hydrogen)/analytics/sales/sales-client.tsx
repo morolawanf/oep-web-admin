@@ -23,6 +23,7 @@ export default function SalesAnalytics({ className }: { className?: string }) {
     return date;
   });
   const [endDate, setEndDate] = useState<Date>(new Date());
+  const [categoryPage, setCategoryPage] = useState(1);
 
   // Convert dates to ISO strings for API
   const dateParams = {
@@ -36,12 +37,12 @@ export default function SalesAnalytics({ className }: { className?: string }) {
   const { data: revenueExpenseData, isLoading: chartLoading } =
     useRevenueExpenseChart({
       ...dateParams,
-      groupBy: 'months',
+      groupBy: 'days',
     });
   const { data: salesByCategory, isLoading: categoryLoading } =
     useSalesByCategory({
       ...dateParams,
-      page: 1,
+      page: categoryPage,
       limit: 10,
     });
   const { data: topProducts, isLoading: productsLoading } =
@@ -74,7 +75,6 @@ export default function SalesAnalytics({ className }: { className?: string }) {
             onChange={(date: Date | null) => date && setStartDate(date)}
             placeholderText="Start Date"
             inputProps={{
-              clearable: true,
               placeholder: 'Start Date',
             }}
             maxDate={endDate}
@@ -84,7 +84,6 @@ export default function SalesAnalytics({ className }: { className?: string }) {
             onChange={(date: Date | null) => date && setEndDate(date)}
             placeholderText="End Date"
             inputProps={{
-              clearable: true,
               placeholder: 'End Date',
             }}
             minDate={startDate}
@@ -107,10 +106,7 @@ export default function SalesAnalytics({ className }: { className?: string }) {
         <SalesByCategoryTable
           data={salesByCategory}
           isLoading={categoryLoading}
-        />
-        <TopProductsChart
-          data={topProducts || []}
-          isLoading={productsLoading}
+          onPageChange={setCategoryPage}
         />
       </div>
     </div>

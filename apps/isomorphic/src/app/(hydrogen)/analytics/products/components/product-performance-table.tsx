@@ -1,18 +1,27 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import WidgetCard from '@core/components/cards/widget-card';
-import { Button, Select, Text } from 'rizzui';
+import { Button, Select, Text, Input } from 'rizzui';
 import { formatNumber } from '@core/utils/format-number';
 import cn from '@core/utils/class-names';
-import { PiStar, PiStarFill } from 'react-icons/pi';
-import type { ProductPerformanceResponse, ProductPerformanceRow } from '@/types/analytics.types';
+import { PiStar, PiStarFill, PiMagnifyingGlass } from 'react-icons/pi';
+import type {
+  ProductPerformanceResponse,
+  ProductPerformanceRow,
+} from '@/types/analytics.types';
+import { formatToNaira } from '@/libs/currencyFormatter';
+import Link from 'next/link';
+import { routes } from '@/config/routes';
 
 interface ProductPerformanceTableProps {
   // backend-shaped response
   data?: ProductPerformanceResponse;
   onPageChange: (page: number) => void;
   onLimitChange: (limit: number) => void;
+  onSearchChange: (search: string) => void;
   isLoading?: boolean;
+  limit: number;
 }
 
 const LIMIT_OPTIONS = [
@@ -37,27 +46,30 @@ const RatingStars = ({ rating }: { rating: number }) => {
 
 export default function ProductPerformanceTable({
   data,
+  limit,
   onPageChange,
   onLimitChange,
+  onSearchChange,
   isLoading,
 }: ProductPerformanceTableProps) {
-  if (isLoading) {
-    return (
-      <WidgetCard title="Product Performance" className="mt-6">
-        <div className="flex h-64 items-center justify-center">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-primary"></div>
-        </div>
-      </WidgetCard>
-    );
-  }
+  const [searchInput, setSearchInput] = useState('');
+
+  // Debounce search with 500ms delay
+  useEffect(() => {
+    const debounceTimer = setTimeout(() => {
+      onSearchChange(searchInput);
+    }, 500);
+
+    return () => clearTimeout(debounceTimer);
+  }, [searchInput, onSearchChange]);
+
 
   const products: ProductPerformanceRow[] = data?.data || [];
   const total = data?.pagination?.totalRecords || 0;
   const currentPage = data?.pagination?.currentPage || 1;
-  const limit = data?.pagination && data.pagination.totalPages
-    ? Math.ceil(data.pagination.totalRecords / data.pagination.totalPages)
-    : 10;
-  const totalPages = data?.pagination?.totalPages || Math.ceil(total / limit || 1);
+
+  const totalPages =
+    data?.pagination?.totalPages || Math.ceil(total / limit || 1);
 
   return (
     <WidgetCard
@@ -66,13 +78,29 @@ export default function ProductPerformanceTable({
       headerClassName="items-center"
       action={
         <Select
-          value={limit.toString()}
+          value={limit}
           options={LIMIT_OPTIONS}
-          onChange={(value) => onLimitChange(Number(value))}
+          onChange={(value: { value: string }) =>
+            onLimitChange(Number(value.value))
+          }
           className="w-32"
         />
       }
     >
+      {/* Search Input */}
+      <div className="mb-4">
+        <Input
+          type="search"
+          placeholder="Search products by name..."
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
+          prefix={<PiMagnifyingGlass className="h-4 w-4 text-gray-500" />}
+          clearable
+          onClear={() => setSearchInput('')}
+          className="w-full md:w-96"
+        />
+      </div>
+
       <div className="mt-6 overflow-x-auto">
         <table className="w-full border-collapse">
           <thead>
@@ -94,7 +122,15 @@ export default function ProductPerformanceTable({
               </th>
             </tr>
           </thead>
-          <tbody>
+
+ {isLoading ?
+(
+      <tr className="mt-6 w-full">
+        <td className="flex h-64 w-full items-center justify-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-primary"></div>
+        </td>
+      </tr>
+    ) :(<tbody>
             {products.length === 0 ? (
               <tr>
                 <td colSpan={5} className="px-4 py-8 text-center">
@@ -111,18 +147,22 @@ export default function ProductPerformanceTable({
                   )}
                 >
                   <td className="px-4 py-3">
-                    <Text className="font-medium text-gray-900">
-                      {product.productName}
-                    </Text>
+                    <Link
+                      href={routes.eCommerce.productDetails(product.productId)}
+                    >
+                      <Text className="font-medium text-gray-900">
+                        {product.productName}
+                      </Text>
+                    </Link>
                   </td>
                   <td className="px-4 py-3 text-right">
                     <Text className="font-semibold text-gray-900">
-                      ₦{formatNumber(product.revenue || 0)}
+                      {formatToNaira(product.revenue || 0)}
                     </Text>
                   </td>
                   <td className="px-4 py-3 text-center">
                     <Text className="font-medium text-gray-700">
-                      {formatNumber(product.quantitySold || 0)}
+                      {formatNumber(product.unitsSold || 0)}
                     </Text>
                   </td>
                   <td className="px-4 py-3">
@@ -141,7 +181,7 @@ export default function ProductPerformanceTable({
                 </tr>
               ))
             )}
-          </tbody>
+          </tbody>)}
         </table>
       </div>
 

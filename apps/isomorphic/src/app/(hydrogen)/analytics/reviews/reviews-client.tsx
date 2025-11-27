@@ -129,25 +129,28 @@ export default function ReviewsAnalyticsClient() {
       </div>
 
       {/* Reviews Table */}
-      <ReviewsDataTable
-        data={reviews}
-        onPageChange={setPage}
-        onLimitChange={(newLimit: number) => {
-          setLimit(newLimit);
-          setPage(1);
-        }}
-        onRatingFilter={(rating: string) => {
-          setRatingFilter(rating);
-          setPage(1);
-        }}
-        onStatusFilter={(status: string) => {
-          setStatusFilter(status);
-          setPage(1);
-        }}
-        selectedRating={ratingFilter}
-        selectedStatus={statusFilter}
-        isLoading={loadingReviews}
-      />
     </>
   );
 }
+
+/*
+<ReviewsDataTable
+  data={reviews}
+  onPageChange={setPage}
+  onLimitChange={(newLimit: number) => {
+    setLimit(newLimit);
+    setPage(1);
+  }}
+  onRatingFilter={(rating: string) => {
+    setRatingFilter(rating);
+    setPage(1);
+  }}
+  onStatusFilter={(status: string) => {
+    setStatusFilter(status);
+    setPage(1);
+  }}
+  selectedRating={ratingFilter}
+  selectedStatus={statusFilter}
+  isLoading={loadingReviews}
+/>
+*/

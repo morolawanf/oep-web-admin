@@ -12,7 +12,10 @@ import { routes } from '@/config/routes';
 const columnHelper = createColumnHelper<Transaction>();
 
 // Status badge color mapping
-const statusColorMap: Record<TransactionStatus, 'warning' | 'success' | 'danger' | 'secondary' | 'info'> = {
+const statusColorMap: Record<
+  TransactionStatus,
+  'warning' | 'success' | 'danger' | 'secondary' | 'info'
+> = {
   pending: 'warning',
   completed: 'success',
   failed: 'danger',
@@ -22,7 +25,10 @@ const statusColorMap: Record<TransactionStatus, 'warning' | 'success' | 'danger'
 };
 
 // Payment method badge colors
-const methodColorMap: Record<string, 'info' | 'success' | 'warning' | 'secondary'> = {
+const methodColorMap: Record<
+  string,
+  'info' | 'success' | 'warning' | 'secondary'
+> = {
   stripe: 'info',
   paystack: 'success',
   flutterwave: 'warning',
@@ -31,7 +37,10 @@ const methodColorMap: Record<string, 'info' | 'success' | 'warning' | 'secondary
 };
 
 // Gateway badge colors
-const gatewayColorMap: Record<string, 'info' | 'success' | 'warning' | 'secondary'> = {
+const gatewayColorMap: Record<
+  string,
+  'info' | 'success' | 'warning' | 'secondary'
+> = {
   paystack: 'success',
   stripe: 'info',
   flutterwave: 'warning',
@@ -57,7 +66,9 @@ const copyToClipboard = async (text: string, label: string) => {
   }
 };
 
-export const transactionsColumns = (onViewTransaction: (transaction: Transaction) => void) => [
+export const transactionsColumns = (
+  onViewTransaction: (transaction: Transaction) => void
+) => [
   columnHelper.display({
     id: 'select',
     size: 50,
@@ -84,16 +95,7 @@ export const transactionsColumns = (onViewTransaction: (transaction: Transaction
     header: 'Reference',
     cell: ({ row }) => (
       <div className="flex items-center gap-2">
-        <span className="font-medium text-sm">{row.original.reference}</span>
-        <Tooltip content="Copy reference">
-          <ActionIcon
-            variant="text"
-            size="sm"
-            onClick={() => copyToClipboard(row.original.reference, 'Reference')}
-          >
-            <PiCopyBold className="h-3.5 w-3.5" />
-          </ActionIcon>
-        </Tooltip>
+        <span className="text-sm font-medium">{row.original.reference}</span>
       </div>
     ),
   }),
@@ -105,12 +107,15 @@ export const transactionsColumns = (onViewTransaction: (transaction: Transaction
       const user = row.original.user;
       if (typeof user === 'object' && user !== null) {
         return (
-          <div className="flex flex-col">
-            <span className="font-medium text-sm">
+          <Link
+            href={routes.users.details(user._id)}
+            className="group flex flex-col"
+          >
+            <span className="text-sm font-medium group-hover:underline">
               {user.firstName} {user.lastName}
             </span>
             <span className="text-xs text-gray-500">{user.email}</span>
-          </div>
+          </Link>
         );
       }
       return <span className="text-xs text-gray-400">N/A</span>;
@@ -124,18 +129,12 @@ export const transactionsColumns = (onViewTransaction: (transaction: Transaction
       const order = row.original.order;
       if (typeof order === 'object' && order !== null) {
         return (
-          <div className="flex items-center gap-2">
+          <Link
+            href={routes.eCommerce.orderDetails(order._id)}
+            className="flex items-center gap-2 hover:underline"
+          >
             <span className="font-mono text-sm">{order._id}</span>
-            <Tooltip content="Copy order ID">
-              <ActionIcon
-                variant="text"
-                size="sm"
-                onClick={() => copyToClipboard(order._id, 'Order ID')}
-              >
-                <PiCopyBold className="h-3.5 w-3.5" />
-              </ActionIcon>
-            </Tooltip>
-          </div>
+          </Link>
         );
       }
       return <span className="text-xs text-gray-400">N/A</span>;
@@ -162,7 +161,9 @@ export const transactionsColumns = (onViewTransaction: (transaction: Transaction
               </ActionIcon>
             </Tooltip>
             {refunds.length > 1 && (
-              <span className="text-[11px] text-gray-500">+{refunds.length - 1} more</span>
+              <span className="text-[11px] text-gray-500">
+                +{refunds.length - 1} more
+              </span>
             )}
           </div>
         );
@@ -175,7 +176,7 @@ export const transactionsColumns = (onViewTransaction: (transaction: Transaction
     size: 140,
     header: 'Amount',
     cell: ({ row }) => (
-      <span className="font-semibold text-sm">
+      <span className="text-sm font-semibold">
         {formatCurrency(row.original.amount)}
       </span>
     ),
@@ -243,14 +244,14 @@ export const transactionsColumns = (onViewTransaction: (transaction: Transaction
     header: 'Actions',
     cell: ({ row }) => (
       <Link href={routes.transactions.details(row.original._id)}>
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={() => onViewTransaction(row.original)}
-      >
-        <PiEyeBold className="mr-1.5 h-4 w-4" />
-        View
-      </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => onViewTransaction(row.original)}
+        >
+          <PiEyeBold className="mr-1.5 h-4 w-4" />
+          View
+        </Button>
       </Link>
     ),
   }),

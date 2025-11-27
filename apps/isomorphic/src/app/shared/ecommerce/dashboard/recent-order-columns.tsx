@@ -86,6 +86,7 @@ export const recentOrderColumns = [
     cell: ({ row }) => getStatusBadge(row.original.status),
   }),
   columnHelper.display({
+    header: 'Actions',
     id: 'action',
     size: 130,
     cell: ({
@@ -97,9 +98,7 @@ export const recentOrderColumns = [
       <TableRowActionGroup
         editUrl={routes.eCommerce.editOrder(row.original._id)}
         viewUrl={routes.eCommerce.orderDetails(row.original._id)}
-        deletePopoverTitle={`Delete the order`}
-        deletePopoverDescription={`Are you sure you want to delete this order?`}
-        onDelete={() => meta?.handleDeleteRow?.(row.original)}
+        hideDelete
       />
     ),
   }),

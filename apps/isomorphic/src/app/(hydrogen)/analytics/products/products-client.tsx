@@ -55,7 +55,8 @@ export default function ProductsAnalyticsClient() {
 
   // Table pagination state
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(10);
+  const [limit, setLimit] = useState(20);
+  const [search, setSearch] = useState('');
 
   // Format dates for API
   const dateParams = {
@@ -75,9 +76,9 @@ export default function ProductsAnalyticsClient() {
     useCategoriesPerformance(dateParams);
   const { data: performance, isLoading: loadingPerformance } =
     useProductPerformance({
-      ...dateParams,
       page,
       limit,
+      search,
     });
   const { data: wishlisted, isLoading: loadingWishlisted } =
     useMostWishlistedProducts({
@@ -93,6 +94,11 @@ export default function ProductsAnalyticsClient() {
   return (
     <>
       <PageHeader title={pageHeader.title} breadcrumb={pageHeader.breadcrumb} />
+
+      {/* Overview Cards */}
+      <div className="mb-6">
+        <ProductsOverviewCards data={overview} isLoading={loadingOverview} />
+      </div>
 
       {/* Date Range Selector */}
       <div className="mb-6 flex items-center gap-4">
@@ -118,12 +124,6 @@ export default function ProductsAnalyticsClient() {
           />
         </div>
       </div>
-
-      {/* Overview Cards */}
-      <div className="mb-6">
-        <ProductsOverviewCards data={overview} isLoading={loadingOverview} />
-      </div>
-
       {/* Charts Section */}
       <div className="mb-6 grid grid-cols-1 gap-6 @container">
         <TopProductsRevenueChart
@@ -150,9 +150,14 @@ export default function ProductsAnalyticsClient() {
       <ProductPerformanceTable
         data={performance}
         onPageChange={setPage}
+        limit={limit}
         onLimitChange={(newLimit: number) => {
           setLimit(newLimit);
           setPage(1);
+        }}
+        onSearchChange={(newSearch: string) => {
+          setSearch(newSearch);
+          setPage(1); // Reset to first page on search
         }}
         isLoading={loadingPerformance}
       />

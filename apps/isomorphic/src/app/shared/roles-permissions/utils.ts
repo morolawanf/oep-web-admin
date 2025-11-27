@@ -19,6 +19,7 @@ export const PERMISSION_RESOURCES = [
   'invoices',
   'logistics',
   'transactions',
+  'settings',
 ] as const;
 
 export const PERMISSION_ACTIONS = [

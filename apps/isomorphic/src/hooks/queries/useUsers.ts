@@ -14,7 +14,7 @@ import type {
  * Fetch all users with pagination and filters
  */
 export const useUsers = (filters: UserFilters = {}) => {
-  return useQuery<UserListResponse['data']>({
+  return useQuery<UserListResponse>({
     queryKey: ['users', filters],
     queryFn: async () => {
       const params = new URLSearchParams();
@@ -25,12 +25,20 @@ export const useUsers = (filters: UserFilters = {}) => {
       if (filters.sort) params.append('sort', filters.sort);
 
       const url = `${api.users.list}${params.toString() ? `?${params.toString()}` : ''}`;
-      const response = await apiClient.get<UserListResponse['data']>(url);
+      const response = await apiClient.getWithMeta<
+        UserListResponse['data'],
+        UserListResponse['meta']
+      >(url);
       
       if (!response.data) {
         throw new Error('No data returned');
       }
-      return response.data;
+      
+      return {
+        message: response.message,
+        data: response.data,
+        meta: response.meta,
+      };
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
     refetchOnMount: true,

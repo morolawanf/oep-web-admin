@@ -4,11 +4,15 @@ import WidgetCard from '@core/components/cards/widget-card';
 import { Button, Select, Text } from 'rizzui';
 import { formatNumber } from '@core/utils/format-number';
 import cn from '@core/utils/class-names';
-import type { TopCustomersResponse, TopCustomerRow } from '@/types/analytics.types';
+import type {
+  TopCustomersResponse,
+  TopCustomerRow,
+} from '@/types/analytics.types';
 
 interface TopCustomersTableProps {
   // backend-shaped response
   data?: TopCustomersResponse;
+  limit: number;
   onPageChange: (page: number) => void;
   onLimitChange: (limit: number) => void;
   isLoading?: boolean;
@@ -25,6 +29,7 @@ export default function TopCustomersTable({
   onPageChange,
   onLimitChange,
   isLoading,
+  limit,
 }: TopCustomersTableProps) {
   if (isLoading) {
     return (
@@ -39,10 +44,8 @@ export default function TopCustomersTable({
   const customers: TopCustomerRow[] = data?.data || [];
   const total = data?.pagination?.totalRecords || 0;
   const currentPage = data?.pagination?.currentPage || 1;
-  const limit = data?.pagination && data.pagination.totalPages
-    ? Math.ceil(data.pagination.totalRecords / data.pagination.totalPages)
-    : 10;
-  const totalPages = data?.pagination?.totalPages || Math.ceil(total / limit || 1);
+  const totalPages =
+    data?.pagination?.totalPages || Math.ceil(total / limit || 1);
 
   return (
     <WidgetCard
@@ -53,7 +56,9 @@ export default function TopCustomersTable({
         <Select
           value={limit.toString()}
           options={LIMIT_OPTIONS}
-          onChange={(value) => onLimitChange(Number(value))}
+          onChange={(value: { value: string }) =>
+            onLimitChange(Number(value.value))
+          }
           className="w-32"
         />
       }

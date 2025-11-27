@@ -1,6 +1,6 @@
 /**
  * Transactions Analytics Client Component
- * 
+ *
  * Displays comprehensive transaction analytics including:
  * - Overview metrics (total transactions, amounts, status breakdown)
  * - Transaction status distribution over time (bar chart)
@@ -51,15 +51,22 @@ export default function TransactionsAnalyticsClient() {
     new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
   );
   const [endDate, setEndDate] = useState<Date>(new Date());
-  const [trendGroupBy, setTrendGroupBy] = useState<'days' | 'months' | 'years'>('days');
-  const [statusGroupBy, setStatusGroupBy] = useState<'days' | 'months' | 'years'>('months');
+  const [trendGroupBy, setTrendGroupBy] = useState<'days' | 'months' | 'years'>(
+    'days'
+  );
+  const [statusGroupBy, setStatusGroupBy] = useState<
+    'days' | 'months' | 'years'
+  >('months');
 
   // Table pagination and filter state
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [methodFilter, setMethodFilter] = useState('all');
-
+  const [statusFilter, setStatusFilter] = useState<string | undefined>(
+    undefined
+  );
+  const [methodFilter, setMethodFilter] = useState<string | undefined>(
+    undefined
+  );
   // Format dates for API
   const dateParams = {
     from: startDate.toISOString(),
@@ -67,7 +74,8 @@ export default function TransactionsAnalyticsClient() {
   };
 
   // Fetch overview data
-  const { data: overview, isLoading: loadingOverview } = useTransactionsOverview(dateParams);
+  const { data: overview, isLoading: loadingOverview } =
+    useTransactionsOverview(dateParams);
 
   // Fetch trend data
   const { data: trendData, isLoading: loadingTrend } = useTransactionsTrend({
@@ -76,29 +84,32 @@ export default function TransactionsAnalyticsClient() {
   });
 
   // Fetch transaction status distribution (time-series)
-  const { data: statusData, isLoading: loadingStatus } = useTransactionStatusDistribution({
-    ...dateParams,
-    groupBy: statusGroupBy,
-  });
+  const { data: statusData, isLoading: loadingStatus } =
+    useTransactionStatusDistribution({
+      ...dateParams,
+      groupBy: statusGroupBy,
+    });
 
   // Fetch payment methods distribution
-  const { data: paymentData, isLoading: loadingPayment } = usePaymentMethods(dateParams);
+  const { data: paymentData, isLoading: loadingPayment } =
+    usePaymentMethods(dateParams);
 
   // Fetch transactions table data
-  const { data: transactionsData, isLoading: loadingTransactions } = useTransactionsTable({
-    ...dateParams,
-    page,
-    limit,
-    status: statusFilter === 'all' ? undefined : statusFilter,
-    method: methodFilter === 'all' ? undefined : methodFilter,
-  });
+  const { data: transactionsData, isLoading: loadingTransactions } =
+    useTransactionsTable({
+      ...dateParams,
+      page,
+      limit,
+      status: statusFilter === 'all' ? undefined : statusFilter,
+      method: methodFilter === 'all' ? undefined : methodFilter,
+    });
 
   return (
     <>
       <PageHeader title={pageHeader.title} breadcrumb={pageHeader.breadcrumb} />
 
       {/* Date Range Selector */}
-      <div className="mb-6 flex gap-4 items-center">
+      <div className="mb-6 flex items-center gap-4">
         <div>
           <Text className="mb-1 text-sm font-medium">From</Text>
           <DatePicker
@@ -124,11 +135,14 @@ export default function TransactionsAnalyticsClient() {
 
       {/* Overview Cards */}
       <div className="mb-6">
-        <TransactionsOverviewCards data={overview} isLoading={loadingOverview} />
+        <TransactionsOverviewCards
+          data={overview}
+          isLoading={loadingOverview}
+        />
       </div>
 
       {/* Charts Section */}
-      <div className="grid grid-cols-1 gap-6 mb-6 @container">
+      <div className="mb-6 grid grid-cols-1 gap-6 @container">
         {/* Transaction Status Distribution - Full Width */}
         <TransactionStatusBarChart
           data={statusData || []}
@@ -145,7 +159,10 @@ export default function TransactionsAnalyticsClient() {
             groupBy={trendGroupBy}
             onGroupByChange={setTrendGroupBy}
           />
-          <PaymentMethodsPieChart data={paymentData || []} isLoading={loadingPayment} />
+          <PaymentMethodsPieChart
+            data={paymentData || []}
+            isLoading={loadingPayment}
+          />
         </div>
       </div>
 
@@ -153,15 +170,16 @@ export default function TransactionsAnalyticsClient() {
       <TransactionsDataTable
         data={transactionsData}
         onPageChange={setPage}
+        limit={limit}
         onLimitChange={(newLimit: number) => {
           setLimit(newLimit);
           setPage(1);
         }}
-        onStatusFilter={(status: string) => {
+        onStatusFilter={(status?: string) => {
           setStatusFilter(status);
           setPage(1);
         }}
-        onMethodFilter={(method: string) => {
+        onMethodFilter={(method?: string) => {
           setMethodFilter(method);
           setPage(1);
         }}

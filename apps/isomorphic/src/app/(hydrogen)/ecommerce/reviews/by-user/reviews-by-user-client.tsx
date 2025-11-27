@@ -5,10 +5,11 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useUserSearch } from '@/hooks/queries/useReviews';
 import { useUserReviews } from '@/hooks/queries/useReviews';
 import { useDrawer } from '@/app/shared/drawer-views/use-drawer';
+import { useDebounce } from '@/hooks/use-debounce';
 import ReviewDetailDrawer from '@/app/shared/ecommerce/review/review-detail-drawer';
 import { Input, Button, Text, Loader, Badge, Avatar } from 'rizzui';
 import { PiStarFill, PiUser, PiMagnifyingGlassBold } from 'react-icons/pi';
@@ -23,6 +24,7 @@ import { createColumnHelper } from '@tanstack/react-table';
 import cn from '@core/utils/class-names';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import { getCdnUrl } from '@core/utils/cdn-url';
 
 dayjs.extend(relativeTime);
 
@@ -31,6 +33,7 @@ const columnHelper = createColumnHelper<Review>();
 export default function ReviewsByUserClient() {
   const { openDrawer } = useDrawer();
   const [searchQuery, setSearchQuery] = useState('');
+  const debouncedSearchQuery = useDebounce(searchQuery, 500);
   const [selectedUserId, setSelectedUserId] = useState<string>('');
   const [selectedUser, setSelectedUser] = useState<{
     _id: string;
@@ -45,8 +48,12 @@ export default function ReviewsByUserClient() {
     sortOrder: 'desc',
   });
 
+  // Only search if debounced query is 2+ characters
+  const shouldSearch = debouncedSearchQuery.length >= 2;
   const { data: searchResults, isLoading: isSearching } =
-    useUserSearch(searchQuery);
+    useUserSearch(shouldSearch ? debouncedSearchQuery : '', {
+      enabled: shouldSearch,
+    });
   const {
     data: reviewsData,
     isLoading: isLoadingReviews,
@@ -55,7 +62,8 @@ export default function ReviewsByUserClient() {
     enabled: !!selectedUserId,
   });
 
-  const reviews = reviewsData?.reviews || [];
+  const reviews = useMemo(() => reviewsData?.reviews || [], [reviewsData?.reviews]);
+
   const pagination = reviewsData?.pagination;
   const totalReviews = pagination?.total || 0;
 
@@ -70,11 +78,11 @@ export default function ReviewsByUserClient() {
         const prod = typeof product === 'object' ? product : null;
         return (
           <div className="flex items-center gap-2">
-            <Avatar
-              src={prod?.image}
-              name={prod?.name || 'Product'}
-              size="sm"
-              className="rounded-lg"
+           
+            <img
+            src={getCdnUrl(prod?.description_images.find(img => img.cover_image)?.url || '')}
+              alt={prod?.name || 'Product'}
+              className="rounded-lg h-10 w-10 object-cover"
             />
             <div>
               <Text className="font-medium text-gray-900">
@@ -192,7 +200,7 @@ export default function ReviewsByUserClient() {
     if (reviews) {
       setData(reviews);
     }
-  }, [reviews]); // setData is stable, no need in deps
+  }, [reviews, setData]); // setData is stable, safe to include
 
   const handleViewDetails = (reviewId: string) => {
     openDrawer({
@@ -246,7 +254,8 @@ export default function ReviewsByUserClient() {
                     onClick={() => handleSelectUser(user._id)}
                     className="flex w-full items-center gap-3 border-b border-muted p-3 text-left transition-colors last:border-0 hover:bg-gray-50"
                   >
-                    <Avatar name={user.name} size="sm" />
+                    
+                    <Avatar src={getCdnUrl(user.image)} name={user.name} size="sm" />
                     <div className="flex-1">
                       <Text className="font-medium text-gray-900">
                         {user.name}
@@ -344,10 +353,7 @@ export default function ReviewsByUserClient() {
               rowClassName: 'cursor-pointer hover:bg-gray-50',
             }}
           />
-          <div className="mt-4 flex items-center justify-between">
-            <Text className="text-sm text-gray-600">
-              Showing {reviews.length} of {totalReviews} reviews
-            </Text>
+          <div className="mt-4 flex items-center justify-end">
             <TablePagination table={table} className="py-4" />
           </div>
         </>

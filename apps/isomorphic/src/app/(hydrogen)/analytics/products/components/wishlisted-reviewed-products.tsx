@@ -12,6 +12,7 @@ import type {
   MostReviewedProductRow,
 } from '@/types/analytics.types';
 import { routes } from '@/config/routes';
+import { getCdnUrl } from '@core/utils/cdn-url';
 
 interface WishlistedReviewedProductsProps {
   // backend rows: MostWishlistedProductRow[] and MostReviewedProductRow[]
@@ -71,7 +72,7 @@ export default function WishlistedReviewedProducts({
                   <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-md bg-gray-100">
                     {product.coverImage ? (
                       <Image
-                        src={product.coverImage}
+                        src={getCdnUrl(product.coverImage)}
                         alt={productName}
                         fill
                         className="object-cover"
@@ -133,7 +134,7 @@ export default function WishlistedReviewedProducts({
                   <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-md bg-gray-100">
                     {product.coverImage ? (
                       <Image
-                        src={product.coverImage}
+                        src={getCdnUrl(product.coverImage)}
                         alt={productName}
                         fill
                         className="object-cover"

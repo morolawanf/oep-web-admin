@@ -75,8 +75,7 @@ export interface Sale {
 // Paginated sales response
 export interface PaginatedSales {
   sales: Sale[];
-  page: number;
-  total: number;
+  pagination: { page: number; total: number; limit: number; pages: number };
 }
 
 // Create sale input

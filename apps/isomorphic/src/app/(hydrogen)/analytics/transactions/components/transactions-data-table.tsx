@@ -10,33 +10,40 @@ import {
   PiCaretUpBold,
   PiCaretUpDownBold,
 } from 'react-icons/pi';
-import type { TransactionsTableResponse, TransactionTableRow } from '@/types/analytics.types';
+import type {
+  TransactionsTableResponse,
+  TransactionTableRow,
+} from '@/types/analytics.types';
+import Link from 'next/link';
+import { routes } from '@/config/routes';
+import { formatToNaira } from '@/libs/currencyFormatter';
 
 interface TransactionsDataTableProps {
   // Accept backend-shaped response: { data: TransactionTableRow[], pagination }
   data?: TransactionsTableResponse;
   onPageChange: (page: number) => void;
   onLimitChange: (limit: number) => void;
-  onStatusFilter: (status: string) => void;
-  onMethodFilter: (method: string) => void;
-  selectedStatus: string;
-  selectedMethod: string;
+  onStatusFilter: (status?: string) => void;
+  onMethodFilter: (method?: string) => void;
+  selectedStatus?: string;
+  selectedMethod?: string;
   isLoading?: boolean;
+  limit: number;
 }
 
 const STATUS_OPTIONS = [
-  { label: 'All Statuses', value: 'all' },
+  { label: 'All Statuses', value: '' },
   { label: 'Pending', value: 'pending' },
+  { label: 'Processing', value: 'processing' },
   { label: 'Completed', value: 'completed' },
+  { label: 'Refunded', value: 'refunded' },
+  { label: 'Cancelled', value: 'cancelled' },
   { label: 'Failed', value: 'failed' },
 ];
 
 const METHOD_OPTIONS = [
-  { label: 'All Methods', value: 'all' },
-  { label: 'Credit Card', value: 'credit-card' },
-  { label: 'Debit Card', value: 'debit-card' },
-  { label: 'Bank Transfer', value: 'bank-transfer' },
-  { label: 'Wallet', value: 'wallet' },
+  { label: 'All Methods', value: '' },
+  { label: 'Paystack', value: 'Paystack' },
   { label: 'Cash on Delivery', value: 'cash-on-delivery' },
 ];
 
@@ -46,7 +53,9 @@ const LIMIT_OPTIONS = [
   { label: '50 rows', value: '50' },
 ];
 
-const getStatusBadgeColor = (status: string): 'success' | 'warning' | 'danger' | 'secondary' => {
+const getStatusBadgeColor = (
+  status: string
+): 'success' | 'warning' | 'danger' | 'secondary' => {
   const statusLower = status.toLowerCase();
   switch (statusLower) {
     case 'completed':
@@ -69,6 +78,7 @@ export default function TransactionsDataTable({
   selectedStatus,
   selectedMethod,
   isLoading,
+  limit,
 }: TransactionsDataTableProps) {
   const [sortColumn, setSortColumn] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
@@ -107,10 +117,8 @@ export default function TransactionsDataTable({
   const transactions: TransactionTableRow[] = data?.data || [];
   const total = data?.pagination?.totalRecords || 0;
   const currentPage = data?.pagination?.currentPage || 1;
-  const limit = data?.pagination && data.pagination.totalPages
-    ? Math.ceil(data.pagination.totalRecords / data.pagination.totalPages)
-    : 10;
-  const totalPages = data?.pagination?.totalPages || Math.ceil(total / limit || 1);
+  const totalPages =
+    data?.pagination?.totalPages || Math.ceil(total / limit || 1);
 
   return (
     <WidgetCard
@@ -120,23 +128,29 @@ export default function TransactionsDataTable({
       action={
         <div className="flex gap-3">
           <Select
-            value={selectedStatus}
+            value={selectedStatus ?? 'All Status'}
             options={STATUS_OPTIONS}
-            onChange={(value) => onStatusFilter(value as string)}
+            onChange={(value: { value: string }) =>
+              onStatusFilter(value.value || undefined)
+            }
             className="w-40"
             placeholder="Filter by status"
           />
           <Select
-            value={selectedMethod}
+            value={selectedMethod ?? 'All Methods'}
             options={METHOD_OPTIONS}
-            onChange={(value) => onMethodFilter(value as string)}
+            onChange={(value: { value: string }) =>
+              onMethodFilter(value.value || undefined)
+            }
             className="w-48"
             placeholder="Filter by method"
           />
           <Select
             value={limit.toString()}
             options={LIMIT_OPTIONS}
-            onChange={(value) => onLimitChange(Number(value))}
+            onChange={(value: { value: number }) =>
+              onLimitChange(Number(value.value))
+            }
             className="w-32"
           />
         </div>
@@ -147,19 +161,13 @@ export default function TransactionsDataTable({
           <thead>
             <tr className="border-b border-gray-200 bg-gray-50">
               <th className="px-4 py-3 text-left">
-                <button
-                  onClick={() => handleSort('transactionId')}
-                  className="flex items-center gap-1 font-semibold text-gray-700 hover:text-gray-900"
-                >
-                  Transaction ID {getSortIcon('transactionId')}
+                <button className="flex items-center gap-1 font-semibold text-gray-700 hover:text-gray-900">
+                  Transaction ID
                 </button>
               </th>
               <th className="px-4 py-3 text-left">
-                <button
-                  onClick={() => handleSort('customerName')}
-                  className="flex items-center gap-1 font-semibold text-gray-700 hover:text-gray-900"
-                >
-                  Customer {getSortIcon('customerName')}
+                <button className="flex items-center gap-1 font-semibold text-gray-700 hover:text-gray-900">
+                  Customer
                 </button>
               </th>
               <th className="px-4 py-3 text-right">
@@ -171,17 +179,16 @@ export default function TransactionsDataTable({
                 </button>
               </th>
               <th className="px-4 py-3 text-left">
-                <span className="font-semibold text-gray-700">Payment Method</span>
+                <span className="font-semibold text-gray-700">
+                  Payment Method
+                </span>
               </th>
               <th className="px-4 py-3 text-left">
                 <span className="font-semibold text-gray-700">Status</span>
               </th>
               <th className="px-4 py-3 text-left">
-                <button
-                  onClick={() => handleSort('createdAt')}
-                  className="flex items-center gap-1 font-semibold text-gray-700 hover:text-gray-900"
-                >
-                  Date {getSortIcon('createdAt')}
+                <button className="flex items-center gap-1 font-semibold text-gray-700 hover:text-gray-900">
+                  Date
                 </button>
               </th>
             </tr>
@@ -203,14 +210,17 @@ export default function TransactionsDataTable({
                   )}
                 >
                   <td className="px-4 py-3">
-                    <Text className="font-medium text-gray-900">
-                      #{transaction._id}
-                    </Text>
+                    <Link href={routes.transactions.details(transaction._id)}>
+                      <Text className="font-medium text-gray-900 hover:underline">
+                        {transaction._id}
+                      </Text>
+                    </Link>
                   </td>
                   <td className="px-4 py-3">
                     <div>
                       <Text className="font-medium text-gray-900">
-                        {transaction.userId?.firstName} {transaction.userId?.lastName}
+                        {transaction.userId?.firstName}{' '}
+                        {transaction.userId?.lastName}
                       </Text>
                       <Text className="text-xs text-gray-500">
                         {transaction.userId?.email}
@@ -219,11 +229,11 @@ export default function TransactionsDataTable({
                   </td>
                   <td className="px-4 py-3 text-right">
                     <Text className="font-semibold text-gray-900">
-                      ₦{formatNumber(transaction.amount)}
+                      {formatToNaira(transaction.amount)}
                     </Text>
                   </td>
                   <td className="px-4 py-3">
-                    <Text className="text-sm text-gray-700 capitalize">
+                    <Text className="text-sm capitalize text-gray-700">
                       {(transaction.paymentMethod || '').replace('-', ' ')}
                     </Text>
                   </td>
@@ -237,11 +247,14 @@ export default function TransactionsDataTable({
                   </td>
                   <td className="px-4 py-3">
                     <Text className="text-sm text-gray-600">
-                      {new Date(transaction.createdAt).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric',
-                      })}
+                      {new Date(transaction.createdAt).toLocaleDateString(
+                        'en-US',
+                        {
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric',
+                        }
+                      )}
                     </Text>
                   </td>
                 </tr>

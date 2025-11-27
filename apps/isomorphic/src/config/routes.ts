@@ -118,6 +118,7 @@ export const routes = {
   },
   eventCalendar: '/event-calendar',
   rolesPermissions: '/roles-permissions',
+  storeSettings: '/store-settings',
   transactions: {
     list: '/transactions',
     details: (id: string) => `/transactions/${id}`,

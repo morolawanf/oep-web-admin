@@ -1,6 +1,6 @@
 /**
  * Users Analytics Client Component
- * 
+ *
  * Displays comprehensive user analytics including:
  * - Overview metrics (total users, new users, active/inactive)
  * - Customer acquisition trend chart
@@ -61,12 +61,15 @@ export default function UsersAnalyticsClient() {
   };
 
   // Fetch data
-  const { data: overview, isLoading: loadingOverview } = useUsersOverview(dateParams);
-  const { data: acquisition, isLoading: loadingAcquisition } = useCustomerAcquisition({
-    ...dateParams,
-    groupBy,
-  });
-  const { data: demographics, isLoading: loadingDemographics } = useUserDemographics(dateParams);
+  const { data: overview, isLoading: loadingOverview } =
+    useUsersOverview(dateParams);
+  const { data: acquisition, isLoading: loadingAcquisition } =
+    useCustomerAcquisition({
+      ...dateParams,
+      groupBy,
+    });
+  const { data: demographics, isLoading: loadingDemographics } =
+    useUserDemographics(dateParams);
   const { data: topCustomers, isLoading: loadingCustomers } = useTopCustomers({
     ...dateParams,
     page,
@@ -78,7 +81,7 @@ export default function UsersAnalyticsClient() {
       <PageHeader title={pageHeader.title} breadcrumb={pageHeader.breadcrumb} />
 
       {/* Date Range Selector */}
-      <div className="mb-6 flex gap-4 items-center">
+      <div className="mb-6 flex items-center gap-4">
         <div>
           <Text className="mb-1 text-sm font-medium">From</Text>
           <DatePicker
@@ -108,19 +111,23 @@ export default function UsersAnalyticsClient() {
       </div>
 
       {/* Charts Section */}
-      <div className="grid grid-cols-1 gap-6 mb-6 @container lg:grid-cols-2">
+      <div className="mb-6 grid grid-cols-1 gap-6 @container lg:grid-cols-2">
         <CustomerAcquisitionChart
           data={acquisition || []}
           isLoading={loadingAcquisition}
           groupBy={groupBy}
           onGroupByChange={setGroupBy}
         />
-        <UserDemographicsChart data={demographics || []} isLoading={loadingDemographics} />
+        <UserDemographicsChart
+          data={demographics || []}
+          isLoading={loadingDemographics}
+        />
       </div>
 
       {/* Top Customers Table */}
       <TopCustomersTable
         data={topCustomers}
+        limit={limit}
         onPageChange={setPage}
         onLimitChange={(newLimit: number) => {
           setLimit(newLimit);

@@ -1,11 +1,15 @@
 'use client';
 
-import { Order, OrdersListResponse, OrdersQueryParams } from '@/types/order.types';
+import {
+  Order,
+  OrdersListResponse,
+  OrdersQueryParams,
+} from '@/types/order.types';
 import Table from '@core/components/table';
 import { useTanStackTable } from '@core/components/table/custom/use-TanStack-Table';
 import TablePagination from '@core/components/table/pagination';
 import { ordersColumns } from './columns';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { PaginationState, Updater } from '@tanstack/react-table';
 import TableSkeleton from '../categories/category-list/table-skeleton';
 
@@ -14,7 +18,7 @@ interface OrdersTableProps {
   queryParams: OrdersQueryParams;
   onViewOrder: (order: Order) => void;
   isLoading?: boolean;
-    onPageChange?: (page: number) => void;
+  onPageChange?: (page: number) => void;
   onPageSizeChange?: (size: number) => void;
 }
 
@@ -26,32 +30,30 @@ export default function OrdersTable({
   onViewOrder,
   isLoading = false,
   queryParams,
-    onPageChange,
+  onPageChange,
   onPageSizeChange,
 }: OrdersTableProps) {
-
-
+  const mainOrders = useMemo(() => orders.orders, [orders.orders]);
 
   const { table, setData } = useTanStackTable<Order>({
-    tableData: orders.orders,
+    tableData: mainOrders,
     columnConfig: ordersColumns(onViewOrder),
     options: {
       initialState: {
         pagination: {
           pageIndex: (queryParams.page ?? orders.pagination.page) - 1,
-          pageSize: queryParams.limit ||  orders.pagination.limit,
+          pageSize: queryParams.limit || orders.pagination.limit,
         },
       },
       pageCount: orders.pagination.pages,
-      manualPagination: true, 
+      manualPagination: true,
       enableColumnResizing: false,
     },
   });
 
   useEffect(() => {
-    setData(orders.orders);
-  }, [orders]);
-
+    setData(mainOrders);
+  }, [mainOrders]);
 
   // Handle pagination changes via table state
   useEffect(() => {
@@ -62,11 +64,10 @@ export default function OrdersTable({
     }
   }, [table.getState().pagination.pageIndex, queryParams, onPageChange]);
 
-
   return (
     <div>
       <Table
-      isLoading={isLoading}
+        isLoading={isLoading}
         table={table}
         variant="modern"
         classNames={{
