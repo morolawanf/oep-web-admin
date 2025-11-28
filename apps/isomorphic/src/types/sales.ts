@@ -23,6 +23,11 @@ export interface SaleProductRef {
   name: string;
   slug?: string;
   coverImage?: string;
+  description_images: Array<{
+        url: string;
+        cover_image: boolean;
+        _id: string;
+    }>;
   image?: string;
   stock?: number;
   category?: {

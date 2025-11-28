@@ -157,15 +157,25 @@ export const salesColumns = [
     size: 200,
     header: 'Product',
     cell: ({ row }) => (
-      <div>
-        <Text className="text-sm font-medium">
-          {row.original.product?.name || 'N/A'}
-        </Text>
-        {row.original.product?.slug && (
-          <Text className="text-xs text-gray-500">
-            {row.original.product.slug}
+      <div className="flex gap-1">
+        <img
+          src={
+        row.original.product?.description_images?.find((img) => img.cover_image)?.url ||
+        '/placeholder.png'
+          }
+          alt={row.original.product?.name || 'Product'}
+          className="h-8 w-8 rounded-md object-cover"
+        />
+        <div>
+          <Text className="text-sm font-medium">
+        {row.original.product?.name || 'N/A'}
           </Text>
-        )}
+          {row.original.product?.slug && (
+        <Text className="text-xs text-gray-500">
+          {row.original.product.slug}
+        </Text>
+          )}
+        </div>
       </div>
     ),
   }),
