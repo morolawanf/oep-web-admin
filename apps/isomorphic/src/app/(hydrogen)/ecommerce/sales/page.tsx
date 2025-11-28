@@ -1,6 +1,6 @@
 import { routes } from '@/config/routes';
 import { metaObject } from '@/config/site.config';
-import FlashSaleDetailsPage from './[id]/page';
+import SalesPageClient from './SalesPageClient';
 
 export const metadata = {
   ...metaObject('Sales'),
@@ -25,6 +25,9 @@ const pageHeader = {
 
 export default function FlashSalesPage() {
   return (
-    <FlashSaleDetailsPage title={pageHeader.title} breadcrumb={pageHeader.breadcrumb} />
+    <SalesPageClient
+      title={pageHeader.title}
+      breadcrumb={pageHeader.breadcrumb}
+    />
   );
 }

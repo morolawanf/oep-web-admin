@@ -5,8 +5,13 @@ import PageHeader from '@/app/shared/page-header';
 import SalesTable from '@/app/shared/ecommerce/sales/table';
 import { PiPlusBold } from 'react-icons/pi';
 
-
-export default function FlashSalesPageClient({title, breadcrumb}: {title: string; breadcrumb: Array<{ href?: string; name: string }>  }) {
+export default function SalesPageClient({
+  title,
+  breadcrumb,
+}: {
+  title: string;
+  breadcrumb: Array<{ href?: string; name: string }>;
+}) {
   return (
     <>
       <PageHeader title={title} breadcrumb={breadcrumb}>
