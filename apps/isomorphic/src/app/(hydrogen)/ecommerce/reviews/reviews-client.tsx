@@ -5,12 +5,9 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useReviews } from '@/hooks/queries/useReviews';
-import {
-  useDeleteReview,
-  useBulkModerateReviews,
-} from '@/hooks/mutations/useReviewMutations';
+import { useDeleteReview } from '@/hooks/mutations/useReviewMutations';
 import { useDrawer } from '@/app/shared/drawer-views/use-drawer';
 import ReviewStatisticsCards from '@/app/shared/ecommerce/review/review-statistics-cards';
 import ReviewFilters from '@/app/shared/ecommerce/review/review-filters';
@@ -49,37 +46,14 @@ export default function ReviewsPageClient() {
   console.log(reviewsData);
 
   const deleteMutation = useDeleteReview();
-  const bulkModerateMutation = useBulkModerateReviews();
 
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
 
   // Extract reviews from paginated response
-  const reviews = reviewsData?.reviews || [];
+  const reviews = useMemo(() => reviewsData?.reviews || [], [reviewsData]);
   const pagination = reviewsData?.pagination;
-  const totalPages = pagination?.pages || 0;
-  const totalReviews = pagination?.total || 0;
 
   const columns = [
-    columnHelper.display({
-      id: 'select',
-      size: 50,
-      header: ({ table }) => (
-        <Checkbox
-          className="ps-3.5"
-          aria-label="Select all"
-          checked={table.getIsAllPageRowsSelected()}
-          onChange={() => table.toggleAllPageRowsSelected()}
-        />
-      ),
-      cell: ({ row }) => (
-        <Checkbox
-          className="ps-3.5"
-          aria-label="Select row"
-          checked={row.getIsSelected()}
-          onChange={() => row.toggleSelected()}
-        />
-      ),
-    }),
     columnHelper.accessor('reviewBy', {
       id: 'customer',
       size: 250,
@@ -221,16 +195,8 @@ export default function ReviewsPageClient() {
         },
       },
       enableRowSelection: true,
-      onRowSelectionChange: (updater) => {
-        const selection =
-          typeof updater === 'function'
-            ? updater(table.getState().rowSelection)
-            : updater;
-        const selectedIds = Object.keys(selection).map(
-          (index) => reviews[Number(index)]._id
-        );
-        setSelectedRows(selectedIds);
-      },
+      manualPagination: true,
+      pageCount: pagination?.totalPages,
     },
   });
 
@@ -240,6 +206,18 @@ export default function ReviewsPageClient() {
       setData(reviews);
     }
   }, [reviews, setData]);
+
+  // Handle pagination changes via table state
+  useEffect(() => {
+    const state = table.getState();
+    const newPage = state.pagination.pageIndex + 1;
+    if (pagination && newPage !== pagination.page) {
+      setFilters((prev) => ({
+        ...prev,
+        page: newPage,
+      }));
+    }
+  }, [table.getState().pagination.pageIndex, pagination]);
 
   const handleViewDetails = (reviewId: string) => {
     openDrawer({
@@ -261,60 +239,6 @@ export default function ReviewsPageClient() {
 
   const handlePageChange = (page: number) => {
     setFilters({ ...filters, page });
-  };
-
-  const handleBulkApprove = () => {
-    if (selectedRows.length === 0) return;
-
-    bulkModerateMutation.mutate(
-      {
-        reviewIds: selectedRows,
-        action: 'approve',
-      },
-      {
-        onSuccess: () => {
-          setSelectedRows([]);
-          table.resetRowSelection();
-        },
-      }
-    );
-  };
-
-  const handleBulkReject = () => {
-    if (selectedRows.length === 0) return;
-
-    bulkModerateMutation.mutate(
-      {
-        reviewIds: selectedRows,
-        action: 'reject',
-      },
-      {
-        onSuccess: () => {
-          setSelectedRows([]);
-          table.resetRowSelection();
-        },
-      }
-    );
-  };
-
-  const handleBulkDelete = () => {
-    if (selectedRows.length === 0) return;
-
-    if (
-      confirm(
-        `Are you sure you want to delete ${selectedRows.length} review(s)? This action cannot be undone.`
-      )
-    ) {
-      // Delete reviews one by one (could be optimized with bulk delete endpoint)
-      Promise.all(selectedRows.map((id) => deleteMutation.mutateAsync(id)))
-        .then(() => {
-          setSelectedRows([]);
-          table.resetRowSelection();
-        })
-        .catch((error) => {
-          console.error('Bulk delete error:', error);
-        });
-    }
   };
 
   if (error) {
@@ -345,36 +269,6 @@ export default function ReviewsPageClient() {
           <Text className="font-medium text-gray-700">
             {selectedRows.length} review(s) selected
           </Text>
-          <div className="flex items-center gap-2">
-            <Button
-              size="sm"
-              onClick={handleBulkApprove}
-              isLoading={bulkModerateMutation.isPending}
-              className="bg-green-600 hover:bg-green-700"
-            >
-              <PiCheckCircle className="mr-2 h-4 w-4" />
-              Approve Selected
-            </Button>
-            <Button
-              size="sm"
-              onClick={handleBulkReject}
-              isLoading={bulkModerateMutation.isPending}
-              variant="outline"
-              className="border-yellow-600 text-yellow-700 hover:bg-yellow-50"
-            >
-              <PiXCircle className="mr-2 h-4 w-4" />
-              Reject Selected
-            </Button>
-            <Button
-              size="sm"
-              onClick={handleBulkDelete}
-              isLoading={deleteMutation.isPending}
-              color="danger"
-            >
-              <PiTrash className="mr-2 h-4 w-4" />
-              Delete Selected
-            </Button>
-          </div>
         </div>
       )}
 

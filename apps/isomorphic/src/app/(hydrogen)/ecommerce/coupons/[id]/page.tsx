@@ -1,10 +1,8 @@
-import { Button } from 'rizzui/button';
 import { routes } from '@/config/routes';
-import PageHeader from '@/app/shared/page-header';
-import Link from 'next/link';
 import { metaObject } from '@/config/site.config';
 import CouponDetails from '@/app/shared/ecommerce/coupon/coupon-details';
 import type { Metadata } from 'next';
+import PageHeaderWithNavigation from '@/app/shared/page-header-w-nav';
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -34,7 +32,7 @@ export default async function CouponDetailsPage({ params }: Props) {
 
   return (
     <>
-      <PageHeader
+      <PageHeaderWithNavigation
         title={pageHeader.title}
         breadcrumb={[
           ...pageHeader.breadcrumb,
@@ -42,16 +40,9 @@ export default async function CouponDetailsPage({ params }: Props) {
             name: id,
           },
         ]}
-      >
-        <Link
-          href={routes.eCommerce.coupons}
-          className="mt-4 w-full @lg:mt-0 @lg:w-auto"
-        >
-          <Button as="span" className="w-full @lg:w-auto" variant="outline">
-            Back to List
-          </Button>
-        </Link>
-      </PageHeader>
+        href={routes.eCommerce.coupons}
+        buttonText="Back to List"
+      />
       <CouponDetails id={id} />
     </>
   );

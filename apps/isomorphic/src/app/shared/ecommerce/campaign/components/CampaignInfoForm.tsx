@@ -12,11 +12,10 @@ import {
   Controller,
 } from 'react-hook-form';
 import { useState } from 'react';
-import { Input, Select, Textarea } from 'rizzui';
+import { Input, Select, Textarea,Text } from 'rizzui';
 import { FormLabelWithTooltip } from '@core/ui/form-label-with-tooltip';
 import { CreateCampaignInput } from '@/validators/create-campaign.schema';
 import { useCheckCampaignSlug } from '@/hooks/queries/useCheckCampaignSlug';
-import { Text } from 'rizzui';
 import slugify from 'slugify';
 import { useDebounce } from '@/hooks/use-debounce';
 import { PiCheckCircle, PiWarningCircle } from 'react-icons/pi';

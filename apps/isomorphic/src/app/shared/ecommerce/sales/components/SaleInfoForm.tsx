@@ -131,8 +131,8 @@ export default function SaleInfoForm({
             <label className="mb-2 block text-sm font-medium">
               Hot Sale
               <Text className="mt-1 text-xs font-normal text-gray-500">
-                Show "Hot Sale" marquee banner and sold/available progress on
-                product cards
+                {`Show "Hot Sale" marquee banner and sold/available progress on
+                product cards`}
               </Text>
             </label>
             <Switch

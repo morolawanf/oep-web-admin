@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { Table as ReactTableType } from '@tanstack/react-table';
 import { PiFunnel, PiMagnifyingGlassBold, PiTrashDuotone, PiArrowsClockwise } from 'react-icons/pi';
 import { Button, Flex, Input, Select, Badge, Text } from 'rizzui';
@@ -8,6 +8,7 @@ import { FilterDrawerView } from '@core/components/controlled-table/table-filter
 import ToggleColumns from '@core/components/table-utils/toggle-columns';
 import StatusField from '@core/components/controlled-table/status-field';
 import type { UserFilters, UserRole } from '@/types/user';
+import { useDebounce } from '@/hooks/use-debounce';
 
 const roleOptions = [
   { value: 'user', label: 'User' },
@@ -35,15 +36,28 @@ export default function UsersFilters<TData extends Record<string, any>>({
   table,
 }: UsersFiltersProps<TData>) {
   const [openDrawer, setOpenDrawer] = useState(false);
+  const [searchInput, setSearchInput] = useState('');
+  const searchValue = useDebounce(searchInput, 500);
+  const [pendingFilters, setPendingFilters] = useState<Partial<UserFilters>>({});
 
+  useEffect(() => {
+    onFilterChange({ search: searchValue, page: 1 });
+  }, [searchValue]);
+
+  const handleApplyFilters = () => {
+    if (Object.keys(pendingFilters).length > 0) {
+      onFilterChange(pendingFilters);
+      setPendingFilters({});
+    }
+  };
   return (
     <Flex align="center" justify="between" className="mb-4">
       <Input
         type="search"
         placeholder="Search by name or email..."
-        value={table.getState().globalFilter ?? ''}
-        onClear={() => table.setGlobalFilter('')}
-        onChange={(e) => table.setGlobalFilter(e.target.value)}
+        value={searchInput}
+        onClear={() => setSearchInput('')}
+        onChange={(e) => setSearchInput(e.target.value)}
         inputClassName="h-9"
         clearable={true}
         prefix={<PiMagnifyingGlassBold className="size-4" />}
@@ -53,25 +67,19 @@ export default function UsersFilters<TData extends Record<string, any>>({
         isOpen={openDrawer}
         drawerTitle="User Filters"
         setOpenDrawer={setOpenDrawer}
+        onApply={handleApplyFilters}
       >
         <div className="grid grid-cols-1 gap-6">
           <FilterElements
             filters={filters}
-            onFilterChange={onFilterChange}
+            pendingFilters={pendingFilters}
+            setPendingFilters={setPendingFilters}
             table={table}
           />
         </div>
       </FilterDrawerView>
 
       <Flex align="center" gap="3" className="w-auto">
-        <Button
-          variant="outline"
-          onClick={() => onRefresh()}
-          className="h-9 pe-3 ps-2.5"
-        >
-          <PiArrowsClockwise className="me-1.5 size-[18px]" strokeWidth={1.7} />
-          Refresh
-        </Button>
 
         <Button
           variant="outline"
@@ -90,25 +98,45 @@ export default function UsersFilters<TData extends Record<string, any>>({
 
 interface FilterElementsProps<T extends Record<string, any>> {
   filters: UserFilters;
-  onFilterChange: (filters: Partial<UserFilters>) => void;
+  pendingFilters: Partial<UserFilters>;
+  setPendingFilters: React.Dispatch<React.SetStateAction<Partial<UserFilters>>>;
   table: ReactTableType<T>;
 }
 
 function FilterElements<T extends Record<string, any>>({
   filters,
-  onFilterChange,
+  pendingFilters,
+  setPendingFilters,
   table,
 }: FilterElementsProps<T>) {
+  const [localRole, setLocalRole] = useState<UserRole | undefined>(filters.role);
+  const [localSort, setLocalSort] = useState<'1' | '-1'>(filters.sort || '-1');
+
   const handleRoleChange = (value: string | string[]) => {
     const roles = Array.isArray(value) ? value : [value];
-    onFilterChange({
-      role: roles.length > 0 ? (roles[0] as UserRole) : undefined,
+    const role = roles.length > 0 ? (roles[0] as UserRole) : undefined;
+    setLocalRole(role);
+    setPendingFilters((prev) => ({
+      ...prev,
+      role,
       page: 1,
-    });
+    }));
+  };
+
+  const handleSortChange = (value: string) => {
+    const sort = value as '1' | '-1';
+    setLocalSort(sort);
+    setPendingFilters((prev) => ({
+      ...prev,
+      sort,
+      page: 1,
+    }));
   };
 
   const handleClearFilters = () => {
-    onFilterChange({
+    setLocalRole(undefined);
+    setLocalSort('-1');
+    setPendingFilters({
       role: undefined,
       search: '',
       sort: '-1',
@@ -123,7 +151,7 @@ function FilterElements<T extends Record<string, any>>({
     <>
       <StatusField
         options={roleOptions}
-        value={filters.role ? [filters.role] : []}
+        value={localRole ? [localRole] : []}
         onChange={handleRoleChange}
         getOptionValue={(option: any) => option.value}
         getOptionDisplayValue={(option: any) =>
@@ -143,8 +171,8 @@ function FilterElements<T extends Record<string, any>>({
               { value: '-1', label: 'Newest First' },
               { value: '1', label: 'Oldest First' },
             ]}
-            value={filters.sort || '-1'}
-            onChange={(value: string) => onFilterChange({ sort: value as '1' | '-1', page: 1 })}
+            value={localSort}
+            onChange={handleSortChange}
             displayValue={(selected: string) =>
               selected === '1' ? 'Oldest First' : 'Newest First'
             }

@@ -36,7 +36,9 @@ export default function TransactionsTable({
 
   // Keep table rows in sync with incoming transactions
   useEffect(() => {
-    setData(transactions);
+    if(transactions){
+      setData(transactions);
+    }
   }, [transactions, setData]);
 
   // Notify parent on pagination changes (1-indexed page) with guard to avoid loops

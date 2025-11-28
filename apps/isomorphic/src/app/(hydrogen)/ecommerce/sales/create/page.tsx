@@ -4,6 +4,7 @@ import { routes } from '@/config/routes';
 import Link from 'next/link';
 import { metaObject } from '@/config/site.config';
 import CreateSales from '@/app/shared/ecommerce/sales/create-sales';
+import PageHeaderWithNavigation from '@/app/shared/page-header-w-nav';
 
 export const metadata = {
   ...metaObject('Create a Sale'),
@@ -29,16 +30,7 @@ const pageHeader = {
 export default function CreateFlashSalePage() {
   return (
     <>
-      <PageHeader title={pageHeader.title} breadcrumb={pageHeader.breadcrumb}>
-        <Link
-          href={routes.eCommerce.flashSales}
-          className="mt-4 w-full @lg:mt-0 @lg:w-auto"
-        >
-          <Button as="span" className="w-full @lg:w-auto" variant="outline">
-            Cancel
-          </Button>
-        </Link>
-      </PageHeader>
+      <PageHeaderWithNavigation title={pageHeader.title} breadcrumb={pageHeader.breadcrumb} href={routes.eCommerce.flashSales} buttonText="Cancel" />
       <CreateSales />
     </>
   );

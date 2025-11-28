@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { salesColumns } from '@/app/shared/ecommerce/sales/columns';
 import Table from '@core/components/table';
 import { useTanStackTable } from '@core/components/table/custom/use-TanStack-Table';
@@ -45,14 +45,14 @@ export default function SalesTable() {
     }
   }, [salesData, setData]);
 
+  const paginationState = useMemo(() => table.getState().pagination, [table]) ;
   useEffect(() => {
-    const state = table.getState();
-    const newPage = state.pagination.pageIndex + 1;
+    const newPage = paginationState.pageIndex + 1;
     if (salesData?.pagination && newPage !== salesData.pagination.page) {
       setFilters((prev) => ({ ...prev, page: newPage }));
     }
   }, [
-    table.getState().pagination.pageIndex,
+    paginationState.pageIndex,
     salesData?.pagination,
     setFilters,
   ]);

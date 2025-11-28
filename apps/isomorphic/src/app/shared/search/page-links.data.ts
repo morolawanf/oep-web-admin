@@ -110,14 +110,6 @@ export const pageLinks = [
     href: routes.support.templates,
   },
   {
-    name: 'Invoice List',
-    href: routes.invoice.home,
-  },
-  {
-    name: 'Create Invoice',
-    href: routes.invoice.create,
-  },
-  {
     name: 'Shipment List',
   href: routes.eCommerce.shipment.shipmentList,
   },

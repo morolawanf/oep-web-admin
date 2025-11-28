@@ -1,61 +1,35 @@
 import { z } from 'zod';
-import { messages } from '@/config/messages';
-const preprocessOptionalNumber = (isInteger = false) =>
-  z.preprocess(
-    (val) => {
-      if (
-        val === null ||
-        val === undefined ||
-        val === '' ||
-        (typeof val === 'number' && isNaN(val))
-      ) {
-        return undefined;
-      }
-      const num = Number(val);
-      return isInteger ? Math.floor(num) : num;
-    },
-    isInteger
-      ? z.number().int().min(0).optional()
-      : z.number().min(0).optional()
-  );
+
+// Helper to handle optional numbers with proper typing
+const optionalNumber = (isInteger = false) => {
+  const base = z.number().min(0);
+  const schema = isInteger ? base.int() : base;
+  return schema.optional();
+};
 
 // Pricing tier schema
 const pricingTierSchema = z
   .object({
     minQty: z.number().int().min(1, 'Minimum quantity must be at least 1'),
-    maxQty: z.preprocess((val) => {
-      // Convert NaN, null, undefined, empty string to undefined
-      if (
-        val === null ||
-        val === undefined ||
-        val === '' ||
-        (typeof val === 'number' && isNaN(val))
-      ) {
-        return undefined;
-      }
-      return val;
-    }, z.number().int().min(1).optional()),
+    maxQty: z.number().int().min(1).optional(), // ✅ Simplified - no .or() chain
     strategy: z.enum(['fixedPrice', 'percentOff', 'amountOff']),
     value: z.number().min(0, 'Value must be non-negative'),
   })
   .refine((data) => !data.maxQty || data.maxQty >= data.minQty, {
-    message:
-      'Maximum quantity must be greater than or equal to minimum quantity',
+    message: 'Maximum quantity must be greater than or equal to minimum quantity',
     path: ['maxQty'],
   });
 
 // Pack size schema for bulk/wholesale products
 const packSizeSchema = z.object({
-  label: z
-    .string()
-    .min(1, 'Pack label is required (e.g., "Single", "Bag of 10")'),
+  label: z.string().min(1, 'Pack label is required (e.g., "Single", "Bag of 10")'),
   quantity: z.number().int().min(1, 'Quantity must be at least 1'),
-  price: preprocessOptionalNumber(),
-  stock: preprocessOptionalNumber(true),
-  enableAttributes: z.boolean().default(false),
+  price: optionalNumber(),
+  stock: optionalNumber(true),
+  enableAttributes: z.boolean(),
 });
 
-// Product schema for create/update
+// Base product schema
 const baseProductSchema = z.object({
   sku: z.number().int().min(1, 'SKU is required and must be a positive number'),
   name: z
@@ -89,14 +63,7 @@ const baseProductSchema = z.object({
   dimension: z
     .array(
       z.object({
-        key: z.enum([
-          'length',
-          'breadth',
-          'height',
-          'volume',
-          'width',
-          'weight',
-        ]),
+        key: z.enum(['length', 'breadth', 'height', 'volume', 'width', 'weight']),
         value: z.string().min(1, 'Dimension value is required'),
       })
     )
@@ -104,9 +71,9 @@ const baseProductSchema = z.object({
 
   shipping: z
     .object({
-      addedCost: preprocessOptionalNumber(),
-      increaseCostBy: preprocessOptionalNumber(),
-      addedDays: preprocessOptionalNumber(true),
+      addedCost: z.number().min(0).optional(),
+      increaseCostBy: z.number().min(0).optional(),
+      addedDays: z.number().int().min(0).optional(),
     })
     .optional(),
 
@@ -117,7 +84,7 @@ const baseProductSchema = z.object({
         children: z.array(
           z.object({
             name: z.string().min(1, 'Child name is required'),
-            price: preprocessOptionalNumber(),
+            price: z.number().min(0).optional(),
             stock: z.number().int().min(0, 'Stock cannot be negative'),
             pricingTiers: z.array(pricingTierSchema).optional(),
           })
@@ -134,7 +101,7 @@ const baseProductSchema = z.object({
   lowStockThreshold: z.number().int().min(0, 'Low stock threshold is required'),
   status: z.enum(['active', 'inactive', 'archived']),
 
-  slug: z.string().optional(), // Auto-generated, but can be manually set
+  slug: z.string().optional(),
 });
 
 // Product schema with refinement for create/update
@@ -146,13 +113,10 @@ export const productSchema = baseProductSchema.refine(
   }
 );
 
-// Type for create product
 export type CreateProductInput = z.infer<typeof productSchema>;
 
-// Schema for update (all fields optional except those that shouldn't change)
-// Use baseProductSchema instead of productSchema to avoid ZodEffects issue
 export const updateProductSchema = baseProductSchema.partial().extend({
-  sku: z.number().int().min(1, 'SKU is required').optional(), // Can't change SKU
+  sku: z.number().int().min(1, 'SKU is required').optional(),
 });
 
 export type UpdateProductInput = z.infer<typeof updateProductSchema>;

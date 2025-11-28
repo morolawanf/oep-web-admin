@@ -8,7 +8,11 @@ import UpdateCategory from '@/app/shared/ecommerce/categories/update-category';
 import { Text, Modal, Button, Loader } from 'rizzui';
 import { routes } from '@/config/routes';
 
-export default function CategoryEditClient({ categoryId }: { categoryId: string }) {
+export default function CategoryEditClient({
+  categoryId,
+}: {
+  categoryId: string;
+}) {
   const router = useRouter();
   const { data: category, isLoading, error } = useCategory(categoryId);
   const deleteCategory = useDeleteCategory();
@@ -49,12 +53,15 @@ export default function CategoryEditClient({ categoryId }: { categoryId: string 
         onDelete={() => setShowDeleteConfirm(true)}
       />
 
-      <Modal isOpen={showDeleteConfirm} onClose={() => setShowDeleteConfirm(false)}>
+      <Modal
+        isOpen={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+      >
         <div className="p-6">
-          <Text className="text-lg font-semibold mb-4">Delete Category</Text>
+          <Text className="mb-4 text-lg font-semibold">Delete Category</Text>
           <Text className="mb-6 text-gray-600">
-            Are you sure you want to delete the category "{category.name}"? This will also remove
-            it from parent references in other categories.
+            {`Are you sure you want to delete the category "${category.name}"? This will also remove
+            it from parent references in other categories.`}
           </Text>
           <div className="flex justify-end gap-3">
             <Button

@@ -147,7 +147,7 @@ export default function ShipmentsTable() {
         ),
       },
     ],
-    [router, deleteShipment, isDeleting]
+    [router, deleteShipment]
   );
 
   const { table, setData } = useTanStackTable({

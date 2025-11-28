@@ -1,6 +1,6 @@
 'use client';
 
-import { Control, FieldErrors } from 'react-hook-form';
+import { Control, FieldErrors,Controller } from 'react-hook-form';
 import { FormLabelWithTooltip } from '@core/ui/form-label-with-tooltip';
 import { CreateCampaignInput } from '@/validators/create-campaign.schema';
 import {
@@ -14,7 +14,6 @@ import {
   cn,
   Checkbox,
 } from 'rizzui';
-import { Controller } from 'react-hook-form';
 import { useSales } from '@/hooks/queries/useSales';
 import { useState, useMemo } from 'react';
 import { useDebounce } from '@/hooks/use-debounce';
@@ -45,7 +44,7 @@ export default function CampaignSalesSection({
     search: debouncedSearch.trim().length >= 2 ? debouncedSearch : '',
   });
 
-  const displayedSales = salesData?.sales || [];
+  const displayedSales = useMemo(() => salesData?.sales || [], [salesData]);
 
   return (
     <div className="space-y-3">
@@ -58,17 +57,16 @@ export default function CampaignSalesSection({
         name="sales"
         control={control}
         render={({ field }) => {
-          const saleOptions = useMemo(() => {
-            if (!salesData?.sales) return [];
-            return salesData.sales
-              .filter((sale) => field.value?.includes(sale._id))
-              .map((sale) => ({
-                label: sale.title,
-                value: sale._id,
-                type: sale.type,
-                isActive: sale.isActive,
-              }));
-          }, [salesData, field.value]);
+    const selectedSales = salesData?.sales?.filter((sale) =>
+      field.value?.includes(sale._id)
+    ) || [];
+
+    const saleOptions = selectedSales.map((sale) => ({
+      label: sale.title,
+      value: sale._id,
+      type: sale.type,
+      isActive: sale.isActive,
+    }));
 
           return (
             <>

@@ -24,8 +24,12 @@ export default function UpdateBanner({
       name: data.name,
       imageUrl: data.imageUrl,
       pageLink: data.pageLink,
-      active: data.active ?? banner.active, // Fallback to original if not provided
+      active: data.active ?? banner.active,
       category: data.category,
+      mainText: data.mainText,
+      fullImage: data.fullImage,
+      headerText: data.headerText,
+      CTA: data.CTA,
       _id: banner._id,
       createdAt: banner.createdAt.toString(),
     };

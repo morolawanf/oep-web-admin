@@ -2,11 +2,10 @@
 
 import { Title, Text, Avatar, Button, Popover } from 'rizzui';
 import cn from '@core/utils/class-names';
-import { routes } from '@/config/routes';
-import { signOut } from 'next-auth/react';
-import Link from 'next/link';
+import { signOut, useSession } from 'next-auth/react';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { getCdnUrl } from '@core/utils/cdn-url';
 
 export default function ProfileMenu({
   buttonClassName,
@@ -17,6 +16,12 @@ export default function ProfileMenu({
   avatarClassName?: string;
   username?: boolean;
 }) {
+  const { data: session } = useSession();
+  const userName = session?.user?.name || 'User';
+  const userEmail = session?.user?.email || '';
+  const userImage = session?.user?.image || '/avatar.webp';
+  const firstName = userName.split(' ')[0];
+
   return (
     <ProfileMenuPopover>
       <Popover.Trigger>
@@ -27,20 +32,20 @@ export default function ProfileMenu({
           )}
         >
           <Avatar
-            src="/avatar.webp"
-            name="John Doe"
+            src={getCdnUrl(userImage)}
+            name={userName}
             className={cn('!h-9 w-9 sm:!h-10 sm:!w-10', avatarClassName)}
           />
           {!!username && (
             <span className="username hidden text-gray-200 dark:text-gray-700 md:inline-flex">
-              Hi, Andry
+              Hi, {firstName}
             </span>
           )}
         </button>
       </Popover.Trigger>
 
       <Popover.Content className="z-[9999] p-0 dark:bg-gray-100 [&>svg]:dark:fill-gray-100">
-        <DropdownMenu />
+        <DropdownMenu userName={userName} userEmail={userEmail} userImage={userImage} />
       </Popover.Content>
     </ProfileMenuPopover>
   );
@@ -66,26 +71,19 @@ function ProfileMenuPopover({ children }: React.PropsWithChildren<{}>) {
   );
 }
 
-const menuItems = [
-  {
-    name: 'Account Settings',
-    href: routes.forms.profileSettings,
-  },
-];
-
-function DropdownMenu() {
+function DropdownMenu({ userName, userEmail, userImage }: { userName: string; userEmail: string; userImage: string }) {
   return (
     <div className="w-64 text-left rtl:text-right">
       <div className="flex items-center border-b border-gray-300 px-6 pb-5 pt-6">
-        <Avatar src="/avatar.webp" name="Albert Flores" />
+        <Avatar src={getCdnUrl(userImage)} name={userName} />
         <div className="ms-3">
           <Title as="h6" className="font-semibold">
-            Albert Flores
+            {userName}
           </Title>
-          <Text className="text-gray-600">flores@doe.io</Text>
+          <Text className="text-gray-600">{userEmail}</Text>
         </div>
       </div>
-      <div className="grid px-3.5 py-3.5 font-medium text-gray-700">
+      {/* <div className="grid px-3.5 py-3.5 font-medium text-gray-700">
         {menuItems.map((item) => (
           <Link
             key={item.name}
@@ -95,7 +93,7 @@ function DropdownMenu() {
             {item.name}
           </Link>
         ))}
-      </div>
+      </div> */}
       <div className="border-t border-gray-300 px-6 pb-6 pt-5">
         <Button
           className="h-auto w-full justify-start p-0 font-medium text-gray-700 outline-none focus-within:text-gray-600 hover:text-gray-900 focus-visible:ring-0"

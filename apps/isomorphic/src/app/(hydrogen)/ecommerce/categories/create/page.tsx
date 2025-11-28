@@ -4,6 +4,7 @@ import { Button } from 'rizzui/button';
 import { routes } from '@/config/routes';
 import Link from 'next/link';
 import { metaObject } from '@/config/site.config';
+import PageHeaderWithNavigation from '@/app/shared/page-header-w-nav';
 
 export const metadata = {
   ...metaObject('Create a Category'),
@@ -29,16 +30,7 @@ const pageHeader = {
 export default function CreateCategoryPage() {
   return (
     <>
-      <PageHeader title={pageHeader.title} breadcrumb={pageHeader.breadcrumb}>
-        <Link
-          href={routes.eCommerce.categories}
-          className="mt-4 w-full @lg:mt-0 @lg:w-auto"
-        >
-          <Button as="span" className="w-full @lg:w-auto" variant="outline">
-            Cancel
-          </Button>
-        </Link>
-      </PageHeader>
+      <PageHeaderWithNavigation title={pageHeader.title} breadcrumb={pageHeader.breadcrumb} href={routes.eCommerce.categories} buttonText="Cancel" />
       <br />
       <CreateCategory />
     </>

@@ -4,13 +4,10 @@ import WidgetCard from '@core/components/cards/widget-card';
 import { Text } from 'rizzui';
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import cn from '@core/utils/class-names';
+import { ReviewSentimentData } from '@/types/analytics.types';
 
 interface ReviewSentimentChartProps {
-  data?: Array<{
-    date: string;
-    positive: number;
-    negative: number;
-  }>;
+  data?: ReviewSentimentData[];
   groupBy: 'days' | 'months' | 'years';
   onGroupByChange: (groupBy: 'days' | 'months' | 'years') => void;
   isLoading?: boolean;
@@ -89,7 +86,7 @@ export default function ReviewSentimentChart({
             >
               <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
               <XAxis
-                dataKey="date"
+                dataKey="month"
                 tickFormatter={formatXAxis}
                 stroke="#9ca3af"
                 fontSize={12}
@@ -109,7 +106,7 @@ export default function ReviewSentimentChart({
                   return (
                     <div className="rounded-lg border border-gray-200 bg-white p-3 shadow-lg">
                       <p className="mb-2 text-xs text-gray-500">
-                        {formatXAxis(data.date)}
+                        {formatXAxis(data.month)}
                       </p>
                       <p className="text-sm text-green-600 font-semibold">
                         Positive: {data.positive}

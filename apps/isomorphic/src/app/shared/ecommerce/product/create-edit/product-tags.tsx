@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Input, Button } from 'rizzui';
 import cn from '@core/utils/class-names';
 import FormGroup from '@/app/shared/form-group';
@@ -9,7 +9,7 @@ import { PiTagBold, PiXBold } from 'react-icons/pi';
 
 export default function ProductTags({ className }: { className?: string }) {
   const { watch, setValue } = useFormContext();
-  const formTags = watch('tags') || [];
+  const formTags = useMemo(() => watch('tags') || [], [watch('tags')]);
   const [tags, setTags] = useState<string[]>(formTags);
 
   useEffect(() => {
@@ -69,11 +69,7 @@ function ItemCrud({ tags, setTags, setValue }: ItemCrudProps) {
           prefix={<PiTagBold className="h-4 w-4" />}
           className="flex-grow"
         />
-        <Button
-          type="button"
-          onClick={handleItemAdd}
-          className="shrink-0"
-        >
+        <Button type="button" onClick={handleItemAdd} className="shrink-0">
           Add Tag
         </Button>
       </div>

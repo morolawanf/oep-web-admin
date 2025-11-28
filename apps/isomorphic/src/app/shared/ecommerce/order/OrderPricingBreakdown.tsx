@@ -18,19 +18,21 @@ export default function OrderPricingBreakdown({
     <div className="mb-6 rounded-lg border p-4">
       <Text className="mb-3 font-semibold">Pricing Breakdown</Text>
       <div className="space-y-2">
-        <div className="flex justify-between">
+        {order.subtotal &&( <div className="flex justify-between">
           <Text className="text-gray-600">Subtotal:</Text>
           <Text>{format(order.subtotal)}</Text>
-        </div>
-        <div className="flex justify-between">
+        </div>)}
+        
+        {order.shippingCost &&( <div className="flex justify-between">
           <Text className="text-gray-600">Shipping:</Text>
           <Text>{format(order.shippingCost)}</Text>
-        </div>
-        <div className="flex justify-between">
+        </div>)}
+        {order.tax &&( <div className="flex justify-between">
           <Text className="text-gray-600">Tax:</Text>
           <Text>{format(order.tax)}</Text>
-        </div>
-        {order.discount > 0 && (
+        </div>)}  
+
+        {order.discount && order.discount > 0 && (
           <div className="flex justify-between">
             <Text className="text-gray-600">Discount:</Text>
             <Text className="text-green-600">-{format(order.discount)}</Text>

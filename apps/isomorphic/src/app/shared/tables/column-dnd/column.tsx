@@ -91,8 +91,7 @@ export const defaultColumns = [
       },
     }) => (
       <TableRowActionGroup
-        editUrl={routes.invoice.edit(row.original.id)}
-        viewUrl={routes.invoice.details(row.original.id)}
+
         deletePopoverTitle="Delete the invoice"
         deletePopoverDescription={`Are you sure you want to delete this #${row.id} invoice?`}
         onDelete={() => meta?.handleDeleteRow?.(row.original)}

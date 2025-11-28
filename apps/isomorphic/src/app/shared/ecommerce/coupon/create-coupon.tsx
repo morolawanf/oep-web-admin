@@ -83,12 +83,11 @@ export default function CreateCoupon() {
         const couponType = watch('couponType');
 
         // Set backend errors when apiErrors changes
-        useEffect(() => {
+
           if (apiErrors) {
             setBackendFormErrors(apiErrors, setError);
             setApiErrors(null); // Clear after setting
           }
-        }, [apiErrors]);
 
         return (
           <>

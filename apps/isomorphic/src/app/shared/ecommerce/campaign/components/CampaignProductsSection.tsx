@@ -1,6 +1,6 @@
 'use client';
 
-import { Control, FieldErrors } from 'react-hook-form';
+import { Control, FieldErrors,Controller } from 'react-hook-form';
 import { FormLabelWithTooltip } from '@core/ui/form-label-with-tooltip';
 import { CreateCampaignInput } from '@/validators/create-campaign.schema';
 import {
@@ -14,7 +14,6 @@ import {
   cn,
   Checkbox,
 } from 'rizzui';
-import { Controller } from 'react-hook-form';
 import { useProducts, useProductSearch } from '@/hooks/queries/useProducts';
 import { useState, useMemo } from 'react';
 import { useDebounce } from '@/hooks/use-debounce';
@@ -71,16 +70,15 @@ export default function CampaignProductsSection({
         name="products"
         control={control}
         render={({ field }) => {
-          const productOptions = useMemo(() => {
-            if (!productsData?.data) return [];
-            return productsData.data
-              .filter((product) => field.value?.includes(product._id))
-              .map((product) => ({
-                label: product.name,
-                value: product._id,
-                image: product.description_images.find((img) => img.cover_image)?.url,
-              }));
-          }, [productsData, field.value]);
+    const selectedProducts = productsData?.data?.filter((product) =>
+      field.value?.includes(product._id)
+    ) || [];
+
+    const productOptions = selectedProducts.map((product) => ({
+      label: product.name,
+      value: product._id,
+      image: product.description_images.find((img) => img.cover_image)?.url,
+    }));
 
           return (
             <>

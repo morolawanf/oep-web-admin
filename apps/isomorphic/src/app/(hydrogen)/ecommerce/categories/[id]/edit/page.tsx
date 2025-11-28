@@ -5,6 +5,7 @@ import CategoryEditClient from './CategoryEditClient';
 import Link from 'next/link';
 import { metaObject } from '@/config/site.config';
 import { Metadata } from 'next';
+import PageHeaderWithNavigation from '@/app/shared/page-header-w-nav';
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -41,17 +42,7 @@ export default async function EditCategoryPage({ params }: Props) {
 
   return (
     <>
-      <PageHeader title={pageHeader.title} breadcrumb={pageHeader.breadcrumb}>
-        <Link
-          href={routes.eCommerce.categories}
-          className="mt-4 w-full @lg:mt-0 @lg:w-auto"
-        >
-          <Button as="span" className="w-full @lg:w-auto" variant="outline">
-            Cancel
-          </Button>
-        </Link>
-      </PageHeader>
-
+      <PageHeaderWithNavigation title={pageHeader.title} breadcrumb={pageHeader.breadcrumb} href={routes.eCommerce.categories} buttonText="Cancel" />
       <CategoryEditClient categoryId={id} />
     </>
   );

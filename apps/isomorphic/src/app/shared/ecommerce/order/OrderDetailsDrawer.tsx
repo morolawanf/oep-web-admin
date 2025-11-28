@@ -49,7 +49,7 @@ export default function OrderDetailsDrawer({
         </div>
 
         {/* Order Items */}
-        <OrderItemsList items={order.items} />
+        <OrderItemsList items={order.items || []} />
 
         {/* Pricing */}
         <OrderPricingBreakdown order={order} />
@@ -62,7 +62,7 @@ export default function OrderDetailsDrawer({
           <div className="rounded-lg border p-4">
             <Text className="mb-2 font-semibold">Payment Method</Text>
             <Text className="capitalize">
-              {order.paymentMethod.replace('_', ' ')}
+              {order.paymentMethod?.replace('_', ' ')}
             </Text>
             {/* {order.paymentDetails.transactionId && (
               <Text className="text-sm text-gray-600">
@@ -110,7 +110,7 @@ export default function OrderDetailsDrawer({
         )}
 
         {/* Timeline */}
-        <OrderTimeline statusHistory={order.statusHistory} />
+        <OrderTimeline statusHistory={order.statusHistory || []} />
 
         {/* Actions */}
         <div className="mt-6 flex gap-2">

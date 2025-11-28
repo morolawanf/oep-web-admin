@@ -9,9 +9,9 @@ import {
   PiChartBarDuotone,
   PiThumbsUpDuotone,
   PiThumbsDownDuotone,
+  PiStar,
+  PiStarFill,
 } from 'react-icons/pi';
-import { PiStar, PiStarFill } from 'react-icons/pi';
-
 interface ReviewsOverviewCardsProps {
   data?: {
     totalReviews: number;
@@ -45,7 +45,7 @@ export default function ReviewsOverviewCards({
       <div className="grid grid-cols-1 gap-6 @container md:grid-cols-2 lg:grid-cols-4">
         {[1, 2, 3, 4].map((i) => (
           <WidgetCard key={i} className="h-28 animate-pulse">
-            <div className="h-full bg-gray-100 rounded"></div>
+            <div className="h-full rounded bg-gray-100"></div>
           </WidgetCard>
         ))}
       </div>
@@ -63,7 +63,11 @@ export default function ReviewsOverviewCards({
               {formatNumber(data?.totalReviews || 0)}
             </Title>
           </div>
-          <div className={cn('flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100')}>
+          <div
+            className={cn(
+              'flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100'
+            )}
+          >
             <PiChartBarDuotone className={cn('h-6 w-6 text-blue-600')} />
           </div>
         </div>
@@ -81,7 +85,11 @@ export default function ReviewsOverviewCards({
               <RatingStars rating={data?.averageRating || 0} />
             </div>
           </div>
-          <div className={cn('flex h-12 w-12 items-center justify-center rounded-lg bg-yellow-100')}>
+          <div
+            className={cn(
+              'flex h-12 w-12 items-center justify-center rounded-lg bg-yellow-100'
+            )}
+          >
             <PiStarDuotone className={cn('h-6 w-6 text-yellow-600')} />
           </div>
         </div>
@@ -96,7 +104,11 @@ export default function ReviewsOverviewCards({
               {formatNumber(data?.positiveReviews || 0)}
             </Title>
           </div>
-          <div className={cn('flex h-12 w-12 items-center justify-center rounded-lg bg-green-100')}>
+          <div
+            className={cn(
+              'flex h-12 w-12 items-center justify-center rounded-lg bg-green-100'
+            )}
+          >
             <PiThumbsUpDuotone className={cn('h-6 w-6 text-green-600')} />
           </div>
         </div>
@@ -111,7 +123,11 @@ export default function ReviewsOverviewCards({
               {formatNumber(data?.negativeReviews || 0)}
             </Title>
           </div>
-          <div className={cn('flex h-12 w-12 items-center justify-center rounded-lg bg-red-100')}>
+          <div
+            className={cn(
+              'flex h-12 w-12 items-center justify-center rounded-lg bg-red-100'
+            )}
+          >
             <PiThumbsDownDuotone className={cn('h-6 w-6 text-red-600')} />
           </div>
         </div>

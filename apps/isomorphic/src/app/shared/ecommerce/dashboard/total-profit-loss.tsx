@@ -44,16 +44,18 @@ const viewOptions = [
 export default function TotalProfitLoss({ className }: { className?: string }) {
   const [groupBy, setGroupBy] = useState<'days' | 'months' | 'years'>('months');
 
-  // Default: Last 30 days
-  const today = new Date();
-  const thirtyDaysAgo = new Date();
-  thirtyDaysAgo.setDate(today.getDate() - 30);
-  
-  const dateRange = useMemo(() => ({
-    from: thirtyDaysAgo.toISOString().split('T')[0],
-    to: today.toISOString().split('T')[0],
-    groupBy,
-  }), [groupBy]);
+  // Default: Last 30 days - memoize to prevent unnecessary re-renders
+  const dateRange = useMemo(() => {
+    const today = new Date();
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(today.getDate() - 30);
+    
+    return {
+      from: thirtyDaysAgo.toISOString().split('T')[0],
+      to: today.toISOString().split('T')[0],
+      groupBy,
+    };
+  }, [groupBy]);
 
   const { data, isLoading } = useProfitLossChart(dateRange);
 

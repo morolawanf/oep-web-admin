@@ -8,7 +8,6 @@ import { PiShoppingCartBold } from 'react-icons/pi';
 import { useModal } from '@/app/shared/modal-views/use-modal';
 import { useOrders } from '@/hooks/queries/useOrders';
 import Table from '@core/components/legacy-table';
-import { routes } from '@/config/routes';
 
 type CreateFromOrderButtonProps = {
   className?: string;
@@ -41,7 +40,6 @@ function OrderSelectorModal() {
 
   const handleSelectOrder = (orderId: string) => {
     closeModal();
-    router.push(`${routes.invoice.create}?orderId=${orderId}`);
   };
 
   const columns = [
@@ -139,11 +137,11 @@ function OrderSelectorModal() {
         />
       )}
 
-      {data && data.totalOrders > 10 && (
+      {data && data.pagination.total > 10 && (
         <div className="mt-4 flex items-center justify-between">
           <Text className="text-sm text-gray-500">
-            Showing {Math.min((page - 1) * 10 + 1, data.totalOrders)} -{' '}
-            {Math.min(page * 10, data.totalOrders)} of {data.totalOrders} orders
+            Showing {Math.min((page - 1) * 10 + 1, data.pagination.total)} -{' '}
+            {Math.min(page * 10, data.pagination.total)} of {data.pagination.total} orders
           </Text>
           <div className="flex gap-2">
             <Button
@@ -157,7 +155,7 @@ function OrderSelectorModal() {
             <Button
               size="sm"
               variant="outline"
-              disabled={page * 10 >= data.totalOrders}
+              disabled={page * 10 >= data.pagination.total}
               onClick={() => setPage(page + 1)}
             >
               Next

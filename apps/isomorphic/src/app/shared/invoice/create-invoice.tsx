@@ -23,7 +23,7 @@ import { useOrderById } from '@/hooks/queries/useOrders';
 import InvoicePreview from '@/app/shared/invoice/invoice-preview';
 
 const invoiceItems = [
-  { item: '', description: '', quantity: 1, price: undefined },
+  { item: '', description: '', quantity: 1, price: 0 },
 ];
 
 export default function CreateInvoice({
@@ -56,14 +56,14 @@ export default function CreateInvoice({
   // Update delivery type when order data changes
   useEffect(() => {
     if (orderData) {
-      const deliveryTypeValue = orderData.deliveryType || 'shipping';
+      const deliveryTypeValue = (orderData.deliveryType as "shipping" | "pickup" | undefined) || 'shipping';
       setDeliveryType(deliveryTypeValue);
     }
   }, [orderData]);
 
   // Generate UUID for manual invoices
   const [manualInvoiceNumber] = useState(() => {
-    if (typeof window !== 'undefined' && window.crypto?.randomUUID) {
+    if (typeof window !== 'undefined' && window.crypto) {
       return crypto.randomUUID();
     }
     // Fallback UUID v4 generation
@@ -81,6 +81,7 @@ export default function CreateInvoice({
   const newItems = record?.items
     ? record.items.map((item) => ({
         ...item,
+        price: item.price ?? 0,
       }))
     : invoiceItems;
 

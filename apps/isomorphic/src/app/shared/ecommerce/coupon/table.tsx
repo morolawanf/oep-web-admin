@@ -73,17 +73,19 @@ export default function CouponsTable() {
   }, [couponsData?.items]);
 
   // Update table page when pagination state changes
+  const tablePagination = useMemo(
+    () => table.getState().pagination,
+    [table.getState().pagination]
+  );
   useEffect(() => {
-    const paginationState = table.getState().pagination;
-    if (paginationState.pageIndex !== page - 1) {
-      setPage(paginationState.pageIndex + 1);
+    if (tablePagination.pageIndex !== page - 1) {
+      setPage(tablePagination.pageIndex + 1);
     }
-    if (paginationState.pageSize !== limit) {
-      setLimit(paginationState.pageSize);
+    if (tablePagination.pageSize !== limit) {
+      setLimit(tablePagination.pageSize);
     }
   }, [
-    table.getState().pagination.pageIndex,
-    table.getState().pagination.pageSize,
+    tablePagination
   ]);
 
   if (isLoading) {

@@ -9,14 +9,15 @@ export const metadata: Metadata = {
 };
 
 interface ShipmentDetailsPageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
-export default function ShipmentDetailsPage({
+export default async function ShipmentDetailsPage({
   params,
 }: ShipmentDetailsPageProps) {
+  const resolvedParams = await params;
   const pageHeader = {
     title: 'Shipment Details',
     breadcrumb: [
@@ -29,7 +30,7 @@ export default function ShipmentDetailsPage({
         name: 'Shipments',
       },
       {
-        name: 'Details',
+        name: resolvedParams.id,
       },
     ],
   };
@@ -37,7 +38,7 @@ export default function ShipmentDetailsPage({
   return (
     <>
       <PageHeader title={pageHeader.title} breadcrumb={pageHeader.breadcrumb} />
-      <ShipmentDetails shipmentId={params.id} />
+      <ShipmentDetails shipmentId={resolvedParams.id} />
     </>
   );
 }

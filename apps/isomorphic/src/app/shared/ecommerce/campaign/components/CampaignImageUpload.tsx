@@ -6,6 +6,7 @@ import {
   UseFormGetValues,
   UseFormSetValue,
   UseFormWatch,
+  Controller
 } from 'react-hook-form';
 import { FormLabelWithTooltip } from '@core/ui/form-label-with-tooltip';
 import { CreateCampaignInput } from '@/validators/create-campaign.schema';
@@ -13,7 +14,6 @@ import { PiXBold } from 'react-icons/pi';
 import { Button, Text } from 'rizzui';
 import UploadZone from '@core/ui/file-upload/upload-zone';
 import Image from 'next/image';
-import { Controller } from 'react-hook-form';
 import { getCdnUrl } from '@core/utils/cdn-url';
 
 interface CampaignImageUploadProps {

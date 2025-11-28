@@ -81,12 +81,10 @@ export default function CreateCampaign() {
         getValues,
       }) => {
         // Set backend errors when apiErrors changes
-        useEffect(() => {
           if (apiErrors) {
             setBackendFormErrors(apiErrors, setError);
             setApiErrors(null);
           }
-        }, [apiErrors, setError]);
 
         return (
           <>

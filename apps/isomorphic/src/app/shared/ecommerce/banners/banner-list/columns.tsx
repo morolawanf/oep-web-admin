@@ -8,7 +8,6 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { ActionIcon, Checkbox, Switch, Text, Title, Tooltip } from 'rizzui';
 import { BannerType } from '../banner-types';
-import { useToggleBannerActive } from '@/hooks/mutations/useBannerMutations';
 import { getCdnUrl } from '@core/utils/cdn-url';
 
 const columnHelper = createColumnHelper<BannerType>();
@@ -66,27 +65,23 @@ export const bannersColumns = [
       <Text className="text-center">{row.original.category}</Text>
     ),
   }),
-  columnHelper.accessor('active', {
-    id: 'active',
-    size: 120,
-    header: 'Status',
-    cell: ({ row }) => {
-      const toggleActive = useToggleBannerActive();
-      
-      return (
-        <div className="flex items-center gap-2">
-          <Switch
-            checked={row.original.active}
-            onChange={() => toggleActive.mutate(row.original._id)}
-            disabled={toggleActive.isPending}
-          />
-          <Text className="text-xs">
-            {row.original.active ? 'Active' : 'Inactive'}
-          </Text>
-        </div>
-      );
-    },
-  }),
+columnHelper.accessor('active', {
+  id: 'active',
+  size: 120,
+  header: 'Status',
+  cell: ({ row, table: { options: { meta } } }) => (
+    <div className="flex items-center gap-2">
+      <Switch
+        checked={row.original.active}
+        onChange={() => meta?.handleToggleBannerActive?.(row.original._id)}
+        disabled={meta?.isToggling}
+      />
+      <Text className="text-xs">
+        {row.original.active ? 'Active' : 'Inactive'}
+      </Text>
+    </div>
+  ),
+}),
   columnHelper.accessor('createdAt', {
     id: 'createdAt',
     size: 140,

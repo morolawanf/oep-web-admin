@@ -60,9 +60,7 @@ export default function CategoriesTable() {
   });
 
   // Update table data when query data changes
-  useEffect(() => {
-    console.log(categoriesData);
-    
+  useEffect(() => {    
     if (categoriesData?.items) {
       setData(categoriesData.items);
     }

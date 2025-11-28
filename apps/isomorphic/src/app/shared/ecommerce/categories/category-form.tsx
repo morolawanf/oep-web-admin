@@ -1,7 +1,16 @@
 'use client';
 
 import { Controller, ControllerRenderProps } from 'react-hook-form';
-import { Button, Input, Loader, Textarea, Select, MultiSelect, ActionIcon, Switch } from 'rizzui';
+import {
+  Button,
+  Input,
+  Loader,
+  Textarea,
+  Select,
+  MultiSelect,
+  ActionIcon,
+  Switch,
+} from 'rizzui';
 import cn from '@core/utils/class-names';
 import { Form } from '@core/ui/form';
 import {
@@ -40,16 +49,19 @@ export default function CategoryForm({
   isModalView = true,
   apiErrors = null,
 }: CategoryFormProps) {
-  const { data: parentOptions = [], isLoading: categoriesLoading } = useParentCategoryOptions(
-    mode === 'update' ? defaultValues?._id : undefined
-  );
+  const { data: parentOptions = [], isLoading: categoriesLoading } =
+    useParentCategoryOptions(
+      mode === 'update' ? defaultValues?._id : undefined
+    );
   const [imagePreview, setImagePreview] = useState(defaultValues?.image || '');
-  const [bannerPreview, setBannerPreview] = useState(defaultValues?.banner || '');
+  const [bannerPreview, setBannerPreview] = useState(
+    defaultValues?.banner || ''
+  );
   const [slugTouched, setSlugTouched] = useState(false);
 
-  
   // Get validation schema based on mode
-  const validationSchema = mode === 'create' ? createCategoryFormSchema : updateCategoryFormSchema;
+  const validationSchema =
+    mode === 'create' ? createCategoryFormSchema : updateCategoryFormSchema;
 
   return (
     <Form<any>
@@ -69,20 +81,26 @@ export default function CategoryForm({
       }}
       className="flex flex-grow flex-col @container [&_label]:font-medium"
     >
-      {({ register, control, setValue, getValues, formState: { errors, isSubmitting }, setError }) => {
+      {({
+        register,
+        control,
+        setValue,
+        getValues,
+        formState: { errors, isSubmitting },
+        setError,
+      }) => {
         // Set backend errors when apiErrors changes
-        useEffect(() => {
-          if (apiErrors && apiErrors.length > 0) {
-            apiErrors.forEach((error) => {
-              if (error.path && error.msg) {
-                setError(error.path as any, {
-                  type: 'manual',
-                  message: error.msg,
-                });
-              }
-            });
-          }
-        }, [apiErrors, setError]);
+
+        if (apiErrors && apiErrors.length > 0) {
+          apiErrors.forEach((error) => {
+            if (error.path && error.msg) {
+              setError(error.path as any, {
+                type: 'manual',
+                message: error.msg,
+              });
+            }
+          });
+        }
 
         return (
           <>
@@ -152,7 +170,7 @@ export default function CategoryForm({
                 <VeritcalFormBlockWrapper
                   title="Parent Categories"
                   description="Select parent categories (optional, supports multiple)"
-                  className="pt-7 @2xl:pt-9 @3xl:pt-11 relative"
+                  className="relative pt-7 @2xl:pt-9 @3xl:pt-11"
                 >
                   <Controller
                     name="parent"
@@ -163,7 +181,7 @@ export default function CategoryForm({
                         value={value}
                         onChange={onChange}
                         searchable
-                       hideSelectedOptions={false}
+                        hideSelectedOptions={false}
                         disabled={categoriesLoading}
                         placeholder="Select parent categories..."
                         error={errors.parent?.message as string}
@@ -184,12 +202,11 @@ export default function CategoryForm({
                     control={control}
                     render={({ field: { value, onChange } }) => (
                       <div className="flex items-center gap-3">
-                        <Switch
-                          checked={value}
-                          onChange={onChange}
-                        />
+                        <Switch checked={value} onChange={onChange} />
                         <span className="text-sm text-gray-600">
-                          {value ? 'Priority category enabled' : 'Priority category disabled'}
+                          {value
+                            ? 'Priority category enabled'
+                            : 'Priority category disabled'}
                         </span>
                       </div>
                     )}
@@ -205,7 +222,7 @@ export default function CategoryForm({
                   <Controller
                     name="image"
                     control={control}
-                    render={({field}) => (
+                    render={({ field }) => (
                       <div className="flex flex-col gap-4">
                         {field.value ? (
                           <div className="relative aspect-video w-full max-w-md overflow-hidden rounded-lg border">
@@ -219,7 +236,7 @@ export default function CategoryForm({
                               size="sm"
                               variant="flat"
                               color="danger"
-                              className="absolute top-2 right-2 cursor-pointer"
+                              className="absolute right-2 top-2 cursor-pointer"
                               onClick={() => field.onChange('')}
                             >
                               <PiTrashBold className="h-4 w-4" />
@@ -228,14 +245,16 @@ export default function CategoryForm({
                         ) : (
                           <UploadZone
                             multiple={false}
-                            name='image'
+                            name="image"
                             getValues={getValues}
                             setValue={setValue}
                             className="min-h-[180px] border-dashed"
                           />
                         )}
                         {errors.image && (
-                          <p className="text-sm text-red-600">{errors.image?.message as string}</p>
+                          <p className="text-sm text-red-600">
+                            {errors.image?.message as string}
+                          </p>
                         )}
                       </div>
                     )}
@@ -265,7 +284,7 @@ export default function CategoryForm({
                               size="sm"
                               variant="flat"
                               color="danger"
-                              className="absolute top-2 right-2 cursor-pointer"
+                              className="absolute right-2 top-2 cursor-pointer"
                               onClick={() => onChange('')}
                             >
                               <PiTrashBold className="h-4 w-4" />
@@ -274,14 +293,16 @@ export default function CategoryForm({
                         ) : (
                           <UploadZone
                             multiple={false}
-                            name='banner'
+                            name="banner"
                             getValues={getValues}
                             setValue={setValue}
                             className="min-h-[180px] border-dashed"
                           />
                         )}
                         {errors.banner && (
-                          <p className="text-sm text-red-600">{errors.banner?.message as string}</p>
+                          <p className="text-sm text-red-600">
+                            {errors.banner?.message as string}
+                          </p>
                         )}
                       </div>
                     )}
@@ -292,8 +313,8 @@ export default function CategoryForm({
 
             <div
               className={cn(
-                'sticky bottom-0 z-40 flex items-center gap-3 bg-gray-0/10 backdrop-blur @lg:gap-4 @xl:grid @xl:auto-cols-max @xl:grid-flow-col justify-end',
-                isModalView ? '-mx-10 -mb-7 px-10 py-1' : 'py-1',
+                'sticky bottom-0 z-40 flex items-center justify-end gap-3 bg-gray-0/10 backdrop-blur @lg:gap-4 @xl:grid @xl:auto-cols-max @xl:grid-flow-col',
+                isModalView ? '-mx-10 -mb-7 px-10 py-1' : 'py-1'
               )}
             >
               {onDelete && mode === 'update' && (

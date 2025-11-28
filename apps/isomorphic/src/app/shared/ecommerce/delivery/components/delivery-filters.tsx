@@ -6,8 +6,7 @@ import { type Table as ReactTableType } from '@tanstack/react-table';
 import { useState } from 'react';
 import { PiFunnel, PiMagnifyingGlassBold, PiTrashDuotone } from 'react-icons/pi';
 import { Button, Flex, Input, Select } from 'rizzui';
-import type { ShipmentStatus } from '@/types/shipment.types';
-import { SHIPMENT_STATUSES } from '@/types/shipment.types';
+import {SHIPMENT_STATUSES, type  ShipmentStatus } from '@/types/shipment.types';
 
 interface TableToolbarProps<T extends Record<string, any>> {
   table: ReactTableType<T>;

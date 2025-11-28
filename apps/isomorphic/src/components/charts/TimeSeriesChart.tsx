@@ -204,13 +204,13 @@ export default function TimeSeriesChart({
               tick={{ fill: '#6b7280', fontSize: 12 }}
               tickFormatter={yAxisFormatter || defaultYAxisFormatter}
             />
-            <Tooltip
+            {/* <Tooltip
               content={
                 <CustomTooltip
                   formatter={(value: number) => (tooltipFormatter || defaultTooltipFormatter)(value)}
                 />
               }
-            />
+            /> */}
             <Area
               type="monotone"
               dataKey="value"

@@ -103,7 +103,8 @@ export default function InvoicePreview({
 
   return (
     <>
-      <style jsx global>{`
+      <style dangerouslySetInnerHTML={{
+        __html: `
         @media print {
           /* Hide everything except the invoice */
           body * {
@@ -142,7 +143,7 @@ export default function InvoicePreview({
             page-break-inside: avoid;
           }
         }
-      `}</style>
+      `}} />
 
       <div
         id="invoice-print-area"

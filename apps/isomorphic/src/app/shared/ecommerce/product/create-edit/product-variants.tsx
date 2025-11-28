@@ -270,8 +270,8 @@ function VariantChildren({ attributeIndex }: { attributeIndex: number }) {
 
           {fields.length === 0 && (
             <p className="rounded border border-dashed py-4 text-center text-sm text-gray-500">
-              No sub-variants yet. Add values like "Red", "Blue" for Color or
-              "Small", "Medium" for Size.
+              {`No sub-variants yet. Add values like "Red", "Blue" for Color or
+              "Small", "Medium" for Size.`}
             </p>
           )}
         </div>

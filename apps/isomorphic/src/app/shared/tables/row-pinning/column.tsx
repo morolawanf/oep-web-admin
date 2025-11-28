@@ -91,8 +91,8 @@ export const defaultColumns = [
       <Flex align="center" justify="end" gap="3" className="pe-3">
         <TableRowActionGroup
           className="pe-0"
-          editUrl={routes.invoice.edit(row.original.id)}
-          viewUrl={routes.invoice.details(row.original.id)}
+  editUrl={'#'}
+          viewUrl={'#'}
           deletePopoverTitle="Delete the invoice"
           deletePopoverDescription={`Are you sure you want to delete this #${row.id} invoice?`}
           onDelete={() => meta?.handleDeleteRow?.(row.original)}

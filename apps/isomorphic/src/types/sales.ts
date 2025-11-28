@@ -86,15 +86,14 @@ export interface CreateSaleInput {
   isActive?: boolean;
   isHot?: boolean;
   deleted?: boolean;
-  campaign?: string; // Campaign ID (optional)
   startDate?: Date | string;
   endDate?: Date | string;
   variants: Array<{
     attributeName: string | null;
     attributeValue: string | null;
     discount: number;
-    amountOff: number;
-    maxBuys: number;
+    amountOff?: number;
+    maxBuys?: number;
     boughtCount?: number;
   }>;
 }

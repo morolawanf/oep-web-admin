@@ -69,26 +69,6 @@ const copyToClipboard = async (text: string, label: string) => {
 export const transactionsColumns = (
   onViewTransaction: (transaction: Transaction) => void
 ) => [
-  columnHelper.display({
-    id: 'select',
-    size: 50,
-    header: ({ table }) => (
-      <Checkbox
-        className="ps-3.5"
-        aria-label="Select all rows"
-        checked={table.getIsAllPageRowsSelected()}
-        onChange={() => table.toggleAllPageRowsSelected()}
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        className="ps-3.5"
-        aria-label="Select row"
-        checked={row.getIsSelected()}
-        onChange={() => row.toggleSelected()}
-      />
-    ),
-  }),
   columnHelper.accessor('reference', {
     id: 'reference',
     size: 200,

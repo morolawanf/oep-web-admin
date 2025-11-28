@@ -43,14 +43,14 @@ export default async function OrderDetailsPage({
   return (
     <>
       <PageHeader title={pageHeader.title} breadcrumb={pageHeader.breadcrumb}>
-        <Link
+        {/* <Link
           href={routes.eCommerce.editOrder(id)}
           className="mt-4 w-full @lg:mt-0 @lg:w-auto"
         >
-          {/* <Button as="span" className="w-full @lg:w-auto">
+          <Button as="span" className="w-full @lg:w-auto">
             Edit Order
-          </Button> */}
-        </Link>
+          </Button>
+        </Link> */}
       </PageHeader>
       <OneOrderNav menuItems={menuItemsForMiniNav} />
       {children}

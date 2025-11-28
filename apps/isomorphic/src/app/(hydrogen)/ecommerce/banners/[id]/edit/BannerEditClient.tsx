@@ -49,11 +49,14 @@ export default function BannerEditClient({ bannerId }: { bannerId: string }) {
         onDelete={() => setShowDeleteConfirm(true)}
       />
 
-      <Modal isOpen={showDeleteConfirm} onClose={() => setShowDeleteConfirm(false)}>
+      <Modal
+        isOpen={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+      >
         <div className="p-6">
-          <Text className="text-lg font-semibold mb-4">Delete Banner</Text>
+          <Text className="mb-4 text-lg font-semibold">Delete Banner</Text>
           <Text className="mb-6 text-gray-600">
-            Are you sure you want to delete the banner "{banner.name}"? This action cannot be undone.
+            {`Are you sure you want to delete the banner "${banner.name}"? This action cannot be undone.`}
           </Text>
           <div className="flex justify-end gap-3">
             <Button

@@ -187,13 +187,13 @@ export default function ReturnsTable({
   }, [returns, setData]);
 
   // Handle pagination changes via table state
+  const currentPageIndex = table.getState().pagination.pageIndex;
   useEffect(() => {
-    const state = table.getState();
-    const newPage = state.pagination.pageIndex + 1;
+    const newPage = currentPageIndex + 1;
     if (meta && newPage !== meta.page) {
       onPageChange(newPage);
     }
-  }, [table.getState().pagination.pageIndex, meta, onPageChange]);
+  }, [currentPageIndex, meta, onPageChange]);
 
   return (
     <div>

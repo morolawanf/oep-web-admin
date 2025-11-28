@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import {
   useStaff,
   useDeleteUser,
@@ -35,14 +35,17 @@ export default function UsersTable() {
   const deleteUserMutation = useDeleteUser();
 
   // Transform staff data to table format
-  const tableData: UsersTableDataType[] =
+  const tableData:  UsersTableDataType[] = useMemo(() => 
+
     staffData?.users?.map((user, index) => ({
       ...user,
       id: index + 1,
       fullName: `${user.firstName} ${user.lastName}`,
       avatar: user.image || '/avatar-placeholder.png',
       createdAt: user.joinedAt,
-    })) || [];
+    })) || []
+
+  , [staffData]);
 
   const { table, setData } = useTanStackTable<UsersTableDataType>({
     tableData: [], // Start with empty array
@@ -92,7 +95,7 @@ export default function UsersTable() {
     if (tableData.length > 0) {
       setData(tableData);
     }
-  }, [staffData, setData]);
+  }, [tableData, setData]);
 
   return (
     <div className="mt-14">

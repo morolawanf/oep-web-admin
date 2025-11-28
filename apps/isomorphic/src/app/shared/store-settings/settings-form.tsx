@@ -89,12 +89,10 @@ export default function SettingsForm() {
     >
       {({ register, control, watch, formState: { errors }, setValue, setError, getValues }) => {
         // Set backend errors when apiErrors changes
-        useEffect(() => {
           if (apiErrors) {
             setBackendFormErrors(apiErrors, setError);
             setApiErrors(null);
-          }
-        }, [apiErrors, setError]);
+          } 
 
         const logoValue = watch('logoUrl');
 

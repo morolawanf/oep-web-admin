@@ -47,8 +47,6 @@ const initialDefaultValues: CreateSalesInput = {
   title: '',
   type: 'Normal',
   product: '',
-  campaign: '',
-  limit: 0,
   deleted: false,
   isHot: false,
   startDate: new Date(),
@@ -192,7 +190,9 @@ export default function CreateSales() {
     <Form<CreateSalesInput>
       onSubmit={onSubmit}
       useFormProps={{
-        ...methods,
+        mode: 'onChange',
+        defaultValues: initialDefaultValues,
+        resolver: zodResolver(createSalesSchema),
       }}
       className="isomorphic-form flex max-w-3xl flex-col justify-start gap-3 rounded-lg bg-white p-0.5"
     >

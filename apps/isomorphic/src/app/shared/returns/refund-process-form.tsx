@@ -92,7 +92,6 @@ export default function RefundProcessForm({
     >
       {({ register, control, formState: { errors, isSubmitting }, setError }) => {
         // Set backend errors when apiErrors changes
-        useEffect(() => {
           if (apiErrors && apiErrors.length > 0) {
             apiErrors.forEach((error) => {
               if (error.path && error.msg) {
@@ -103,7 +102,6 @@ export default function RefundProcessForm({
               }
             });
           }
-        }, [apiErrors, setError]);
 
         return (
           <>
@@ -118,7 +116,7 @@ export default function RefundProcessForm({
             {!isRefundable && (
               <Alert color="warning" className="mb-4">
                 <strong>Note:</strong> Refunds can only be processed when the return status is
-                "approved" (after inspection passes). Current status: <strong>{currentStatus}</strong>
+                {` "approved"`} (after inspection passes). Current status: <strong>{currentStatus}</strong>
               </Alert>
             )}
 
@@ -179,8 +177,8 @@ export default function RefundProcessForm({
                 )}
               />
               <div className="mt-3 space-y-2 text-sm text-gray-600">
-                <p><strong>Original Payment Method:</strong> Refund via Paystack to customer's payment source</p>
-                <p><strong>Store Credit:</strong> Add refund amount to customer's store credit balance</p>
+                <p><strong>Original Payment Method:</strong> {`Refund via Paystack to customer's payment source`}</p>
+                <p><strong>Store Credit:</strong> {`Add refund amount to customer's store credit balance`}</p>
                 <p><strong>Bank Transfer:</strong> Manual bank transfer processed by finance team</p>
               </div>
             </VerticalFormBlockWrapper>
@@ -205,7 +203,7 @@ export default function RefundProcessForm({
                 <strong>Important:</strong> Processing this refund will:
                 <ul className="mt-2 list-inside list-disc space-y-1">
                   <li>Create a refund transaction</li>
-                  <li>Update the return status to "completed"</li>
+                  <li>{`Update the return status to "completed"`}</li>
                   <li>
                     {totalRefundAmount && totalRefundAmount > 0
                       ? `Refund ${formatCurrency(totalRefundAmount, 'NGN')} to the customer`

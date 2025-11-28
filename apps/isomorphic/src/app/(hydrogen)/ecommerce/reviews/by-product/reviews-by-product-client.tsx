@@ -7,7 +7,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useProductReviews } from '@/hooks/queries/useReviews';
-import { useProductSearch } from '@/hooks/queries/useProducts';
+import { useProductSearch, type Product } from '@/hooks/queries/useProducts';
 import { useDrawer } from '@/app/shared/drawer-views/use-drawer';
 import { useDebounce } from '@/hooks/use-debounce';
 import ReviewDetailDrawer from '@/app/shared/ecommerce/review/review-detail-drawer';
@@ -17,7 +17,6 @@ import type {
   ReviewFilters as ReviewFiltersType,
   Review,
 } from '@/types/review.types';
-import type { Product } from '@/hooks/queries/useProducts';
 import { useTanStackTable } from '@core/components/table/custom/use-TanStack-Table';
 import Table from '@core/components/table';
 import TablePagination from '@core/components/table/pagination';
@@ -57,13 +56,14 @@ export default function ReviewsByProductClient() {
   } = useProductReviews(selectedProduct?._id || '', filters, {
     enabled: !!selectedProduct,
   });
-  
-  
-  
-  const reviews = useMemo(() => reviewsData?.reviews || [], [reviewsData?.reviews]);
+
+  const reviews = useMemo(
+    () => reviewsData?.reviews || [],
+    [reviewsData?.reviews]
+  );
   const pagination = reviewsData?.pagination;
   const totalReviews = pagination?.total || 0;
-  
+
   console.log(reviews);
   const columns = [
     columnHelper.accessor('reviewBy', {
@@ -178,7 +178,6 @@ export default function ReviewsByProductClient() {
     tableData: reviews,
     columnConfig: columns,
     options: {
-      
       initialState: {
         pagination: {
           pageIndex: filters.page ? filters.page - 1 : 0,
@@ -270,7 +269,9 @@ export default function ReviewsByProductClient() {
                 ))
               ) : (
                 <div className="p-4 text-center">
-                  <Text className="text-sm text-gray-500">No products found</Text>
+                  <Text className="text-sm text-gray-500">
+                    No products found
+                  </Text>
                 </div>
               )}
             </div>

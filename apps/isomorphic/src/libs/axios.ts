@@ -1,6 +1,5 @@
-import { signOut } from '@/app/api/auth/[...nextauth]/route';
 import axios, { AxiosInstance, InternalAxiosRequestConfig, AxiosResponse, AxiosError, AxiosRequestConfig } from 'axios';
-import { getSession } from 'next-auth/react';
+import { getSession,signOut } from 'next-auth/react';
 
 export interface ApiResponse<T = undefined> {
   message: string;

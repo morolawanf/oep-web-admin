@@ -1,8 +1,7 @@
 import { routes } from '@/config/routes';
 import { metaObject } from '@/config/site.config';
-import PageHeader from '@/app/shared/page-header';
-import Link from 'next/link';
-import { Button, Text } from 'rizzui';
+import { Text } from 'rizzui';
+import PageHeaderWithNavigation from '@/app/shared/page-header-w-nav';
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -35,22 +34,13 @@ export default async function EditOrderPage({ params }: any) {
 
   return (
     <>
-      <PageHeader title={pageHeader.title} breadcrumb={pageHeader.breadcrumb}>
-        <Link
-          href={routes.eCommerce.orders}
-          className="mt-4 w-full @lg:mt-0 @lg:w-auto"
-        >
-          <Button as="span" className="w-full @lg:w-auto" variant="outline">
-            Cancel
-          </Button>
-        </Link>
-      </PageHeader>
+      <PageHeaderWithNavigation title={pageHeader.title} breadcrumb={pageHeader.breadcrumb} href={routes.eCommerce.orders} buttonText="Cancel" />
       <div className="p-6">
-        <Text className="text-center text-gray-500">
+        <div className="text-center text-gray-500">
           Order editing functionality is coming soon. Currently, you can update
           order status, tracking, and process refunds from the order details
           drawer.
-        </Text>
+        </div>
       </div>
     </>
   );

@@ -27,6 +27,7 @@ export const dimensionsSchema = z
 export const shipmentStatusSchema = z.enum([
   'In-Warehouse',
   'Shipped',
+  'In-Transit',
   'Dispatched',
   'Delivered',
   'Returned',

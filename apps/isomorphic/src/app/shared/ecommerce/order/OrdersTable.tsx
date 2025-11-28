@@ -9,9 +9,7 @@ import Table from '@core/components/table';
 import { useTanStackTable } from '@core/components/table/custom/use-TanStack-Table';
 import TablePagination from '@core/components/table/pagination';
 import { ordersColumns } from './columns';
-import { useCallback, useEffect, useMemo } from 'react';
-import { PaginationState, Updater } from '@tanstack/react-table';
-import TableSkeleton from '../categories/category-list/table-skeleton';
+import { useEffect, useMemo } from 'react';
 
 interface OrdersTableProps {
   orders?: OrdersListResponse;
@@ -52,7 +50,9 @@ export default function OrdersTable({
   });
 
   useEffect(() => {
-    setData(mainOrders);
+    if (mainOrders) {
+      setData(mainOrders);
+    }
   }, [mainOrders]);
 
   // Handle pagination changes via table state

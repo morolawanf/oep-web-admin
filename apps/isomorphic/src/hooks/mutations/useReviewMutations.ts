@@ -208,7 +208,8 @@ export const useModerateReview = (
       queryClient.invalidateQueries({ queryKey: reviewKeys.lists() });
       queryClient.invalidateQueries({ queryKey: reviewKeys.statistics() });
 
-      const action = variables.data.action === 'approve' ? 'approved' : 'rejected';
+      const action =
+        variables.data.action === 'approve' ? 'approved' : 'rejected';
       toast.success(`Review ${action} successfully`);
       options?.onSuccess?.(data, variables, context);
     },
@@ -216,60 +217,6 @@ export const useModerateReview = (
       const errorMessage = handleApiError(error);
       toast.error(errorMessage);
       console.error('Moderate review error:', error);
-      options?.onError?.(error, variables, context);
-    },
-    ...options,
-  });
-};
-
-/**
- * Bulk moderate reviews (approve/reject multiple)
- */
-export const useBulkModerateReviews = (
-  options?: Omit<
-    UseMutationOptions<
-      { moderated: number; failed: number },
-      Error,
-      BulkModerateInput,
-      MutationContext
-    >,
-    'mutationFn'
-  >
-) => {
-  const queryClient = useQueryClient();
-
-  return useMutation<
-    { moderated: number; failed: number },
-    Error,
-    BulkModerateInput,
-    MutationContext
-  >({
-    mutationFn: async (data: BulkModerateInput) => {
-      const response = await apiClient.post<{
-        moderated: number;
-        failed: number;
-      }>(api.reviews.bulkModerate, data);
-      if (!response.data) {
-        throw new Error('Bulk moderation failed');
-      }
-      return response.data;
-    },
-    onSuccess: (data, variables, context) => {
-      // Invalidate all review queries
-      queryClient.invalidateQueries({ queryKey: reviewKeys.all });
-
-      const action = variables.action === 'approve' ? 'approved' : 'rejected';
-      toast.success(
-        `${data.moderated} review(s) ${action} successfully${
-          data.failed > 0 ? `, ${data.failed} failed` : ''
-        }`
-      );
-      options?.onSuccess?.(data, variables, context);
-    },
-    onError: (error, variables, context) => {
-      const errorMessage = handleApiError(error);
-      toast.error(errorMessage);
-      console.error('Bulk moderate error:', error);
       options?.onError?.(error, variables, context);
     },
     ...options,
@@ -430,14 +377,13 @@ export const useDeleteReply = (
   });
 };
 
-// Export all hooks as default for convenience
-export default {
+const reviewMutationsHook = {
   useCreateReview,
   useUpdateReview,
   useDeleteReview,
   useModerateReview,
-  useBulkModerateReviews,
   useAddReply,
   useUpdateReply,
   useDeleteReply,
 };
+export default reviewMutationsHook;

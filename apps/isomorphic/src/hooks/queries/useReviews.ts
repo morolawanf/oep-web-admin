@@ -64,7 +64,7 @@ export const useReviews = (
           total: number;
           page: number;
           limit: number;
-          pages: number;
+          totalPages: number;
         }
       >(api.reviews.list, {
         params,
@@ -78,7 +78,7 @@ export const useReviews = (
           total: 1,
           page: 1,
           limit: 15,
-          pages: 1,
+          totalPages: 1,
         },
       };
     },
@@ -134,17 +134,17 @@ export const useProductReviews = (
         params.isApproved = params.isApproved ? 'true' : 'false';
       }
 
-      const response = await apiClient.getWithMeta<Review[], {
-    total: number;
-    page: number;
-    limit: number;
-    pages: number;
-  }>(
-        api.reviews.byProduct(productId),
+      const response = await apiClient.getWithMeta<
+        Review[],
         {
-          params,
+          total: number;
+          page: number;
+          limit: number;
+          totalPages: number;
         }
-      );
+      >(api.reviews.byProduct(productId), {
+        params,
+      });
       if (!response.data) {
         throw new Error('No reviews found for this product');
       }
@@ -186,7 +186,7 @@ export const useUserReviews = (
           total: number;
           page: number;
           limit: number;
-          pages: number;
+          totalPages: number;
         }
       >(api.reviews.byUser(userId), {
         params,
@@ -309,8 +309,7 @@ export const useUserSearch = (
   });
 };
 
-// Export all hooks as default for convenience
-export default {
+const reviewHooks = {
   useReviews,
   useReviewById,
   useProductReviews,
@@ -320,3 +319,4 @@ export default {
   useProducts,
   useUserSearch,
 };
+export default reviewHooks;

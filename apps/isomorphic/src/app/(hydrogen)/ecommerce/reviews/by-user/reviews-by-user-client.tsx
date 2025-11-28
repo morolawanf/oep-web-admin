@@ -6,8 +6,7 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { useUserSearch } from '@/hooks/queries/useReviews';
-import { useUserReviews } from '@/hooks/queries/useReviews';
+import { useUserSearch, useUserReviews } from '@/hooks/queries/useReviews';
 import { useDrawer } from '@/app/shared/drawer-views/use-drawer';
 import { useDebounce } from '@/hooks/use-debounce';
 import ReviewDetailDrawer from '@/app/shared/ecommerce/review/review-detail-drawer';
@@ -50,10 +49,12 @@ export default function ReviewsByUserClient() {
 
   // Only search if debounced query is 2+ characters
   const shouldSearch = debouncedSearchQuery.length >= 2;
-  const { data: searchResults, isLoading: isSearching } =
-    useUserSearch(shouldSearch ? debouncedSearchQuery : '', {
+  const { data: searchResults, isLoading: isSearching } = useUserSearch(
+    shouldSearch ? debouncedSearchQuery : '',
+    {
       enabled: shouldSearch,
-    });
+    }
+  );
   const {
     data: reviewsData,
     isLoading: isLoadingReviews,
@@ -62,7 +63,10 @@ export default function ReviewsByUserClient() {
     enabled: !!selectedUserId,
   });
 
-  const reviews = useMemo(() => reviewsData?.reviews || [], [reviewsData?.reviews]);
+  const reviews = useMemo(
+    () => reviewsData?.reviews || [],
+    [reviewsData?.reviews]
+  );
 
   const pagination = reviewsData?.pagination;
   const totalReviews = pagination?.total || 0;
@@ -78,11 +82,13 @@ export default function ReviewsByUserClient() {
         const prod = typeof product === 'object' ? product : null;
         return (
           <div className="flex items-center gap-2">
-           
             <img
-            src={getCdnUrl(prod?.description_images.find(img => img.cover_image)?.url || '')}
+              src={getCdnUrl(
+                prod?.description_images.find((img) => img.cover_image)?.url ||
+                  ''
+              )}
               alt={prod?.name || 'Product'}
-              className="rounded-lg h-10 w-10 object-cover"
+              className="h-10 w-10 rounded-lg object-cover"
             />
             <div>
               <Text className="font-medium text-gray-900">
@@ -254,8 +260,11 @@ export default function ReviewsByUserClient() {
                     onClick={() => handleSelectUser(user._id)}
                     className="flex w-full items-center gap-3 border-b border-muted p-3 text-left transition-colors last:border-0 hover:bg-gray-50"
                   >
-                    
-                    <Avatar src={getCdnUrl(user.image)} name={user.name} size="sm" />
+                    <Avatar
+                      src={getCdnUrl(user.image)}
+                      name={user.name}
+                      size="sm"
+                    />
                     <div className="flex-1">
                       <Text className="font-medium text-gray-900">
                         {user.name}
@@ -340,7 +349,7 @@ export default function ReviewsByUserClient() {
       ) : reviews.length === 0 ? (
         <div className="rounded-lg border border-muted bg-white p-12 text-center">
           <Text className="text-gray-500">
-            This user hasn't written any reviews yet.
+            {`This user hasn't written any reviews yet.`}
           </Text>
         </div>
       ) : (

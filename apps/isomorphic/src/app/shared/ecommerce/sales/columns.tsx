@@ -2,7 +2,7 @@
 
 import DateCell from '@core/ui/date-cell';
 import { createColumnHelper } from '@tanstack/react-table';
-import { Badge, Text, Tooltip, ActionIcon, Button } from 'rizzui';
+import { Badge, Text, Tooltip, ActionIcon, Button, Modal } from 'rizzui';
 import {
   PiToggleLeftFill,
   PiToggleRightFill,
@@ -16,9 +16,7 @@ import {
 } from '@/hooks/mutations/useSalesMutations';
 import { routes } from '@/config/routes';
 import { SalesDataType } from './table';
-import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { Modal } from 'rizzui';
 import Link from 'next/link';
 
 const columnHelper = createColumnHelper<SalesDataType>();

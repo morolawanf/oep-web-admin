@@ -96,11 +96,7 @@ export default function UsersTable() {
         table={table}
       />
 
-      {isLoading ? (
-        <div className="flex h-96 items-center justify-center rounded-md border border-muted">
-          <Loader size="xl" />
-        </div>
-      ) : error ? (
+      { error ? (
         <div className="flex h-96 flex-col items-center justify-center gap-4 rounded-md border border-muted">
           <Text className="text-red-600">
             Failed to load users. Please try again.
@@ -110,8 +106,9 @@ export default function UsersTable() {
           </Button>
         </div>
       ) : (
-        <>
+
           <Table
+          isLoading={isLoading}
             table={table}
             variant="modern"
             classNames={{
@@ -119,9 +116,9 @@ export default function UsersTable() {
               rowClassName: 'last:border-0',
             }}
           />
-          <TablePagination table={table} className="py-4" />
-        </>
+
       )}
+      <TablePagination table={table} className="py-4" />
     </div>
   );
 }

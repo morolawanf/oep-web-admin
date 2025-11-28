@@ -1,10 +1,8 @@
-import Link from 'next/link';
 import { Metadata } from 'next';
 import { routes } from '@/config/routes';
-import { Button } from 'rizzui/button';
 import { metaObject } from '@/config/site.config';
-import PageHeader from '@/app/shared/page-header';
 import EditSales from '@/app/shared/ecommerce/sales/edit-sales';
+import PageHeaderWithNavigation from '@/app/shared/page-header-w-nav';
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -37,16 +35,7 @@ export default async function EditFlashSalePage({ params }: any) {
 
   return (
     <>
-      <PageHeader title={pageHeader.title} breadcrumb={pageHeader.breadcrumb}>
-        <Link
-          href={routes.eCommerce.flashSales}
-          className="mt-4 w-full @lg:mt-0 @lg:w-auto"
-        >
-          <Button as="span" className="w-full @lg:w-auto" variant="outline">
-            Cancel
-          </Button>
-        </Link>
-      </PageHeader>
+      <PageHeaderWithNavigation title={pageHeader.title} breadcrumb={pageHeader.breadcrumb} href={routes.eCommerce.flashSales} buttonText="Cancel"/>
       <EditSales saleId={id} />
     </>
   );

@@ -103,7 +103,6 @@ export default function ReturnStatusUpdateForm({
     >
       {({ register, control, formState: { errors, isSubmitting }, setError }) => {
         // Set backend errors when apiErrors changes
-        useEffect(() => {
           if (apiErrors && apiErrors.length > 0) {
             apiErrors.forEach((error) => {
               if (error.path && error.msg) {
@@ -114,7 +113,6 @@ export default function ReturnStatusUpdateForm({
               }
             });
           }
-        }, [apiErrors, setError]);
 
         return (
           <>
@@ -163,7 +161,7 @@ export default function ReturnStatusUpdateForm({
               />
               {availableStatuses.length === 0 && (
                 <p className="mt-2 text-sm text-gray-500">
-                  No status transitions available from "{currentStatus}"
+                 {`No status transitions available from "${currentStatus}"`}
                 </p>
               )}
             </VerticalFormBlockWrapper>

@@ -8,6 +8,7 @@ const variantSchema = z
       .number()
       .min(0, { message: 'Discount must be a positive number.' }),
     maxBuys: z.number().min(0).optional(), // Optional because it's only for 'Limited' type
+    amountOff: z.number().min(0).optional(), // Optional because it's only for 'Limited' type
     boughtCount: z.number().min(0).optional(),
   })
   .refine(

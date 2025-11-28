@@ -1,8 +1,6 @@
-import { Button } from 'rizzui/button';
 import { routes } from '@/config/routes';
-import PageHeader from '@/app/shared/page-header';
-import Link from 'next/link';
 import ReturnsView from '@/app/shared/ecommerce/returns/order-view';
+import PageHeaderWithNavigation from '@/app/shared/page-header-w-nav';
 
 export default async function ReturnsDetailsPage({ params }: any) {
   const id = (await params).id;
@@ -24,16 +22,7 @@ export default async function ReturnsDetailsPage({ params }: any) {
   };
   return (
     <>
-      <PageHeader title={pageHeader.title} breadcrumb={pageHeader.breadcrumb}>
-        <Link
-          href={routes.eCommerce.editReturns(id)}
-          className="mt-4 w-full @lg:mt-0 @lg:w-auto"
-        >
-          <Button as="span" className="w-full @lg:w-auto">
-            Edit Returns
-          </Button>
-        </Link>
-      </PageHeader>
+      <PageHeaderWithNavigation title={pageHeader.title} breadcrumb={pageHeader.breadcrumb} href={routes.eCommerce.editReturns(id)} buttonText="Edit Returns" />
       <ReturnsView />
     </>
   );

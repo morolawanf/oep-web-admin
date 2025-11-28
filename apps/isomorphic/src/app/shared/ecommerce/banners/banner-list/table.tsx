@@ -9,12 +9,13 @@ import TablePagination from '@core/components/table/pagination';
 import Filters from './filters';
 import { BannerType } from '../banner-types';
 import { useBanners } from '@/hooks/queries/useBanners';
-import { useDeleteBanner } from '@/hooks/mutations/useBannerMutations';
+import { useDeleteBanner, useToggleBannerActive } from '@/hooks/mutations/useBannerMutations';
 import { Text } from 'rizzui';
 
 export default function BannersTable() {
   const { data: bannersData, isLoading, error } = useBanners({ page: 1, limit: 100 });
   const deleteBanner = useDeleteBanner();
+  const toggleActive = useToggleBannerActive();
   
   const { table, setData } = useTanStackTable<BannerType>({
     tableData: bannersData?.items || [],
@@ -53,6 +54,8 @@ export default function BannersTable() {
             setData((prev) => prev.filter((r) => !rows.some((row: BannerType) => row._id === r._id)));
           });
         },
+        handleToggleBannerActive: (id: string) => toggleActive.mutate(id),
+        isToggling: toggleActive.isPending,
       },
       enableColumnResizing: false,
     },

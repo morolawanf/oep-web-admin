@@ -6,8 +6,7 @@ import { createColumnHelper } from '@tanstack/react-table';
 import Link from 'next/link';
 import { ActionIcon, Badge, Flex, Text, Tooltip } from 'rizzui';
 import { PiEyeDuotone, PiPencilDuotone } from 'react-icons/pi';
-import type { Shipment, ShipmentStatus } from '@/types/shipment.types';
-import { STATUS_BADGE_CONFIG } from '@/types/shipment.types';
+import{STATUS_BADGE_CONFIG, type  Shipment, type ShipmentStatus } from '@/types/shipment.types';
 
 const columnHelper = createColumnHelper<Shipment>();
 
