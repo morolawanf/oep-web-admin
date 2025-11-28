@@ -96,14 +96,14 @@ export default function SignInForm() {
 
             {/* Error Message */}
             {submitError && (
-              <div className="p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+              <div className="rounded-lg border border-red-400 bg-red-100 p-4 text-red-700">
                 <Text className="text-sm">{submitError}</Text>
               </div>
             )}
 
-            <Button 
-              className="w-full" 
-              type="submit" 
+            <Button
+              className="w-full"
+              type="submit"
               size="lg"
               disabled={isSubmitting}
             >
@@ -113,7 +113,7 @@ export default function SignInForm() {
           </div>
         )}
       </Form>
-      <Text className="mt-6 text-center leading-loose text-gray-500 lg:mt-8 lg:text-start">
+      {/* <Text className="mt-6 text-center leading-loose text-gray-500 lg:mt-8 lg:text-start">
         Don’t have an account?{' '}
         <Link
           href={routes.storefront.signUpPage}
@@ -121,7 +121,7 @@ export default function SignInForm() {
         >
           Sign Up
         </Link>
-      </Text>
+      </Text> */}
     </>
   );
 }
