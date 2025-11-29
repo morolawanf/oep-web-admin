@@ -18,6 +18,7 @@ import { routes } from '@/config/routes';
 import { SalesDataType } from './table';
 import { useState } from 'react';
 import Link from 'next/link';
+import { getCdnUrl } from '@core/utils/cdn-url';
 
 const columnHelper = createColumnHelper<SalesDataType>();
 
@@ -136,35 +137,20 @@ export const salesColumns = [
       </Text>
     ),
   }),
-  columnHelper.display({
-    id: 'productImage',
-    size: 80,
-    header: 'Image',
-    cell: ({ row }) => (
-      <img
-        src={
-          row.original.product?.coverImage ||
-          row.original.product?.image ||
-          '/placeholder.png'
-        }
-        alt={row.original.product?.name || 'Product'}
-        className="h-12 w-12 rounded-md object-cover"
-      />
-    ),
-  }),
+
   columnHelper.display({
     id: 'productName',
     size: 200,
     header: 'Product',
     cell: ({ row }) => (
-      <div className="flex gap-1">
+      <div className="flex gap-1 items-center">
         <img
           src={
-        row.original.product?.description_images?.find((img) => img.cover_image)?.url ||
-        '/placeholder.png'
+       getCdnUrl( row.original.product?.description_images?.find((img) => img.cover_image)?.url ||
+        '/placeholder.png')
           }
           alt={row.original.product?.name || 'Product'}
-          className="h-8 w-8 rounded-md object-cover"
+          className="h-10 w-10 rounded-sm object-cover"
         />
         <div>
           <Text className="text-sm font-medium">
