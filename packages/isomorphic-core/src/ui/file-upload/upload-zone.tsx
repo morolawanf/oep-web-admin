@@ -13,10 +13,7 @@ import UploadIcon from "../../components/shape/upload";
 import { endsWith } from "lodash";
 import { baseApiClient, handleApiError } from "../../../../../apps/isomorphic/src/libs/axios";
 import api from "../../../../../apps/isomorphic/src/libs/endpoints";
-import {
-  UploadedFile,
-  addToUploadHistory,
-} from "../../utils/upload-history";
+import { UploadedFile, addToUploadHistory } from "../../utils/upload-history";
 import UploadHistory from "./upload-history";
 import { getCdnUrl } from "../../utils/cdn-url";
 
@@ -70,7 +67,7 @@ export default function UploadZone({
         ),
       ]);
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
     []
   );
 
@@ -83,8 +80,6 @@ export default function UploadZone({
         ...historyFile,
         fromHistory: true,
       };
-
-      
 
       if (typeof currentValue === "string" || !multiple) {
         setValue(name, newFile.path);
@@ -100,9 +95,9 @@ export default function UploadZone({
       } else {
         setValue(name, [newFile]);
       }
-      
+
       // Force re-render to show the added file immediately
-      setForceUpdate(prev => prev + 1);
+      setForceUpdate((prev) => prev + 1);
     },
     [getValues, setValue, name]
   );
@@ -174,7 +169,7 @@ export default function UploadZone({
 
     try {
       const formData = new FormData();
-
+      const currentValue = getValues(name);
       if (multiple && filesToUpload.length > 1) {
         // Multiple file upload
         filesToUpload.forEach((file) => {
@@ -188,11 +183,10 @@ export default function UploadZone({
           },
         });
 
-        
         if (response.data?.data) {
           const uploadedFiles: UploadedFile[] = response.data.data.map((file: any) => ({
             path: file.path,
-            url: getCdnUrl(file.path), 
+            url: getCdnUrl(file.path),
             size: file.size,
             mimetype: file.mimetype,
             originalName: file.originalName,
@@ -204,12 +198,12 @@ export default function UploadZone({
 
           // Clear selected files
           setFiles([]);
-          
+
           // Update form value
           if (!multiple || typeof initialValue === "string") {
-            setValue(name, uploadedFiles[0].path);
+            setValue(name, [...currentValue, uploadedFiles[0].path]);
           } else {
-            setValue(name, uploadedFiles[0].path);
+            setValue(name, [...currentValue, uploadedFiles]);
           }
 
           toast.success(
@@ -217,9 +211,9 @@ export default function UploadZone({
               {uploadedFiles.length} file(s) uploaded successfully
             </Text>
           );
-          
+
           // Force re-render
-          setForceUpdate(prev => prev + 1);
+          setForceUpdate((prev) => prev + 1);
         }
       } else {
         // Single file upload
@@ -235,7 +229,7 @@ export default function UploadZone({
         if (response.data?.data) {
           const uploadedFile: UploadedFile = {
             path: response.data.data.path,
-            url: getCdnUrl(response.data.data.path), 
+            url: getCdnUrl(response.data.data.path),
             size: response.data.data.size,
             mimetype: response.data.data.mimetype,
             originalName: response.data.data.originalName,
@@ -252,7 +246,7 @@ export default function UploadZone({
           if (typeof initialValue === "string") {
             setValue(name, uploadedFile.path);
           } else {
-            setValue(name, [uploadedFile.path]);
+            setValue(name, [...currentValue, uploadedFile]);
           }
 
           toast.success(
@@ -260,9 +254,9 @@ export default function UploadZone({
               File uploaded successfully
             </Text>
           );
-          
+
           // Force re-render
-          setForceUpdate(prev => prev + 1);
+          setForceUpdate((prev) => prev + 1);
         }
       }
     } catch (error) {
@@ -276,29 +270,29 @@ export default function UploadZone({
 
   // Parse accept prop for react-dropzone
   const getAcceptConfig = (): Record<string, string[]> | undefined => {
-    if (!accept || accept === '*/*') return undefined;
-    
-    if (accept === 'image/*') {
-      return { 'image/*': ['.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg', '.bmp', '.ico'] };
+    if (!accept || accept === "*/*") return undefined;
+
+    if (accept === "image/*") {
+      return { "image/*": [".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg", ".bmp", ".ico"] };
     }
-    
-    if (accept === 'video/*') {
-      return { 'video/*': ['.mp4', '.webm', '.ogg', '.mov', '.avi'] };
+
+    if (accept === "video/*") {
+      return { "video/*": [".mp4", ".webm", ".ogg", ".mov", ".avi"] };
     }
-    
-    if (accept === 'audio/*') {
-      return { 'audio/*': ['.mp3', '.wav', '.ogg', '.m4a'] };
+
+    if (accept === "audio/*") {
+      return { "audio/*": [".mp3", ".wav", ".ogg", ".m4a"] };
     }
-    
-    if (accept === 'application/pdf') {
-      return { 'application/pdf': ['.pdf'] };
+
+    if (accept === "application/pdf") {
+      return { "application/pdf": [".pdf"] };
     }
-    
+
     // For custom MIME types, create proper config
-    if (accept.includes('/')) {
+    if (accept.includes("/")) {
       return { [accept]: [] };
     }
-    
+
     return undefined;
   };
 
@@ -416,16 +410,12 @@ function UploadButtons({
 
 function MediaPreview({ name, url }: { name: string; url: string }) {
   // Use blob URLs as-is (for local previews), otherwise construct CDN URL
-  const isBlob = url.startsWith('blob:');
+  const isBlob = url.startsWith("blob:");
   const fullUrl = isBlob ? url : getCdnUrl(url);
-  
+
   // Use regular img for blob URLs, Next Image for CDN URLs
   return isBlob ? (
-    <img 
-      src={fullUrl} 
-      alt={name} 
-      className="h-full w-full transform rounded-md object-contain" 
-    />
+    <img src={fullUrl} alt={name} className="h-full w-full transform rounded-md object-contain" />
   ) : (
     <Image fill src={fullUrl} alt={name} className="transform rounded-md object-contain" />
   );

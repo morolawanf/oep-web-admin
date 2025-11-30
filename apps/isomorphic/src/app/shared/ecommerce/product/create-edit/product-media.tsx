@@ -8,8 +8,12 @@ interface ProductMediaProps {
 }
 
 export default function ProductMedia({ className }: ProductMediaProps) {
-  const { control, getValues, setValue, formState: { errors } } = useFormContext();
-
+  const {
+    control,
+    getValues,
+    setValue,
+    formState: { errors },
+  } = useFormContext();
   return (
     <VerticalFormBlockWrapper
       title="Upload Product Images"

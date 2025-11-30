@@ -16,7 +16,6 @@ import toast from 'react-hot-toast';
 import { CreateProductInput } from '@/validators/product-schema';
 import { Product } from '@/hooks/queries/useProducts';
 import CreateEditProduct from '@/app/shared/ecommerce/product/create-edit';
-import { useQueryClient } from '@tanstack/react-query';
 
 interface UpdateProductProps {
   product: Product;
@@ -27,11 +26,8 @@ export default function UpdateProduct({ product }: UpdateProductProps) {
   const [apiErrors, setApiErrors] = useState<BackendValidationError[] | null>(
     null
   );
-  const queryClient = useQueryClient();
-
   const updateProduct = useUpdateProduct({
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['products', 'enhanced'] });
       toast.success('Product updated successfully');
       router.push(routes.eCommerce.products);
     },

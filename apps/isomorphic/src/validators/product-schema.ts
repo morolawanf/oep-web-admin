@@ -16,13 +16,16 @@ const pricingTierSchema = z
     value: z.number().min(0, 'Value must be non-negative'),
   })
   .refine((data) => !data.maxQty || data.maxQty >= data.minQty, {
-    message: 'Maximum quantity must be greater than or equal to minimum quantity',
+    message:
+      'Maximum quantity must be greater than or equal to minimum quantity',
     path: ['maxQty'],
   });
 
 // Pack size schema for bulk/wholesale products
 const packSizeSchema = z.object({
-  label: z.string().min(1, 'Pack label is required (e.g., "Single", "Bag of 10")'),
+  label: z
+    .string()
+    .min(1, 'Pack label is required (e.g., "Single", "Bag of 10")'),
   quantity: z.number().int().min(1, 'Quantity must be at least 1'),
   price: optionalNumber(),
   stock: optionalNumber(true),
@@ -63,7 +66,14 @@ const baseProductSchema = z.object({
   dimension: z
     .array(
       z.object({
-        key: z.enum(['length', 'breadth', 'height', 'volume', 'width', 'weight']),
+        key: z.enum([
+          'length',
+          'breadth',
+          'height',
+          'volume',
+          'width',
+          'weight',
+        ]),
         value: z.string().min(1, 'Dimension value is required'),
       })
     )
@@ -113,7 +123,7 @@ export const productSchema = baseProductSchema.refine(
   }
 );
 
-export type CreateProductInput = z.infer<typeof productSchema>;
+export type CreateProductInput = z.input<typeof productSchema>;
 
 export const updateProductSchema = baseProductSchema.partial().extend({
   sku: z.number().int().min(1, 'SKU is required').optional(),

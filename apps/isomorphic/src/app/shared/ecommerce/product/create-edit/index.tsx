@@ -109,11 +109,11 @@ export default function CreateEditProduct({
     defaultValues: defaultValues(product),
   });
 
-  useEffect(()=> {
+  useEffect(() => {
     if (product) {
       methods.reset(defaultValues(product));
     }
-  },[product, methods]);
+  }, [product, methods]);
 
   const handleSubmit: SubmitHandler<CreateProductInput> = (data) => {
     onSubmit(data);

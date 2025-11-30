@@ -30,7 +30,7 @@ export default function ProductImageManager({
   error,
   className,
   setValue,
-  getValues
+  getValues,
 }: ProductImageManagerProps) {
   const [displayImages, setDisplayImages] = useState<ProductImage[]>(images);
 
@@ -63,8 +63,8 @@ export default function ProductImageManager({
       {displayImages.length > 0 && (
         <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
           {displayImages.map((image, index) => (
-            <div 
-              key={index} 
+            <div
+              key={index}
               className="group relative aspect-square overflow-hidden rounded-lg border border-gray-300"
             >
               <Image
@@ -100,7 +100,11 @@ export default function ProductImageManager({
           getValues={getValues}
           setValue={setValue}
           multiple={true}
-          label={displayImages.length > 0 ? 'Add More Images' : 'Upload Product Images'}
+          label={
+            displayImages.length > 0
+              ? 'Add More Images'
+              : 'Upload Product Images'
+          }
         />
       </div>
 

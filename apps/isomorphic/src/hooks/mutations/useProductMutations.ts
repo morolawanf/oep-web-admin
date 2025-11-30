@@ -1,6 +1,10 @@
 'use client';
 
-import { useMutation, useQueryClient, UseMutationOptions } from '@tanstack/react-query';
+import {
+  useMutation,
+  useQueryClient,
+  UseMutationOptions,
+} from '@tanstack/react-query';
 import { apiClient, handleApiError } from '@/libs/axios';
 import api from '@/libs/endpoints';
 import toast from 'react-hot-toast';
@@ -15,7 +19,10 @@ type MutationContext = {
  * Create Product Mutation
  */
 export const useCreateProduct = (
-  options?: Omit<UseMutationOptions<Product, Error, any, MutationContext>, 'mutationFn'>
+  options?: Omit<
+    UseMutationOptions<Product, Error, any, MutationContext>,
+    'mutationFn'
+  >
 ) => {
   const queryClient = useQueryClient();
 
@@ -44,35 +51,54 @@ export const useCreateProduct = (
  * Update Product Mutation
  */
 export const useUpdateProduct = (
-  options?: Omit<UseMutationOptions<Product, Error, { id: string; data: any }, MutationContext>, 'mutationFn'>
+  options?: Omit<
+    UseMutationOptions<
+      Product,
+      Error,
+      { id: string; data: any },
+      MutationContext
+    >,
+    'mutationFn'
+  >
 ) => {
   const queryClient = useQueryClient();
 
-  return useMutation<Product, Error, { id: string; data: any }, MutationContext>({
+  return useMutation<
+    Product,
+    Error,
+    { id: string; data: any },
+    MutationContext
+  >({
     mutationFn: async ({ id, data }) => {
-      const response = await apiClient.patch<Product>(api.products.update(id), data);
+      const response = await apiClient.patch<Product>(
+        api.products.update(id),
+        data
+      );
       if (!response.data) throw new Error('No data returned');
       return response.data;
     },
     onMutate: async ({ id, data }) => {
       // Optimistic update
       await queryClient.cancelQueries({ queryKey: ['products'] });
-      const previousProducts = queryClient.getQueryData<{ data: Product[] }>(['products']);
-      
+      const previousProducts = queryClient.getQueryData<{ data: Product[] }>([
+        'products',
+      ]);
+
       if (previousProducts) {
         queryClient.setQueryData<{ data: Product[] }>(['products'], (old) => {
           if (!old) return old;
           return {
             ...old,
-            data: old.data.map(p => p._id === id ? { ...p, ...data } : p)
+            data: old.data.map((p) => (p._id === id ? { ...p, ...data } : p)),
           };
         });
       }
-      
+
       return { previousProducts: previousProducts?.data };
     },
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['products', 'enhanced'] });
       queryClient.invalidateQueries({ queryKey: ['product', variables.id] });
       toast.success('Product updated successfully');
       options?.onSuccess?.(data, variables, context);
@@ -80,7 +106,9 @@ export const useUpdateProduct = (
     onError: (error, variables, context) => {
       // Rollback on error
       if (context?.previousProducts) {
-        queryClient.setQueryData(['products'], { data: context.previousProducts });
+        queryClient.setQueryData(['products'], {
+          data: context.previousProducts,
+        });
       }
       const errorMessage = handleApiError(error);
       toast.error(errorMessage);
@@ -95,7 +123,10 @@ export const useUpdateProduct = (
  * Delete Product Mutation
  */
 export const useDeleteProduct = (
-  options?: Omit<UseMutationOptions<void, Error, string, MutationContext>, 'mutationFn'>
+  options?: Omit<
+    UseMutationOptions<void, Error, string, MutationContext>,
+    'mutationFn'
+  >
 ) => {
   const queryClient = useQueryClient();
 
@@ -106,18 +137,20 @@ export const useDeleteProduct = (
     onMutate: async (id) => {
       // Optimistic delete
       await queryClient.cancelQueries({ queryKey: ['products'] });
-      const previousProducts = queryClient.getQueryData<{ data: Product[] }>(['products']);
-      
+      const previousProducts = queryClient.getQueryData<{ data: Product[] }>([
+        'products',
+      ]);
+
       if (previousProducts) {
         queryClient.setQueryData<{ data: Product[] }>(['products'], (old) => {
           if (!old) return old;
           return {
             ...old,
-            data: old.data.filter(p => p._id !== id)
+            data: old.data.filter((p) => p._id !== id),
           };
         });
       }
-      
+
       return { previousProducts: previousProducts?.data };
     },
     onSuccess: (data, variables, context) => {
@@ -128,7 +161,9 @@ export const useDeleteProduct = (
     onError: (error, variables, context) => {
       // Rollback on error
       if (context?.previousProducts) {
-        queryClient.setQueryData(['products'], { data: context.previousProducts });
+        queryClient.setQueryData(['products'], {
+          data: context.previousProducts,
+        });
       }
       const errorMessage = handleApiError(error);
       toast.error(errorMessage);
@@ -143,13 +178,18 @@ export const useDeleteProduct = (
  * Duplicate Product Mutation
  */
 export const useDuplicateProduct = (
-  options?: Omit<UseMutationOptions<Product, Error, string, MutationContext>, 'mutationFn'>
+  options?: Omit<
+    UseMutationOptions<Product, Error, string, MutationContext>,
+    'mutationFn'
+  >
 ) => {
   const queryClient = useQueryClient();
 
   return useMutation<Product, Error, string, MutationContext>({
     mutationFn: async (id: string) => {
-      const response = await apiClient.post<Product>(api.products.duplicate(id));
+      const response = await apiClient.post<Product>(
+        api.products.duplicate(id)
+      );
       if (!response.data) throw new Error('No data returned');
       return response.data;
     },
@@ -172,13 +212,29 @@ export const useDuplicateProduct = (
  * Update Cover Image Mutation
  */
 export const useUpdateCoverImage = (
-  options?: Omit<UseMutationOptions<Product, Error, { id: string; imageId: string }, MutationContext>, 'mutationFn'>
+  options?: Omit<
+    UseMutationOptions<
+      Product,
+      Error,
+      { id: string; imageId: string },
+      MutationContext
+    >,
+    'mutationFn'
+  >
 ) => {
   const queryClient = useQueryClient();
 
-  return useMutation<Product, Error, { id: string; imageId: string }, MutationContext>({
+  return useMutation<
+    Product,
+    Error,
+    { id: string; imageId: string },
+    MutationContext
+  >({
     mutationFn: async ({ id, imageId }) => {
-      const response = await apiClient.patch<Product>(api.products.updateCoverImage(id), { imageId });
+      const response = await apiClient.patch<Product>(
+        api.products.updateCoverImage(id),
+        { imageId }
+      );
       if (!response.data) throw new Error('No data returned');
       return response.data;
     },
@@ -202,13 +258,28 @@ export const useUpdateCoverImage = (
  * Add Tags Mutation
  */
 export const useAddTags = (
-  options?: Omit<UseMutationOptions<Product, Error, { id: string; tags: string[] }, MutationContext>, 'mutationFn'>
+  options?: Omit<
+    UseMutationOptions<
+      Product,
+      Error,
+      { id: string; tags: string[] },
+      MutationContext
+    >,
+    'mutationFn'
+  >
 ) => {
   const queryClient = useQueryClient();
 
-  return useMutation<Product, Error, { id: string; tags: string[] }, MutationContext>({
+  return useMutation<
+    Product,
+    Error,
+    { id: string; tags: string[] },
+    MutationContext
+  >({
     mutationFn: async ({ id, tags }) => {
-      const response = await apiClient.post<Product>(api.products.addTags(id), { tags });
+      const response = await apiClient.post<Product>(api.products.addTags(id), {
+        tags,
+      });
       if (!response.data) throw new Error('No data returned');
       return response.data;
     },
@@ -232,13 +303,28 @@ export const useAddTags = (
  * Remove Tag Mutation
  */
 export const useRemoveTag = (
-  options?: Omit<UseMutationOptions<Product, Error, { id: string; tag: string }, MutationContext>, 'mutationFn'>
+  options?: Omit<
+    UseMutationOptions<
+      Product,
+      Error,
+      { id: string; tag: string },
+      MutationContext
+    >,
+    'mutationFn'
+  >
 ) => {
   const queryClient = useQueryClient();
 
-  return useMutation<Product, Error, { id: string; tag: string }, MutationContext>({
+  return useMutation<
+    Product,
+    Error,
+    { id: string; tag: string },
+    MutationContext
+  >({
     mutationFn: async ({ id, tag }) => {
-      const response = await apiClient.delete<Product>(api.products.removeTag(id, tag));
+      const response = await apiClient.delete<Product>(
+        api.products.removeTag(id, tag)
+      );
       if (!response.data) throw new Error('No data returned');
       return response.data;
     },
