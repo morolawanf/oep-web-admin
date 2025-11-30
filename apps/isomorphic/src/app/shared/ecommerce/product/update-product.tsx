@@ -3,13 +3,20 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { routes } from '@/config/routes';
-import { useUpdateProduct, useDeleteProduct } from '@/hooks/mutations/useProductMutations';
-import { extractBackendErrors, BackendValidationError } from '@/libs/form-errors';
+import {
+  useUpdateProduct,
+  useDeleteProduct,
+} from '@/hooks/mutations/useProductMutations';
+import {
+  extractBackendErrors,
+  BackendValidationError,
+} from '@/libs/form-errors';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { CreateProductInput } from '@/validators/product-schema';
 import { Product } from '@/hooks/queries/useProducts';
 import CreateEditProduct from '@/app/shared/ecommerce/product/create-edit';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface UpdateProductProps {
   product: Product;
@@ -17,10 +24,14 @@ interface UpdateProductProps {
 
 export default function UpdateProduct({ product }: UpdateProductProps) {
   const router = useRouter();
-  const [apiErrors, setApiErrors] = useState<BackendValidationError[] | null>(null);
+  const [apiErrors, setApiErrors] = useState<BackendValidationError[] | null>(
+    null
+  );
+  const queryClient = useQueryClient();
 
   const updateProduct = useUpdateProduct({
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['products', 'enhanced'] });
       toast.success('Product updated successfully');
       router.push(routes.eCommerce.products);
     },
@@ -45,9 +56,10 @@ export default function UpdateProduct({ product }: UpdateProductProps) {
       router.push(routes.eCommerce.productDetails(product._id));
     },
     onError: (error) => {
-      const errorMessage = axios.isAxiosError(error) && error.response?.data?.message
-        ? error.response.data.message
-        : 'Failed to delete product';
+      const errorMessage =
+        axios.isAxiosError(error) && error.response?.data?.message
+          ? error.response.data.message
+          : 'Failed to delete product';
       toast.error(errorMessage);
     },
   });
