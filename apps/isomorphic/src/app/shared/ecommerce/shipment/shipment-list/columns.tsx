@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { ActionIcon, Badge, Flex, Text, Tooltip } from 'rizzui';
 import { PiEyeDuotone, PiPencilDuotone } from 'react-icons/pi';
 import{STATUS_BADGE_CONFIG, type  Shipment, type ShipmentStatus } from '@/types/shipment.types';
+import { formatToNaira } from '@/libs/currencyFormatter';
 
 const columnHelper = createColumnHelper<Shipment>();
 
@@ -67,7 +68,7 @@ export const shipmentsListColumns = [
     id: 'cost',
     header: 'Cost',
     cell: ({ row }) => (
-      <Text className="font-medium text-gray-900">₦{Number(row.original.cost).toFixed(2)}</Text>
+      <Text className="font-medium text-gray-900">{formatToNaira(Number(row.original.cost))}</Text>
     ),
     size: 120,
   }),

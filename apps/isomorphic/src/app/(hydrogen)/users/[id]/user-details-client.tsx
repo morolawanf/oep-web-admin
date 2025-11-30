@@ -11,6 +11,7 @@ import UserOrdersTab from './tabs/user-orders-tab';
 import UserReviewsTab from './tabs/user-reviews-tab';
 import UserWishlistTab from './tabs/user-wishlist-tab';
 import type { UserRole } from '@/types/user';
+import { formatToNaira } from '@/libs/currencyFormatter';
 
 const tabs = [
   { id: 'overview', label: 'Overview', icon: PiUserCircle },
@@ -128,7 +129,7 @@ export default function UserDetailsClient({ userId }: UserDetailsClientProps) {
           <div className="rounded-md bg-gray-50 p-4">
             <Text className="text-sm text-gray-600">Total Spent</Text>
             <Title as="h3" className="mt-1 text-2xl font-semibold">
-              ${totalSpent.toFixed(2)}
+              {formatToNaira(totalSpent)}
             </Title>
           </div>
           <div className="rounded-md bg-gray-50 p-4">

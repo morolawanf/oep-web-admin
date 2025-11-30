@@ -21,13 +21,13 @@ export default function ShippingInfo({ className }: { className?: string }) {
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <Input
             type="number"
-            label="Added Cost ($)"
+            label="Added Cost (&#8358;)"
             placeholder="0.00"
             step="0.01"
             min="0"
             {...register('shipping.addedCost', { valueAsNumber: true })}
             error={(errors.shipping as any)?.addedCost?.message}
-            prefix="$"
+            prefix="₦"
           />
           <Input
             type="number"

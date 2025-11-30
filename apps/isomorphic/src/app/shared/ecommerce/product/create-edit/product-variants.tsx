@@ -8,6 +8,7 @@ import TrashIcon from '@core/components/icons/trash';
 import { PiPlusBold } from 'react-icons/pi';
 import { useState } from 'react';
 import VerticalFormBlockWrapper from '@/app/shared/VerticalFormBlockWrapper';
+import { formatToNaira } from '@/libs/currencyFormatter';
 
 // Hardcoded attribute templates
 const ATTRIBUTE_TEMPLATES = {
@@ -435,7 +436,7 @@ function PricingTiers({
           Base price:{' '}
           {isNaN(basePrice) || !basePrice
             ? 'Not set'
-            : `$${basePrice.toFixed(2)}`}
+            : `${formatToNaira(basePrice)}`}
         </span>
       </div>
 
@@ -614,7 +615,7 @@ function TierCalculatedPrice({
 
   return (
     <div className="pt-2 text-xs font-medium text-green-600">
-      ${calculatedPrice.toFixed(2)}
+      {formatToNaira(calculatedPrice)}
     </div>
   );
 }

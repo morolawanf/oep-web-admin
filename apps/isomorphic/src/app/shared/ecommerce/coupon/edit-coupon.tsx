@@ -215,8 +215,8 @@ export default function EditCoupon({ id }: { id: string }) {
                   render={({ field }) => (
                     <div className="flex-1">
                       <FormLabelWithTooltip
-                        label={`Discount Amount${discountType === 'percentage' ? ' (%)' : ' ($)'}`}
-                        tooltip="The discount value. For percentage: 0.01-100%. For fixed: minimum $0.01."
+                        label={`Discount Amount${discountType === 'percentage' ? ' (%)' : ' (₦)'}`}
+                        tooltip="The discount value. For percentage: 0.01-100%. For fixed: minimum ₦0.01."
                         required
                         placement="right-start"
                       />
@@ -346,7 +346,7 @@ export default function EditCoupon({ id }: { id: string }) {
                 render={({ field }) => (
                   <div>
                     <FormLabelWithTooltip
-                      label="Minimum Order Value ($)"
+                      label="Minimum Order Value (&#8358;)"
                       tooltip="The minimum cart subtotal required to use this coupon. Set to 0 for no minimum."
                       placement="right-start"
                     />

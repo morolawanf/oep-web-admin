@@ -17,6 +17,7 @@ import AddTrackingModal from './add-tracking-modal';
 import DeletePopover from '@core/components/delete-popover';
 import Link from 'next/link';
 import EyeIcon from '@core/components/icons/eye';
+import { formatToNaira } from '@/libs/currencyFormatter';
 
 interface ShipmentDetailsProps {
   shipmentId: string;
@@ -122,7 +123,7 @@ export default function ShipmentDetails({ shipmentId }: ShipmentDetailsProps) {
             </div>
             <div>
               <Text className="text-sm text-gray-600">Shipping Cost</Text>
-              <Text className="font-medium">${shipment.cost.toFixed(2)}</Text>
+              <Text className="font-medium">{formatToNaira(shipment.cost)}</Text>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>

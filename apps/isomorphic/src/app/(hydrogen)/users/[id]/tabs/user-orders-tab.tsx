@@ -5,6 +5,7 @@ import DateCell from '@core/ui/date-cell';
 import Link from 'next/link';
 import { routes } from '@/config/routes';
 import type { Order } from '@/types/user';
+import { formatToNaira } from '@/libs/currencyFormatter';
 
 interface UserOrdersTabProps {
   orders: Order[];
@@ -59,7 +60,7 @@ export default function UserOrdersTab({
                   <Badge color={getStatusBadgeColor(order.status)} className="capitalize">
                     {order.status}
                   </Badge>
-                  <Text className="mt-1 font-semibold">${order.total.toFixed(2)}</Text>
+                  <Text className="mt-1 font-semibold">{formatToNaira(order.total)}</Text>
                 </div>
               </div>
             </Link>
