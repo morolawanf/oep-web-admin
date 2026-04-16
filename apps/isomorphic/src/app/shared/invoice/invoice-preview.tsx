@@ -160,7 +160,7 @@ export default function InvoicePreview({
             className="h-auto w-[100px] dark:invert"
             priority
           /> */}
-          <h1 className="font-bold">Olu Executive Plastics 'n Essentials</h1>
+          <h1 className="text-xl font-extrabold tracking-wide">{`Olu Executive Plastics 'n Essentials`}</h1>
           <div className="mb-4 md:mb-0">
             <Badge
               variant="flat"
@@ -187,7 +187,7 @@ export default function InvoicePreview({
             <Text className="mb-1.5">
               No 1, Abule ojo busstop <br /> Lagos
             </Text>
-            <Text className="mb-4 sm:mb-6 md:mb-8">(802) 829-9167</Text>
+            <Text className="mb-4 sm:mb-6 md:mb-8">{`+2348028299167`}</Text>
             <div>
               <Text className="mb-2 text-sm font-semibold">Creation Date</Text>
               <Text>
