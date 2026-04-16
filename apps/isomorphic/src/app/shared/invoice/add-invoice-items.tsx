@@ -149,7 +149,7 @@ export function AddInvoiceItems({ watch, register, control, errors }: any) {
                   <Input
                     label="Price"
                     type="number"
-                    prefix={'$'}
+                    prefix={'₦'}
                     placeholder="100"
                     {...register(`items.${index}.price`)}
                     defaultValue={field.price}
@@ -202,7 +202,7 @@ export function AddInvoiceItems({ watch, register, control, errors }: any) {
               <Input
                 type="number"
                 label="Shipping"
-                prefix={'$'}
+                prefix={'₦'}
                 placeholder="10"
                 {...register('shipping')}
                 error={errors.shipping?.message}
@@ -210,7 +210,7 @@ export function AddInvoiceItems({ watch, register, control, errors }: any) {
               <Input
                 type="number"
                 label="Discount"
-                prefix={'$'}
+                prefix={'₦'}
                 placeholder="50"
                 {...register('discount')}
                 error={errors.discount?.message}
